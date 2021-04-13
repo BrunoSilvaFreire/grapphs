@@ -16,23 +16,13 @@ project(grapphs)
 set(CMAKE_CXX_STANDARD 17)
 
 add_library(
-        grapphs INTERFACE)
+        grapphs INTERFACE
+)
 
-add_executable(
-        grapphs_tests
-        tests/tests.cpp
-)
-target_link_libraries(
-        grapphs_tests
-        grapphs
-        GTest::GTest
-)
 conan_cmake_configure(
         REQUIRES gtest/1.10.0
         GENERATORS cmake_find_package
 )
-#conan_cmake_autodetect(settings)
-message(${CMAKE_BUILD_TYPE})
 conan_cmake_autodetect(settings BUILD_TYPE ${CMAKE_BUILD_TYPE})
 conan_cmake_install(PATH_OR_REFERENCE .
         BUILD missing
@@ -58,3 +48,15 @@ target_include_directories(
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include>
 )
+option(GRAPPHS_COMPILE_TESTS "Create Unit Test executable?" ON)
+if (GRAPPHS_COMPILE_TESTS)
+    add_executable(
+            grapphs_tests
+            tests/tests.cpp
+    )
+    target_link_libraries(
+            grapphs_tests
+            grapphs
+            GTest::GTest
+    )
+endif ()

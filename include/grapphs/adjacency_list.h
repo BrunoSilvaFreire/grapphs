@@ -8,7 +8,7 @@
 
 namespace gpp {
     template<typename V, typename E, typename GraphIndex = DefaultGraphIndex>
-    class AdjacencyList : public Graph<V, E, AdjacencyList<V, E, GraphIndex>, GraphIndex> {
+    class AdjacencyList : public Graph<V, E, GraphIndex> {
     public:
         AdjacencyList() = default;
 
@@ -21,11 +21,11 @@ namespace gpp {
         public:
             Node() : map(0), vertex() {}
 
-            explicit Node(const V &data) : vertex(std::move(vertex)) {
+            explicit Node(const V &data) : vertex(std::move(data)) {
 
             }
 
-            std::unordered_map<GraphIndex, E> &connections() {
+            const std::unordered_map<GraphIndex, E> &connections() const {
                 return map;
             }
 
@@ -43,27 +43,6 @@ namespace gpp {
 
             void connect(GraphIndex index, const E &edgeData) {
                 map.emplace(index, std::move(edgeData));
-            }
-        };
-
-        class EdgeView {
-        public:
-            typedef typename std::unordered_map<GraphIndex, E>::iterator Iterator;
-        private:
-            Node *node;
-        public:
-            EdgeView(
-                    AdjacencyList<V, E, GraphIndex> *graph,
-                    GraphIndex index
-            ) : node(&graph->node(index)) {
-            }
-
-            Iterator begin() {
-                return node->connections().begin();
-            }
-
-            Iterator end() {
-                return node->connections().end();
             }
         };
 
@@ -88,6 +67,10 @@ namespace gpp {
             return nodes[index];
         }
 
+        const Node &node(GraphIndex index) const {
+            return nodes[index];
+        }
+
         E *edge(GraphIndex from, GraphIndex to) override {
             return node(from).edge(to);
         }
@@ -104,8 +87,13 @@ namespace gpp {
             nodes.resize(numVertices);
         }
 
-        EdgeView edges_from(GraphIndex index) const {
-            return EdgeView(this, index);
+        std::vector<std::pair<const GraphIndex, E>> edges_from(GraphIndex index) const override {
+            const Node &pNode = node(index);
+            std::vector<std::pair<const GraphIndex, E>> result;
+            for (const std::pair<const GraphIndex, E> &item :pNode.connections()) {
+                result.push_back(item);
+            }
+            return result;
         }
     };
 }

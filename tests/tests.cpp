@@ -1,8 +1,9 @@
 #include <grapphs/adjacency_list.h>
 #include <grapphs/adjacency_matrix.h>
 #include <grapphs/astar.h>
-#include <grapphs/static_adjacency_matrix.h>
 #include <gtest/gtest.h>
+#include <chrono>
+
 #include <random>
 
 enum MyFlags {
@@ -63,7 +64,14 @@ void populate(TestGraph &graph) {
 }
 
 struct Position {
+
     float x, y;
+
+    float distance(const Position &other) const {
+        float diffX = (other.x - x);
+        float diffY = (other.y - y);
+        return std::sqrt(diffX * diffX + diffY * diffY);
+    }
 };
 
 
@@ -82,17 +90,66 @@ TEST(grapphs, graphCopies) {
 }
 
 
+#define ASTAR_RADIUS 20
+#define INDEXOF(x, y)  x + (y) * ASTAR_RADIUS
 TEST(grapphs, astar_performance) {
-    gpp::StaticAdjacencyMatrix<Position, bool, 4> graph;
-    Position vert;
-    vert.x = 0;
-    vert.y = 0;
-    *graph.vertex(0) = vert;
+    gpp::AdjacencyList<Position, MyEdge> graph;
+    for (int x = 0; x < ASTAR_RADIUS; ++x) {
+        for (int y = 0; y < ASTAR_RADIUS; ++y) {
+            Position pos;
+            pos.x = x;
+            pos.y = y;
+            graph.push(pos);
+        }
+    }
+    MyEdge prototype;
+    prototype.weight = 1;
+    for (int x = 0; x < ASTAR_RADIUS; ++x) {
+        for (int y = 0; y < ASTAR_RADIUS; ++y) {
+            uint32_t index = INDEXOF(x, y);
+            if (x != 0) {
+                graph.connect(index, INDEXOF(x - 1, y), prototype);
+            }
+            if (y != 0) {
+                graph.connect(index, INDEXOF(x, y - 1), prototype);
+            }
+            if (x != ASTAR_RADIUS - 1) {
+                graph.connect(index, INDEXOF(x + 1, y), prototype);
+            }
+            if (y != ASTAR_RADIUS - 1) {
+                graph.connect(index, INDEXOF(x, y + 1), prototype);
+            }
+        }
+    }
 
-    gpp::astar<
-            gpp::StaticAdjacencyMatrix<Position, bool, 4>,
-            Position, bool
-    >(graph, 0, 3, [](gpp::DefaultGraphIndex from, gpp::DefaultGraphIndex to) -> float {
-        return 0.0F;
-    });
+    gpp::GraphPath<gpp::AdjacencyList<Position, MyEdge>> path;
+#define RUN_COUNT 10000
+    double meanTime = 0;
+    const float frameTime = 1.0F / 60.0F;
+    for (int i = 0; i < RUN_COUNT; ++i) {
+        auto begin = std::chrono::high_resolution_clock::now();
+        path = gpp::astar<gpp::AdjacencyList<Position, MyEdge>>(
+                graph,
+                0,
+                (ASTAR_RADIUS * ASTAR_RADIUS) - 1,
+                [&](gpp::DefaultGraphIndex from, gpp::DefaultGraphIndex to) -> float {
+                    Position *fromPos = graph.vertex(from);
+                    Position *toPos = graph.vertex(to);
+                    return fromPos->distance(*toPos);
+                },
+                [](gpp::DefaultGraphIndex from, gpp::DefaultGraphIndex to, const MyEdge &e) -> float {
+                    return e.weight;
+                }
+        );
+        auto end = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> time = end - begin;
+
+        meanTime += time.count();
+    }
+    meanTime /= RUN_COUNT;
+    std::cout << "AStar for " << ASTAR_RADIUS << " radius took " << meanTime << "s on average (limit: " << frameTime << "s, "
+              << RUN_COUNT << " runs)"
+              << std::endl;
+    ASSERT_LT(meanTime, frameTime);
+
 }
