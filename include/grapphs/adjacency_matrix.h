@@ -6,6 +6,7 @@
 #define GRAPPHS_ADJACENCY_MATRIX_H
 
 #include <grapphs/graph.h>
+#include <stdexcept>
 
 namespace gpp {
     template<typename V, typename E, typename GraphIndex = DefaultGraphIndex>
@@ -57,6 +58,10 @@ namespace gpp {
 
         void connect(GraphIndex from, GraphIndex to, E edge) override {
             edges[index(from, to)] = edge;
+        }
+
+        std::vector<std::pair<const GraphIndex, E>> edges_from(GraphIndex vertex) const override {
+            throw std::runtime_error("Not implemented yet");
         }
     };
 

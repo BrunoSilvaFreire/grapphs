@@ -11,11 +11,14 @@ namespace gpp {
     template<
             typename V,
             typename E,
-            typename Derived,
             typename GraphIndex = DefaultGraphIndex
     >
     class Graph {
     public:
+        typedef V VertexType;
+        typedef E EdgeType;
+        typedef GraphIndex IndexType;
+
         virtual V *vertex(GraphIndex index) = 0;
 
         virtual E *edge(GraphIndex from, GraphIndex to) = 0;
@@ -41,7 +44,8 @@ namespace gpp {
         }
 
 
-        typename Derived::EdgeView edges_from(GraphIndex vertex) = 0;
+        // TODO: return an iterable instead of a newly allocated vector
+        virtual std::vector<std::pair<const GraphIndex, E>> edges_from(GraphIndex vertex) const = 0;
     };
 
 
