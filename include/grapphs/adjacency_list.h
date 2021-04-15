@@ -59,6 +59,18 @@ namespace gpp {
             return static_cast<GraphIndex>(index);
         }
 
+        GraphIndex push(const V& vertex){
+            size_t index = nodes.size();
+            nodes.emplace_back(vertex);
+            return static_cast<GraphIndex>(index);
+        }
+
+        GraphIndex push(V&& vertex){
+            size_t index = nodes.size();
+            nodes.emplace_back(std::move(vertex));
+            return static_cast<GraphIndex>(index);
+        }
+
         V *vertex(GraphIndex index) override {
             return &node(index).data();
         }
