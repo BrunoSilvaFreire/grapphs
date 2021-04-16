@@ -34,7 +34,7 @@ namespace gpp {
             }
 
             E *edge(GraphIndex to) {
-                ConnectionMap::iterator found = map.find(to);
+                typename ConnectionMap::iterator found = map.find(to);
                 if (found == map.end()) {
                     return nullptr;
                 }
@@ -53,9 +53,15 @@ namespace gpp {
             return nodes.size();
         }
 
-        GraphIndex push(V &vertex) {
+        GraphIndex push(const V& vertex){
             size_t index = nodes.size();
             nodes.emplace_back(vertex);
+            return static_cast<GraphIndex>(index);
+        }
+
+        GraphIndex push(V&& vertex){
+            size_t index = nodes.size();
+            nodes.emplace_back(std::move(vertex));
             return static_cast<GraphIndex>(index);
         }
 
