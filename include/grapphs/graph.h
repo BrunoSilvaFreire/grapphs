@@ -43,6 +43,37 @@ namespace gpp {
             return ptr != nullptr;
         }
 
+        class GraphIterator : public std::iterator<std::input_iterator_tag, GraphIndex> {
+        public:
+
+            bool operator==(const GraphIterator& rhs) const { return i == rhs.i; }
+
+            bool operator!=(const GraphIterator& rhs) const { return i != rhs.i; }
+
+            V& operator*() {
+                return owner->vertex(i);
+            }
+
+            GraphIterator& operator++() {
+                i++;
+                return *this;
+            }
+
+        protected:
+            GraphIterator(Graph<V, E>* owner, GraphIndex i) : owner(owner), i(i) {}
+
+        protected:
+            Graph<V, E>* owner;
+            GraphIndex i;
+        };
+
+
+        GraphIterator begin() { return GraphIterator(this, 0); }
+        GraphIterator end() { return GraphIterator(this, size()); }
+
+        GraphIterator begin() const { return GraphIterator(this, 0); }
+        GraphIterator end() const { return GraphIterator(this, size()); }
+
 
         // TODO: return an iterable instead of a newly allocated vector
         virtual std::vector<std::pair<const GraphIndex, E>> edges_from(GraphIndex vertex) const = 0;
