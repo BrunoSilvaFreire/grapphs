@@ -8,77 +8,84 @@
 namespace gpp {
     typedef size_t DefaultGraphIndex;
 
-    template<
-            typename V,
-            typename E,
-            typename GraphIndex = DefaultGraphIndex
-    >
+    template<typename I>
+    struct GraphTraits;
+
+    template<typename Implementation>
     class Graph {
     public:
-        typedef V VertexType;
-        typedef E EdgeType;
-        typedef GraphIndex IndexType;
+        typedef typename GraphTraits<Implementation>::VertexType VertexType;
+        typedef typename GraphTraits<Implementation>::EdgeType EdgeType;
+        typedef typename GraphTraits<Implementation>::IndexType IndexType;
 
-        virtual V *vertex(GraphIndex index) = 0;
+        inline Implementation* derived_ptr() { return static_cast<Implementation*>(this); }
 
-        virtual E *edge(GraphIndex from, GraphIndex to) = 0;
+        IndexType size() {
+            return GraphTraits<Implementation>::call_size(derived_ptr());
+        }
 
-        virtual GraphIndex size() = 0;
+        VertexType* vertex(IndexType index) {
+            return GraphTraits<Implementation>::call_vertex(derived_ptr(), index);
+        }
 
-        virtual void connect(GraphIndex from, GraphIndex to, E edge) = 0;
+        EdgeType* edge(IndexType from, IndexType to) {
+            return GraphTraits<Implementation>::call_edge(derived_ptr(), from, to);
+        }
 
-        bool try_get_vertex(GraphIndex index, V &output) {
-            V *ptr = vertex(index);
+        void connect(IndexType from, IndexType to, EdgeType edge) {
+            GraphTraits<Implementation>::call_connect(derived_ptr(), from, to, edge);
+        }
+
+        auto edges_from(IndexType index) {
+            return GraphTraits<Implementation>::call_edges_from(derived_ptr(), index);
+        }
+
+        bool try_get_vertex(IndexType index, VertexType &output) {
+            VertexType *ptr = vertex(index);
             if (ptr != nullptr) {
                 output = *ptr;
             }
             return ptr != nullptr;
         }
 
-        bool try_get_edge(GraphIndex index, GraphIndex to, E &output) {
-            E *ptr = edge(index, to);
+        bool try_get_edge(IndexType index, IndexType to, EdgeType &output) {
+            EdgeType *ptr = edge(index, to);
             if (ptr != nullptr) {
                 output = *ptr;
             }
             return ptr != nullptr;
         }
 
-        class GraphIterator : public std::iterator<std::input_iterator_tag, GraphIndex> {
+    public:
+
+        class GraphIterator : public std::iterator<std::input_iterator_tag, IndexType> {
         public:
-
             bool operator==(const GraphIterator& rhs) const { return i == rhs.i; }
 
             bool operator!=(const GraphIterator& rhs) const { return i != rhs.i; }
 
-            V& operator*() {
+            VertexType* operator*() {
                 return owner->vertex(i);
             }
-
             GraphIterator& operator++() {
                 i++;
                 return *this;
             }
 
         protected:
-            GraphIterator(Graph<V, E>* owner, GraphIndex i) : owner(owner), i(i) {}
+            friend Graph<Implementation>;
+            GraphIterator(Graph<Implementation>* owner, IndexType i) : owner(owner), i(i) {}
 
-        protected:
-            Graph<V, E>* owner;
-            GraphIndex i;
+            Graph<Implementation>* owner;
+            IndexType i;
+
         };
 
-
         GraphIterator begin() { return GraphIterator(this, 0); }
-        GraphIterator end() { return GraphIterator(this, size()); }
+        GraphIterator end() { return GraphIterator(this, GraphTraits<Implementation>::call_size(derived_ptr())); }
 
         GraphIterator begin() const { return GraphIterator(this, 0); }
-        GraphIterator end() const { return GraphIterator(this, size()); }
-
-
-        // TODO: return an iterable instead of a newly allocated vector
-        virtual std::vector<std::pair<const GraphIndex, E>> edges_from(GraphIndex vertex) const = 0;
+        GraphIterator end() const { return GraphIterator(this, GraphTraits<Implementation>::call_size(derived_ptr())); }
     };
-
-
 }
 #endif

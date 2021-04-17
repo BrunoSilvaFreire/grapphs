@@ -7,33 +7,41 @@
 #include <utility>
 
 namespace gpp {
-    template<typename V, typename E, typename GraphIndex = DefaultGraphIndex>
-    class AdjacencyList : public Graph<V, E, GraphIndex> {
+    template<typename V, typename E, typename I = DefaultGraphIndex>
+    class AdjacencyList : public Graph<AdjacencyList<V, E, I>> {
     public:
+        typedef typename GraphTraits<AdjacencyList<V, E, I>>::VertexType VertexType;
+        typedef typename GraphTraits<AdjacencyList<V, E, I>>::EdgeType EdgeType;
+        typedef typename GraphTraits<AdjacencyList<V, E, I>>::IndexType IndexType;
+
         AdjacencyList() = default;
 
         class Node {
         public:
-            typedef std::unordered_map<GraphIndex, E> ConnectionMap;
+            typedef std::unordered_map<IndexType, EdgeType> ConnectionMap;
         private:
             ConnectionMap map;
-            V vertex;
+            VertexType vertex;
         public:
             Node() : map(0), vertex() {}
 
-            explicit Node(const V &data) : vertex(std::move(data)) {
+            explicit Node(const VertexType &data) : vertex(std::move(data)) {
 
             }
 
-            const std::unordered_map<GraphIndex, E> &connections() const {
+            const std::unordered_map<IndexType, EdgeType> &connections() const {
                 return map;
             }
 
-            V &data() {
+            std::unordered_map<IndexType, EdgeType> &connections() {
+                return map;
+            }
+
+            VertexType &data() {
                 return vertex;
             }
 
-            E *edge(GraphIndex to) {
+            EdgeType *edge(IndexType to) {
                 typename ConnectionMap::iterator found = map.find(to);
                 if (found == map.end()) {
                     return nullptr;
@@ -41,65 +49,105 @@ namespace gpp {
                 return &found->second;
             }
 
-            void connect(GraphIndex index, const E &edgeData) {
+            void connect(IndexType index, const EdgeType &edgeData) {
                 map.emplace(index, std::move(edgeData));
             }
+        };
+
+        class EdgeView {
+        public:
+            typedef typename Node::ConnectionMap::iterator Iterator;
+            typedef typename Node::ConnectionMap::const_iterator ConstIterator;
+
+            explicit EdgeView(Node& owner) : owner(owner) {}
+
+            Iterator begin() { return owner.connections().begin(); }
+            Iterator end() { return owner.connections().end();}
+
+            ConstIterator begin() const { return owner.connections().begin(); }
+            ConstIterator end() const { return owner.connections().end();}
+        private:
+            Node& owner;
         };
 
     private:
         std::vector<Node> nodes;
     public:
-        GraphIndex size() override {
+
+
+        IndexType push(const VertexType& vertex){
+            size_t index = nodes.size();
+            nodes.emplace_back(vertex);
+            return static_cast<IndexType>(index);
+        }
+
+        IndexType push(VertexType&& vertex){
+            size_t index = nodes.size();
+            nodes.emplace_back(std::move(vertex));
+            return static_cast<IndexType>(index);
+        }
+
+        IndexType size() {
             return nodes.size();
         }
 
-        GraphIndex push(const V& vertex){
-            size_t index = nodes.size();
-            nodes.emplace_back(vertex);
-            return static_cast<GraphIndex>(index);
-        }
-
-        GraphIndex push(V&& vertex){
-            size_t index = nodes.size();
-            nodes.emplace_back(std::move(vertex));
-            return static_cast<GraphIndex>(index);
-        }
-
-        V *vertex(GraphIndex index) override {
+        VertexType *vertex(IndexType index)  {
             return &node(index).data();
         }
 
-        Node &node(GraphIndex index) {
-            return nodes[index];
-        }
-
-        const Node &node(GraphIndex index) const {
-            return nodes[index];
-        }
-
-        E *edge(GraphIndex from, GraphIndex to) override {
+        EdgeType *edge(IndexType from, IndexType to) {
             return node(from).edge(to);
         }
 
-        void connect(GraphIndex from, GraphIndex to, E edge) override {
+        void connect(IndexType from, IndexType to, EdgeType edge) {
             node(from).connect(to, edge);
         }
 
-        void reserve(GraphIndex size) {
+        EdgeView edges_from(IndexType index) {
+            return EdgeView(node(index));
+        }
+
+        Node &node(IndexType index) {
+            return nodes[index];
+        }
+
+        const Node &node(IndexType index) const {
+            return nodes[index];
+        }
+
+        void reserve(IndexType size) {
             nodes.reserve(size);
         }
 
-        void resize(GraphIndex numVertices) {
+        void resize(IndexType numVertices) {
             nodes.resize(numVertices);
         }
+    };
 
-        std::vector<std::pair<const GraphIndex, E>> edges_from(GraphIndex index) const override {
-            const Node &pNode = node(index);
-            std::vector<std::pair<const GraphIndex, E>> result;
-            for (const std::pair<const GraphIndex, E> &item :pNode.connections()) {
-                result.push_back(item);
-            }
-            return result;
+    template<typename V, typename E, typename I>
+    struct GraphTraits<AdjacencyList<V, E, I>> {
+        typedef V VertexType;
+        typedef E EdgeType;
+        typedef I IndexType;
+
+        static IndexType call_size(AdjacencyList<V, E, I>* implementation){
+            return implementation->size();
+        }
+
+        static VertexType* call_vertex(AdjacencyList<V, E, I>* implementation, IndexType index){
+            return implementation->vertex(index);
+        }
+
+        static EdgeType* call_edge(AdjacencyList<V, E, I>* implementation, IndexType from, IndexType to){
+            return implementation->edge(from, to);
+        }
+
+        static void call_connect(AdjacencyList<V, E, I>* implementation, IndexType from, IndexType to, EdgeType edge){
+            return implementation->connect(from, to, edge);
+        }
+
+        static auto call_edges_from(AdjacencyList<V, E, I>* implementation, IndexType index) {
+            return implementation->edges_from(index);
         }
     };
 }
