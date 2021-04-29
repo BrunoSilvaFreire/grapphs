@@ -89,6 +89,15 @@ TEST(grapphs, graphCopies) {
     }
 }
 
+TEST(grapphs, removeAtIndex) {
+    gpp::AdjacencyList<int, bool> graph;
+    graph.push(0);
+    graph.push(0);
+    graph.push(0);
+    graph.remove(0);
+    ASSERT_EQ(graph.push(2), 0);
+}
+
 
 #define ASTAR_RADIUS 20
 #define INDEXOF(x, y)  x + (y) * ASTAR_RADIUS
@@ -147,7 +156,8 @@ TEST(grapphs, astar_performance) {
         meanTime += time.count();
     }
     meanTime /= RUN_COUNT;
-    std::cout << "AStar for " << ASTAR_RADIUS << " radius took " << meanTime << "s on average (limit: " << frameTime << "s, "
+    std::cout << "AStar for " << ASTAR_RADIUS << " radius took " << meanTime << "s on average (limit: " << frameTime
+              << "s, "
               << RUN_COUNT << " runs)"
               << std::endl;
     ASSERT_LT(meanTime, frameTime);

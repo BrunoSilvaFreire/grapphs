@@ -5,6 +5,7 @@
 #include <grapphs/graph.h>
 #include <unordered_map>
 #include <utility>
+#include <queue>
 
 namespace gpp {
     template<typename V, typename E, typename I = DefaultGraphIndex>
@@ -59,39 +60,58 @@ namespace gpp {
             typedef typename Node::ConnectionMap::iterator Iterator;
             typedef typename Node::ConnectionMap::const_iterator ConstIterator;
 
-            explicit EdgeView(Node& owner) : owner(owner) {}
+            explicit EdgeView(Node &owner) : owner(owner) {}
 
             Iterator begin() { return owner.connections().begin(); }
-            Iterator end() { return owner.connections().end();}
+
+            Iterator end() { return owner.connections().end(); }
 
             ConstIterator begin() const { return owner.connections().begin(); }
-            ConstIterator end() const { return owner.connections().end();}
+
+            ConstIterator end() const { return owner.connections().end(); }
+
         private:
-            Node& owner;
+            Node &owner;
         };
 
     private:
         std::vector<Node> nodes;
+        std::queue<IndexType> freeIndices;
     public:
-
-
-        IndexType push(const VertexType& vertex){
-            size_t index = nodes.size();
-            nodes.emplace_back(vertex);
-            return static_cast<IndexType>(index);
+        void remove(const IndexType &index) {
+            std::memset(&nodes[index], 0, sizeof(VertexType));
+            freeIndices.push(index);
         }
 
-        IndexType push(VertexType&& vertex){
-            size_t index = nodes.size();
-            nodes.emplace_back(std::move(vertex));
-            return static_cast<IndexType>(index);
+        IndexType push(const VertexType &vertex) {
+            IndexType index;
+            if (!freeIndices.empty()) {
+                index = freeIndices.front();
+                nodes[index].data() = vertex;
+            } else {
+                index = static_cast<IndexType>(nodes.size());
+                nodes.emplace_back(vertex);
+            }
+            return index;
+        }
+
+        IndexType push(VertexType &&vertex) {
+            IndexType index;
+            if (!freeIndices.empty()) {
+                index = freeIndices.front();
+                nodes[index].data() = vertex;
+            } else {
+                index = static_cast<IndexType>(nodes.size());
+                nodes.emplace_back(std::move(vertex));
+            }
+            return index;
         }
 
         IndexType size() {
             return nodes.size();
         }
 
-        VertexType *vertex(IndexType index)  {
+        VertexType *vertex(IndexType index) {
             return &node(index).data();
         }
 
@@ -130,23 +150,23 @@ namespace gpp {
         typedef E EdgeType;
         typedef I IndexType;
 
-        static IndexType call_size(AdjacencyList<V, E, I>* implementation){
+        static IndexType call_size(AdjacencyList<V, E, I> *implementation) {
             return implementation->size();
         }
 
-        static VertexType* call_vertex(AdjacencyList<V, E, I>* implementation, IndexType index){
+        static VertexType *call_vertex(AdjacencyList<V, E, I> *implementation, IndexType index) {
             return implementation->vertex(index);
         }
 
-        static EdgeType* call_edge(AdjacencyList<V, E, I>* implementation, IndexType from, IndexType to){
+        static EdgeType *call_edge(AdjacencyList<V, E, I> *implementation, IndexType from, IndexType to) {
             return implementation->edge(from, to);
         }
 
-        static void call_connect(AdjacencyList<V, E, I>* implementation, IndexType from, IndexType to, EdgeType edge){
+        static void call_connect(AdjacencyList<V, E, I> *implementation, IndexType from, IndexType to, EdgeType edge) {
             return implementation->connect(from, to, edge);
         }
 
-        static auto call_edges_from(AdjacencyList<V, E, I>* implementation, IndexType index) {
+        static auto call_edges_from(AdjacencyList<V, E, I> *implementation, IndexType index) {
             return implementation->edges_from(index);
         }
     };
