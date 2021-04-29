@@ -69,7 +69,7 @@ namespace gpp {
 
     template<typename G>
     GraphPath<G> astar(
-            const G &graph,
+            G &graph,
             typename G::IndexType from,
             typename G::IndexType to,
             std::function<float(typename G::IndexType from, typename G::IndexType to)> heuristics,
