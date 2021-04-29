@@ -56,18 +56,14 @@ namespace gpp {
 
         class EdgeView {
         public:
-            typedef typename Node::ConnectionMap::iterator Iterator;
             typedef typename Node::ConnectionMap::const_iterator ConstIterator;
 
-            explicit EdgeView(Node& owner) : owner(owner) {}
-
-            Iterator begin() { return owner.connections().begin(); }
-            Iterator end() { return owner.connections().end();}
+            explicit EdgeView(const Node& owner) : owner(owner) {}
 
             ConstIterator begin() const { return owner.connections().begin(); }
             ConstIterator end() const { return owner.connections().end();}
         private:
-            Node& owner;
+            const Node& owner;
         };
 
     private:
@@ -103,7 +99,7 @@ namespace gpp {
             node(from).connect(to, edge);
         }
 
-        EdgeView edges_from(IndexType index) {
+        EdgeView edges_from(IndexType index) const {
             return EdgeView(node(index));
         }
 
@@ -146,7 +142,7 @@ namespace gpp {
             return implementation->connect(from, to, edge);
         }
 
-        static auto call_edges_from(AdjacencyList<V, E, I>* implementation, IndexType index) {
+        static auto call_edges_from(const AdjacencyList<V, E, I>* implementation, IndexType index) {
             return implementation->edges_from(index);
         }
     };

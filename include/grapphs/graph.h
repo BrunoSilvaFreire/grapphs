@@ -36,7 +36,7 @@ namespace gpp {
             GraphTraits<Implementation>::call_connect(derived_ptr(), from, to, edge);
         }
 
-        auto edges_from(IndexType index) {
+        auto edges_from(IndexType index) const {
             return GraphTraits<Implementation>::call_edges_from(derived_ptr(), index);
         }
 
