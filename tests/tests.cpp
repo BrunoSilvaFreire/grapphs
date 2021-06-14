@@ -131,7 +131,7 @@ TEST(grapphs, astar_performance) {
         }
     }
 
-    gpp::GraphPath<gpp::AdjacencyList<Position, MyEdge>> path;
+    gpp::GraphPath<size_t> path;
 #define RUN_COUNT 10000
     double meanTime = 0;
     const float frameTime = 1.0F / 60.0F;

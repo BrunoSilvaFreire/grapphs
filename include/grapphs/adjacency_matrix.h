@@ -9,12 +9,8 @@
 #include <stdexcept>
 
 namespace gpp {
-    template<typename V, typename E, typename I = DefaultGraphIndex>
-    class AdjacencyMatrix : public Graph<AdjacencyMatrix<V, E, I>> {
-    public:
-        typedef typename GraphTraits<AdjacencyMatrix<V, E, I>>::VertexType VertexType;
-        typedef typename GraphTraits<AdjacencyMatrix<V, E, I>>::EdgeType EdgeType;
-        typedef typename GraphTraits<AdjacencyMatrix<V, E, I>>::IndexType IndexType;
+    template<typename VertexType, typename EdgeType, typename IndexType = DefaultGraphIndex>
+    class AdjacencyMatrix : public Graph<VertexType, EdgeType, IndexType> {
     private:
         std::vector<VertexType> vertices;
         std::vector<EdgeType> edges;
@@ -23,8 +19,7 @@ namespace gpp {
         explicit AdjacencyMatrix(IndexType size) : vertices(size), edges(size * size) {
         }
 
-        template<typename G>
-        explicit AdjacencyMatrix(Graph <G> *other) : vertices(), edges() {
+        explicit AdjacencyMatrix(Graph <VertexType, EdgeType, IndexType> *other) : vertices(), edges() {
             auto size = static_cast<IndexType>(other->size());
             vertices.resize(size);
             edges.resize(size * size);
@@ -45,12 +40,16 @@ namespace gpp {
             }
         }
 
-        IndexType size() {
+        IndexType size() const {
             return vertices.size();
         }
 
         VertexType *vertex(IndexType index) {
             return static_cast<VertexType *>(&vertices[index]);
+        }
+
+        const VertexType *vertex(IndexType index) const {
+            return static_cast<const VertexType *>(&vertices[index]);
         }
 
         IndexType index(IndexType from, IndexType to) {
@@ -65,35 +64,28 @@ namespace gpp {
             edges[index(from, to)] = edge;
         }
 
-        std::vector<std::pair<const IndexType, EdgeType>> edges_from(IndexType vertex) const {
-            throw std::runtime_error("Not implemented yet");
-        }
-    };
-
-    template<typename V, typename E, typename I>
-    struct GraphTraits<AdjacencyMatrix<V, E, I>> {
-        typedef V VertexType;
-        typedef E EdgeType;
-        typedef I IndexType;
-
-        static IndexType call_size(AdjacencyMatrix<V, E, I> *implementation) {
-            return implementation->size();
+        bool disconnect(IndexType from, IndexType to) override {
+            edges[index(from, to)] = EdgeType();
         }
 
-        static VertexType *call_vertex(AdjacencyMatrix<V, E, I> *implementation, IndexType index) {
-            return implementation->vertex(index);
+        typedef typename Graph<VertexType, EdgeType, IndexType>::GraphIterator GraphIterator;
+        typedef typename Graph<VertexType, EdgeType, IndexType>::ConstGraphIterator ConstGraphIterator;
+        friend GraphIterator;
+
+        GraphIterator begin() override {
+            return GraphIterator(this, 0);
         }
 
-        static EdgeType *call_edge(AdjacencyMatrix<V, E, I> *implementation, IndexType from, IndexType to) {
-            return implementation->edge(from, to);
+        GraphIterator end() override {
+            return GraphIterator(this, size());
         }
 
-        static void call_connect(AdjacencyMatrix<V, E, I> *implementation, IndexType from, IndexType to, EdgeType edge) {
-            return implementation->connect(from, to, edge);
+        ConstGraphIterator begin() const override {
+            return ConstGraphIterator(this, 0);
         }
 
-        static auto call_edges_from(AdjacencyMatrix<V, E, I> *implementation, IndexType index) {
-            return implementation->edges_from(index);
+        ConstGraphIterator end() const override {
+            return ConstGraphIterator(this, size());
         }
     };
 

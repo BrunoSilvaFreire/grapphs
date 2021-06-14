@@ -8,13 +8,9 @@
 #include <queue>
 
 namespace gpp {
-    template<typename V, typename E, typename I = DefaultGraphIndex>
-    class AdjacencyList : public Graph<AdjacencyList<V, E, I>> {
+    template<typename VertexType, typename EdgeType, typename IndexType = DefaultGraphIndex>
+    class AdjacencyList : public Graph<VertexType, EdgeType, IndexType> {
     public:
-        typedef typename GraphTraits<AdjacencyList<V, E, I>>::VertexType VertexType;
-        typedef typename GraphTraits<AdjacencyList<V, E, I>>::EdgeType EdgeType;
-        typedef typename GraphTraits<AdjacencyList<V, E, I>>::IndexType IndexType;
-
         AdjacencyList() = default;
 
         class Node {
@@ -30,15 +26,19 @@ namespace gpp {
 
             }
 
-            const std::unordered_map<IndexType, EdgeType> &connections() const {
+            const ConnectionMap &connections() const {
                 return map;
             }
 
-            std::unordered_map<IndexType, EdgeType> &connections() {
+            ConnectionMap &connections() {
                 return map;
             }
 
             VertexType &data() {
+                return vertex;
+            }
+
+            const VertexType &data() const {
                 return vertex;
             }
 
@@ -53,6 +53,14 @@ namespace gpp {
             void connect(IndexType index, const EdgeType &edgeData) {
                 map.emplace(index, std::move(edgeData));
             }
+
+            bool disconnect(IndexType index) {
+                return map.erase(index) > 0;
+            }
+
+            void clear() {
+                map.clear();
+            }
         };
 
         class EdgeView {
@@ -62,9 +70,13 @@ namespace gpp {
 
             explicit EdgeView(Node &owner) : owner(owner) {}
 
-            Iterator begin() { return owner.connections().begin(); }
+            Iterator begin() {
+                return owner.connections().begin();
+            }
 
-            Iterator end() { return owner.connections().end(); }
+            Iterator end() {
+                return owner.connections().end();
+            }
 
             ConstIterator begin() const { return owner.connections().begin(); }
 
@@ -79,7 +91,8 @@ namespace gpp {
         std::queue<IndexType> freeIndices;
     public:
         void remove(const IndexType &index) {
-            std::memset(&nodes[index], 0, sizeof(VertexType));
+            // std::memset(&nodes[index], 0, sizeof(VertexType));
+            nodes[index].clear();
             freeIndices.push(index);
         }
 
@@ -88,6 +101,7 @@ namespace gpp {
             if (!freeIndices.empty()) {
                 index = freeIndices.front();
                 nodes[index].data() = vertex;
+                freeIndices.pop();
             } else {
                 index = static_cast<IndexType>(nodes.size());
                 nodes.emplace_back(vertex);
@@ -107,11 +121,15 @@ namespace gpp {
             return index;
         }
 
-        IndexType size() {
+        IndexType size() const {
             return nodes.size();
         }
 
         VertexType *vertex(IndexType index) {
+            return &node(index).data();
+        }
+
+        const VertexType *vertex(IndexType index) const override {
             return &node(index).data();
         }
 
@@ -142,32 +160,28 @@ namespace gpp {
         void resize(IndexType numVertices) {
             nodes.resize(numVertices);
         }
-    };
 
-    template<typename V, typename E, typename I>
-    struct GraphTraits<AdjacencyList<V, E, I>> {
-        typedef V VertexType;
-        typedef E EdgeType;
-        typedef I IndexType;
-
-        static IndexType call_size(AdjacencyList<V, E, I> *implementation) {
-            return implementation->size();
+        bool disconnect(IndexType from, IndexType to) override {
+            return node(from).disconnect(to);
         }
 
-        static VertexType *call_vertex(AdjacencyList<V, E, I> *implementation, IndexType index) {
-            return implementation->vertex(index);
+        typedef typename Graph<VertexType, EdgeType, IndexType>::GraphIterator GraphIterator;
+        typedef typename Graph<VertexType, EdgeType, IndexType>::ConstGraphIterator ConstGraphIterator;
+
+        GraphIterator begin() override {
+            return GraphIterator(this, 0);
         }
 
-        static EdgeType *call_edge(AdjacencyList<V, E, I> *implementation, IndexType from, IndexType to) {
-            return implementation->edge(from, to);
+        GraphIterator end() override {
+            return GraphIterator(this, size());
         }
 
-        static void call_connect(AdjacencyList<V, E, I> *implementation, IndexType from, IndexType to, EdgeType edge) {
-            return implementation->connect(from, to, edge);
+        ConstGraphIterator begin() const override {
+            return ConstGraphIterator(this, 0);
         }
 
-        static auto call_edges_from(AdjacencyList<V, E, I> *implementation, IndexType index) {
-            return implementation->edges_from(index);
+        ConstGraphIterator end() const override {
+            return ConstGraphIterator(this, size());
         }
     };
 }

@@ -17,7 +17,7 @@ namespace gpp {
         std::unordered_map<I, float> *map;
 
         float try_find(I index) {
-            std::unordered_map<I, float>::iterator it = map->find(index);
+            typename std::unordered_map<I, float>::iterator it = map->find(index);
             if (it == map->end()) {
                 return std::numeric_limits<float>::max();
             }
@@ -25,7 +25,7 @@ namespace gpp {
         }
 
     public:
-        LessByFScore(std::unordered_map<I, float> *map) : map(map) {}
+        explicit LessByFScore(std::unordered_map<I, float> *map) : map(map) {}
 
         bool operator()(I a, I b) {
             float aScore = try_find(a);
@@ -51,10 +51,9 @@ namespace gpp {
         }
     };
 
-    template<typename G>
+    template<typename IndexType>
     class GraphPath {
     public:
-        typedef typename G::IndexType IndexType;
     private:
         std::vector<IndexType> vertices;
     public:
@@ -68,32 +67,36 @@ namespace gpp {
     };
 
     template<typename G>
-    GraphPath<G> astar(
+    GraphPath<typename G::IndexType> astar(
             G &graph,
             typename G::IndexType from,
             typename G::IndexType to,
             std::function<float(typename G::IndexType from, typename G::IndexType to)> heuristics,
             std::function<float(typename G::IndexType from, typename G::IndexType to,
                                 const typename G::EdgeType &edge)> distanceCalculator
-    ) {
-        using I = typename G::IndexType;
-        using Iterator = typename std::unordered_map<I, float>::iterator;
-        std::unordered_map<I, float> gScore;
-        std::unordered_map<I, float> fScore;
-        std::unordered_map<I, I> history;
-        gpp::LessByFScore<I> predicate(&fScore);
-        PriorityQueue<I> open(predicate);
+    )
+//#ifdef __cpp_concepts
+//    requires std::is_assignable_v<gpp::Graph<typename G::VertexType, typename G::EdgeType, typename G::IndexType>;
+//#endif
+    {
+        using IndexType = typename G::IndexType;
+        using Iterator = typename std::unordered_map<IndexType, float>::iterator;
+        std::unordered_map<IndexType, float> gScore;
+        std::unordered_map<IndexType, float> fScore;
+        std::unordered_map<IndexType, IndexType> history;
+        gpp::LessByFScore<IndexType> predicate(&fScore);
+        PriorityQueue<IndexType> open(predicate);
 
         gScore[from] = 0;
         fScore[from] = heuristics(from, to);
         open.push(from);
 
         while (!open.empty()) {
-            I next = open.top();
+            IndexType next = open.top();
             open.pop();
             if (next == to) {
-                std::vector<I> indices;
-                I current = to;
+                std::vector<IndexType> indices;
+                IndexType current = to;
                 indices.push_back(current);
                 do {
                     auto candidate = history.find(current);
@@ -105,7 +108,7 @@ namespace gpp {
                     indices.push_back(current);
                 } while (current != from);
                 std::reverse(indices.begin(), indices.end());
-                return GraphPath<G>(indices);
+                return GraphPath<IndexType>(indices);
             }
             for (const auto[neighborIndex, edge] : graph.edges_from(next)) {
                 float attempt = gScore[next] + distanceCalculator(next, neighborIndex, edge);
