@@ -8,37 +8,24 @@
 namespace gpp {
     typedef size_t DefaultGraphIndex;
 
-    template<typename I>
-    struct GraphTraits;
-
-    template<typename Implementation>
+    template<typename VertexType, typename EdgeType, typename IndexType = DefaultGraphIndex>
     class Graph {
     public:
-        typedef typename GraphTraits<Implementation>::VertexType VertexType;
-        typedef typename GraphTraits<Implementation>::EdgeType EdgeType;
-        typedef typename GraphTraits<Implementation>::IndexType IndexType;
+        typedef typename VertexType VertexType;
+        typedef typename EdgeType EdgeType;
+        typedef typename IndexType IndexType;
 
-        inline Implementation* derived_ptr() { return static_cast<Implementation*>(this); }
+        virtual IndexType size() const = 0;
 
-        IndexType size() {
-            return GraphTraits<Implementation>::call_size(derived_ptr());
-        }
+        virtual VertexType *vertex(IndexType index) = 0;
 
-        VertexType* vertex(IndexType index) {
-            return GraphTraits<Implementation>::call_vertex(derived_ptr(), index);
-        }
+        virtual const VertexType *vertex(IndexType index) const = 0;
 
-        EdgeType* edge(IndexType from, IndexType to) {
-            return GraphTraits<Implementation>::call_edge(derived_ptr(), from, to);
-        }
+        virtual EdgeType *edge(IndexType from, IndexType to) = 0;
 
-        void connect(IndexType from, IndexType to, EdgeType edge) {
-            GraphTraits<Implementation>::call_connect(derived_ptr(), from, to, edge);
-        }
+        virtual void connect(IndexType from, IndexType to, EdgeType edge) = 0;
 
-        auto edges_from(IndexType index) {
-            return GraphTraits<Implementation>::call_edges_from(derived_ptr(), index);
-        }
+        virtual bool disconnect(IndexType from, IndexType to) = 0;
 
         bool try_get_vertex(IndexType index, VertexType &output) {
             VertexType *ptr = vertex(index);
@@ -60,32 +47,72 @@ namespace gpp {
 
         class GraphIterator : public std::iterator<std::input_iterator_tag, IndexType> {
         public:
-            bool operator==(const GraphIterator& rhs) const { return i == rhs.i; }
+            bool operator==(const GraphIterator &rhs) const { return i == rhs.i; }
 
-            bool operator!=(const GraphIterator& rhs) const { return i != rhs.i; }
+            bool operator!=(const GraphIterator &rhs) const { return i != rhs.i; }
 
-            VertexType* operator*() {
+            VertexType *operator*() {
                 return owner->vertex(i);
             }
-            GraphIterator& operator++() {
+
+
+            GraphIterator &operator++() {
                 i++;
                 return *this;
             }
 
-        protected:
-            friend Graph<Implementation>;
-            GraphIterator(Graph<Implementation>* owner, IndexType i) : owner(owner), i(i) {}
+            typedef Graph<VertexType, EdgeType, IndexType> OwnerGraph;
+        public:
+            GraphIterator(OwnerGraph *owner, IndexType i) : owner(owner), i(i) {}
 
-            Graph<Implementation>* owner;
+        protected:
+
+            friend OwnerGraph;
+
+
+            OwnerGraph *owner;
             IndexType i;
 
         };
 
-        GraphIterator begin() { return GraphIterator(this, 0); }
-        GraphIterator end() { return GraphIterator(this, GraphTraits<Implementation>::call_size(derived_ptr())); }
+        class ConstGraphIterator : public std::iterator<std::input_iterator_tag, IndexType> {
+        public:
+            bool operator==(const GraphIterator &rhs) const { return i == rhs.i; }
 
-        GraphIterator begin() const { return GraphIterator(this, 0); }
-        GraphIterator end() const { return GraphIterator(this, GraphTraits<Implementation>::call_size(derived_ptr())); }
+            bool operator!=(const GraphIterator &rhs) const { return i != rhs.i; }
+
+            const VertexType *operator*() const {
+                return owner->vertex(i);
+            }
+
+
+            GraphIterator &operator++() {
+                i++;
+                return *this;
+            }
+
+            typedef Graph<VertexType, EdgeType, IndexType> OwnerGraph;
+        public:
+            ConstGraphIterator(const OwnerGraph *owner, IndexType i) : owner(owner), i(i) {}
+
+        protected:
+
+            friend OwnerGraph;
+
+
+            const OwnerGraph *owner;
+            IndexType i;
+
+        };
+
+
+        virtual GraphIterator begin() = 0;
+
+        virtual GraphIterator end() = 0;
+
+        virtual ConstGraphIterator begin() const = 0;
+
+        virtual ConstGraphIterator end() const = 0;
     };
 }
 #endif
