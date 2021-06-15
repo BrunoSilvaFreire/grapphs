@@ -8,6 +8,7 @@
 #include <queue>
 
 namespace gpp {
+
     template<typename VertexType, typename EdgeType, typename IndexType = DefaultGraphIndex>
     class AdjacencyList : public Graph<VertexType, EdgeType, IndexType> {
     public:
@@ -65,22 +66,34 @@ namespace gpp {
 
         class EdgeView {
         public:
-            typedef typename Node::ConnectionMap::iterator Iterator;
-            typedef typename Node::ConnectionMap::const_iterator ConstIterator;
+            typedef std::vector<std::pair<IndexType, EdgeType>> ConnectionVector;
+        private:
+            ConnectionVector elements;
+        public:
+            typedef typename ConnectionVector::iterator Iterator;
+            typedef typename ConnectionVector::const_iterator ConstIterator;
 
-            explicit EdgeView(Node &owner) : owner(owner) {}
+            explicit EdgeView(Node &owner) : owner(owner) {
+                auto &connections = owner.connections();
+                size_t num = connections.size();
+                elements.resize(num);
+                size_t i = 0;
+                for (const std::pair<IndexType, EdgeType> &item : connections) {
+                    elements[i++] = item;
+                }
+            }
 
             Iterator begin() {
-                return owner.connections().begin();
+                return elements.begin();
             }
 
             Iterator end() {
-                return owner.connections().end();
+                return elements.end();
             }
 
-            ConstIterator begin() const { return owner.connections().begin(); }
+            ConstIterator begin() const { return elements.begin(); }
 
-            ConstIterator end() const { return owner.connections().end(); }
+            ConstIterator end() const { return elements.end(); }
 
         private:
             Node &owner;
