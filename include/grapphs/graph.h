@@ -11,9 +11,9 @@ namespace gpp {
     template<typename VertexType, typename EdgeType, typename IndexType = DefaultGraphIndex>
     class Graph {
     public:
-        typedef typename VertexType VertexType;
-        typedef typename EdgeType EdgeType;
-        typedef typename IndexType IndexType;
+//        typedef typename VertexType VertexType;
+//        typedef typename EdgeType EdgeType;
+//        typedef typename IndexType IndexType;
 
         virtual IndexType size() const = 0;
 

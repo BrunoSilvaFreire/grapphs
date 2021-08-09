@@ -8,7 +8,6 @@ add_library(
 set_target_properties(
         grapphs
         PROPERTIES
-        LINKER_LANGUAGE CXX
         target_sources
         "include/grapphs/graph.h;
         include/grapphs/adjacency_list.h;
