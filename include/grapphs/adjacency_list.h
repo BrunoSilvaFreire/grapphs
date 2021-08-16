@@ -9,7 +9,11 @@
 
 namespace gpp {
 
-    template<typename VertexType, typename EdgeType, typename IndexType = DefaultGraphIndex>
+    template<
+        typename VertexType,
+        typename EdgeType,
+        typename IndexType = DefaultGraphIndex
+    >
     class AdjacencyList : public Graph<VertexType, EdgeType, IndexType> {
     public:
         AdjacencyList() = default;
@@ -196,6 +200,41 @@ namespace gpp {
         ConstGraphIterator end() const override {
             return ConstGraphIterator(this, size());
         }
+
+        class PairedGraphIterator
+            : public std::iterator<std::input_iterator_tag, IndexType> {
+        public:
+            bool operator==(const PairedGraphIterator &rhs) const { return i == rhs.i; }
+
+            bool operator!=(const PairedGraphIterator &rhs) const { return i != rhs.i; }
+
+            std::pair<const VertexType *, IndexType> operator*() const {
+                return std::make_pair(owner->vertex(i), i);
+            }
+
+            PairedGraphIterator &operator++() {
+                i++;
+                return *this;
+            }
+
+            typedef Graph<VertexType, EdgeType, IndexType> OwnerGraph;
+        public:
+            PairedGraphIterator(const OwnerGraph *owner, IndexType i) : owner(owner),
+                                                                        i(i) {}
+
+        protected:
+            friend OwnerGraph;
+
+
+            const OwnerGraph *owner;
+            IndexType i;
+        };
+
+        typedef typename Graph<VertexType, EdgeType, IndexType>::template GraphView<PairedGraphIterator> PairedGraphView;
+
+        PairedGraphView allVerticesWithIndex() {
+            return PairedGraphView(this);
+        };
     };
 }
 
