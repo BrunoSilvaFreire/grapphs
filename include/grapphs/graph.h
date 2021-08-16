@@ -8,7 +8,11 @@
 namespace gpp {
     typedef size_t DefaultGraphIndex;
 
-    template<typename VertexType, typename EdgeType, typename IndexType = DefaultGraphIndex>
+    template<
+        typename VertexType,
+        typename EdgeType,
+        typename IndexType = DefaultGraphIndex
+    >
     class Graph {
     public:
 //        typedef typename VertexType VertexType;
@@ -43,7 +47,27 @@ namespace gpp {
             return ptr != nullptr;
         }
 
+    private:
+        typedef Graph<VertexType, EdgeType, IndexType> OwnerGraph;
     public:
+        template<class IteratorType>
+        class GraphView {
+        private:
+            IteratorType first, last;
+        public:
+            explicit GraphView(OwnerGraph *graph) : first(graph, 0),
+                                                    last(graph, graph->size()) {
+
+            }
+
+            IteratorType &begin() {
+                return first;
+            }
+
+            IteratorType &end() {
+                return last;
+            }
+        };
 
         class GraphIterator : public std::iterator<std::input_iterator_tag, IndexType> {
         public:
@@ -75,16 +99,16 @@ namespace gpp {
 
         };
 
-        class ConstGraphIterator : public std::iterator<std::input_iterator_tag, IndexType> {
+        class ConstGraphIterator
+            : public std::iterator<std::input_iterator_tag, IndexType> {
         public:
-            bool operator==(const GraphIterator &rhs) const { return i == rhs.i; }
+            bool operator==(const ConstGraphIterator &rhs) const { return i == rhs.i; }
 
-            bool operator!=(const GraphIterator &rhs) const { return i != rhs.i; }
+            bool operator!=(const ConstGraphIterator &rhs) const { return i != rhs.i; }
 
             const VertexType *operator*() const {
                 return owner->vertex(i);
             }
-
 
             GraphIterator &operator++() {
                 i++;
@@ -93,7 +117,8 @@ namespace gpp {
 
             typedef Graph<VertexType, EdgeType, IndexType> OwnerGraph;
         public:
-            ConstGraphIterator(const OwnerGraph *owner, IndexType i) : owner(owner), i(i) {}
+            ConstGraphIterator(const OwnerGraph *owner, IndexType i) : owner(owner),
+                                                                       i(i) {}
 
         protected:
 
