@@ -27,27 +27,27 @@ namespace gpp {
         public:
             Node() : map(0), vertex() {}
 
-            explicit Node(const VertexType &data) : vertex(std::move(data)) {
+            explicit Node(const VertexType& data) : vertex(std::move(data)) {
 
             }
 
-            const ConnectionMap &connections() const {
+            const ConnectionMap& connections() const {
                 return map;
             }
 
-            ConnectionMap &connections() {
+            ConnectionMap& connections() {
                 return map;
             }
 
-            VertexType &data() {
+            VertexType& data() {
                 return vertex;
             }
 
-            const VertexType &data() const {
+            const VertexType& data() const {
                 return vertex;
             }
 
-            EdgeType *edge(IndexType to) {
+            EdgeType* edge(IndexType to) {
                 typename ConnectionMap::iterator found = map.find(to);
                 if (found == map.end()) {
                     return nullptr;
@@ -55,7 +55,7 @@ namespace gpp {
                 return &found->second;
             }
 
-            void connect(IndexType index, const EdgeType &edgeData) {
+            void connect(IndexType index, const EdgeType& edgeData) {
                 map.emplace(index, std::move(edgeData));
             }
 
@@ -77,12 +77,12 @@ namespace gpp {
             typedef typename ConnectionVector::iterator Iterator;
             typedef typename ConnectionVector::const_iterator ConstIterator;
 
-            explicit EdgeView(Node &owner) : owner(owner) {
-                auto &connections = owner.connections();
+            explicit EdgeView(Node& owner) : owner(owner) {
+                auto& connections = owner.connections();
                 size_t num = connections.size();
                 elements.resize(num);
                 size_t i = 0;
-                for (const std::pair<IndexType, EdgeType> &item : connections) {
+                for (const std::pair<IndexType, EdgeType>& item : connections) {
                     elements[i++] = item;
                 }
             }
@@ -100,20 +100,20 @@ namespace gpp {
             ConstIterator end() const { return elements.end(); }
 
         private:
-            Node &owner;
+            Node& owner;
         };
 
     private:
         std::vector<Node> nodes;
         std::queue<IndexType> freeIndices;
     public:
-        void remove(const IndexType &index) {
+        void remove(const IndexType& index) {
             // std::memset(&nodes[index], 0, sizeof(VertexType));
             nodes[index].clear();
             freeIndices.push(index);
         }
 
-        IndexType push(const VertexType &vertex) {
+        IndexType push(const VertexType& vertex) {
             IndexType index;
             if (!freeIndices.empty()) {
                 index = freeIndices.front();
@@ -126,7 +126,7 @@ namespace gpp {
             return index;
         }
 
-        IndexType push(VertexType &&vertex) {
+        IndexType push(VertexType&& vertex) {
             IndexType index;
             if (!freeIndices.empty()) {
                 index = freeIndices.front();
@@ -142,15 +142,15 @@ namespace gpp {
             return nodes.size();
         }
 
-        VertexType *vertex(IndexType index) {
+        VertexType* vertex(IndexType index) {
             return &node(index).data();
         }
 
-        const VertexType *vertex(IndexType index) const override {
+        const VertexType* vertex(IndexType index) const override {
             return &node(index).data();
         }
 
-        EdgeType *edge(IndexType from, IndexType to) {
+        EdgeType* edge(IndexType from, IndexType to) {
             return node(from).edge(to);
         }
 
@@ -162,11 +162,11 @@ namespace gpp {
             return EdgeView(node(index));
         }
 
-        Node &node(IndexType index) {
+        Node& node(IndexType index) {
             return nodes[index];
         }
 
-        const Node &node(IndexType index) const {
+        const Node& node(IndexType index) const {
             return nodes[index];
         }
 
@@ -180,6 +180,10 @@ namespace gpp {
 
         bool disconnect(IndexType from, IndexType to) override {
             return node(from).disconnect(to);
+        }
+
+        void clear() {
+            nodes.clear();
         }
 
         typedef typename Graph<VertexType, EdgeType, IndexType>::GraphIterator GraphIterator;
@@ -204,35 +208,35 @@ namespace gpp {
         class PairedGraphIterator
             : public std::iterator<std::input_iterator_tag, IndexType> {
         public:
-            bool operator==(const PairedGraphIterator &rhs) const { return i == rhs.i; }
+            bool operator==(const PairedGraphIterator& rhs) const { return i == rhs.i; }
 
-            bool operator!=(const PairedGraphIterator &rhs) const { return i != rhs.i; }
+            bool operator!=(const PairedGraphIterator& rhs) const { return i != rhs.i; }
 
-            std::pair<const VertexType *, IndexType> operator*() const {
+            std::pair<const VertexType*, IndexType> operator*() const {
                 return std::make_pair(owner->vertex(i), i);
             }
 
-            PairedGraphIterator &operator++() {
+            PairedGraphIterator& operator++() {
                 i++;
                 return *this;
             }
 
             typedef Graph<VertexType, EdgeType, IndexType> OwnerGraph;
         public:
-            PairedGraphIterator(const OwnerGraph *owner, IndexType i) : owner(owner),
+            PairedGraphIterator(const OwnerGraph* owner, IndexType i) : owner(owner),
                                                                         i(i) {}
 
         protected:
             friend OwnerGraph;
 
 
-            const OwnerGraph *owner;
+            const OwnerGraph* owner;
             IndexType i;
         };
 
         typedef typename Graph<VertexType, EdgeType, IndexType>::template GraphView<PairedGraphIterator> PairedGraphView;
 
-        PairedGraphView allVerticesWithIndex() {
+        PairedGraphView all_vertices() {
             return PairedGraphView(this);
         };
     };
