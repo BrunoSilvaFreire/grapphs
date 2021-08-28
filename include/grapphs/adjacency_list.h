@@ -77,7 +77,7 @@ namespace gpp {
             typedef typename ConnectionVector::iterator Iterator;
             typedef typename ConnectionVector::const_iterator ConstIterator;
 
-            explicit EdgeView(Node& owner) : owner(owner) {
+            explicit EdgeView(const Node& owner) {
                 auto& connections = owner.connections();
                 size_t num = connections.size();
                 elements.resize(num);
@@ -98,10 +98,11 @@ namespace gpp {
             ConstIterator begin() const { return elements.begin(); }
 
             ConstIterator end() const { return elements.end(); }
-
-        private:
-            Node& owner;
         };
+
+        void clear() {
+            nodes.clear();
+        }
 
     private:
         std::vector<Node> nodes;
@@ -162,6 +163,10 @@ namespace gpp {
             return EdgeView(node(index));
         }
 
+        EdgeView edges_from(IndexType index) const {
+            return EdgeView(node(index));
+        }
+
         Node& node(IndexType index) {
             return nodes[index];
         }
@@ -180,10 +185,6 @@ namespace gpp {
 
         bool disconnect(IndexType from, IndexType to) override {
             return node(from).disconnect(to);
-        }
-
-        void clear() {
-            nodes.clear();
         }
 
         typedef typename Graph<VertexType, EdgeType, IndexType>::GraphIterator GraphIterator;

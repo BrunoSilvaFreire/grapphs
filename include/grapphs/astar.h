@@ -76,7 +76,7 @@ namespace gpp {
                                 const typename G::EdgeType &edge)> distanceCalculator
     )
 //#ifdef __cpp_concepts
-//    requires std::is_assignable_v<gpp::Graph<typename G::VertexType, typename G::EdgeType, typename G::IndexType>;
+//    requires std::is_assignable_v<gpp::Graph<typename GraphType::VertexType, typename GraphType::EdgeType, typename GraphType::IndexType>;
 //#endif
     {
         using IndexType = typename G::IndexType;
