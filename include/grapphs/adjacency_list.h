@@ -237,7 +237,7 @@ namespace gpp {
 
         typedef typename Graph<VertexType, EdgeType, IndexType>::template GraphView<PairedGraphIterator> PairedGraphView;
 
-        PairedGraphView all_vertices() {
+        PairedGraphView all_vertices() const {
             return PairedGraphView(this);
         };
     };
