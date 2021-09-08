@@ -61,7 +61,7 @@ namespace gpp {
         private:
             IteratorType first, last;
         public:
-            explicit GraphView(OwnerGraph* graph) : first(graph, 0),
+            explicit GraphView(const OwnerGraph* graph) : first(graph, 0),
                                                     last(graph, graph->size()) {
 
             }
