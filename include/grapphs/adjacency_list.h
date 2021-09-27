@@ -131,6 +131,7 @@ namespace gpp {
             IndexType index;
             if (!freeIndices.empty()) {
                 index = freeIndices.front();
+                freeIndices.pop();
                 nodes[index].data() = vertex;
             } else {
                 index = static_cast<IndexType>(nodes.size());
