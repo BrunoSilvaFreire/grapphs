@@ -140,11 +140,11 @@ namespace gpp {
             return index;
         }
 
-        IndexType size() const {
+        IndexType size() const override {
             return nodes.size();
         }
 
-        VertexType* vertex(IndexType index) {
+        VertexType* vertex(IndexType index) override {
             return &node(index).data();
         }
 
@@ -152,11 +152,11 @@ namespace gpp {
             return &node(index).data();
         }
 
-        EdgeType* edge(IndexType from, IndexType to) {
+        EdgeType* edge(IndexType from, IndexType to) override {
             return node(from).edge(to);
         }
 
-        void connect(IndexType from, IndexType to, EdgeType edge) {
+        void connect(IndexType from, IndexType to, EdgeType edge) override {
             node(from).connect(to, edge);
         }
 
