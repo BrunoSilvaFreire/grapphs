@@ -15,15 +15,15 @@ namespace gpp {
     typedef size_t DefaultGraphIndex;
 
     template<
-        typename VertexType,
-        typename EdgeType,
-        typename IndexType = DefaultGraphIndex
+        typename TVertex,
+        typename TEdge,
+        typename TIndex = DefaultGraphIndex
     >
     class Graph {
     public:
-//        typedef typename VertexType VertexType;
-//        typedef typename EdgeType EdgeType;
-//        typedef typename IndexType IndexType;
+        typedef TVertex VertexType;
+        typedef TEdge EdgeType;
+        typedef TIndex IndexType;
 
         virtual IndexType size() const = 0;
 
@@ -62,7 +62,7 @@ namespace gpp {
             IteratorType first, last;
         public:
             explicit GraphView(const OwnerGraph* graph) : first(graph, 0),
-                                                    last(graph, graph->size()) {
+                                                          last(graph, graph->size()) {
 
             }
 

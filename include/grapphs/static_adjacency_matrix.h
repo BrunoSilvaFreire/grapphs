@@ -21,7 +21,7 @@ namespace gpp {
         }
 
         template<typename D>
-        explicit StaticAdjacencyMatrix(Graph <V, E, D> *other) : StaticAdjacencyMatrix() {
+        explicit StaticAdjacencyMatrix(Graph<V, E, D>* other) : StaticAdjacencyMatrix() {
             for (GraphIndex i = 0; i < Size; ++i) {
                 V vertex;
                 if (other->try_get_vertex(i, vertex)) {
@@ -43,15 +43,15 @@ namespace gpp {
             return Size;
         }
 
-        V *vertex(GraphIndex index) override {
-            return static_cast<V *>(&vertices[index]);
+        V* vertex(GraphIndex index) override {
+            return static_cast<V*>(&vertices[index]);
         }
 
         GraphIndex index(GraphIndex from, GraphIndex to) {
             return from * vertices.size() + to;
         }
 
-        E *edge(GraphIndex from, GraphIndex to) override {
+        E* edge(GraphIndex from, GraphIndex to) override {
             return &edges[index(from, to)];
         }
 
