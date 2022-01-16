@@ -9,7 +9,11 @@
 
 namespace gpp {
 
-    template<typename VertexType, typename EdgeType, typename IndexType = DefaultGraphIndex>
+    template<
+        typename VertexType,
+        typename EdgeType,
+        typename IndexType = DefaultGraphIndex
+    >
     class AdjacencyList : public Graph<VertexType, EdgeType, IndexType> {
     public:
         AdjacencyList() = default;
@@ -45,6 +49,14 @@ namespace gpp {
 
             EdgeType* edge(IndexType to) {
                 typename ConnectionMap::iterator found = map.find(to);
+                if (found == map.end()) {
+                    return nullptr;
+                }
+                return &found->second;
+            }
+
+            const EdgeType* edge(IndexType to) const {
+                typename ConnectionMap::const_iterator found = map.find(to);
                 if (found == map.end()) {
                     return nullptr;
                 }
@@ -149,6 +161,10 @@ namespace gpp {
         }
 
         EdgeType* edge(IndexType from, IndexType to) override {
+            return node(from).edge(to);
+        }
+
+        const EdgeType* edge(IndexType from, IndexType to) const {
             return node(from).edge(to);
         }
 

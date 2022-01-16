@@ -20,7 +20,7 @@ target_link_libraries(
 )
 option(GRAPPHS_COMPILE_VISUALIZATION_TESTS "Create visualization target tests?" ON)
 
-if (GRAPPHS_COMPILE_VISUALIZATION_TESTS)
+if (GRAPPHS_COMPILE_TESTS AND GRAPPHS_COMPILE_VISUALIZATION_TESTS)
     add_executable(
             grapphs_visualization_tests
             tests/tests.cpp
