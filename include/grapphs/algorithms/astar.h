@@ -5,7 +5,7 @@
 #ifndef GRAPPHS_ASTAR_H
 #define GRAPPHS_ASTAR_H
 
-#include <grapphs/graph.h>
+#include "grapphs/graph.h"
 #include <stdexcept>
 #include <queue>
 #include <limits>
@@ -14,7 +14,7 @@ namespace gpp {
     template<typename I>
     class LessByFScore {
     private:
-        std::unordered_map<I, float> *map;
+        std::unordered_map<I, float>* map;
 
         float try_find(I index) {
             typename std::unordered_map<I, float>::iterator it = map->find(index);
@@ -25,7 +25,7 @@ namespace gpp {
         }
 
     public:
-        explicit LessByFScore(std::unordered_map<I, float> *map) : map(map) {}
+        explicit LessByFScore(std::unordered_map<I, float>* map) : map(map) {}
 
         bool operator()(I a, I b) {
             float aScore = try_find(a);
@@ -38,11 +38,11 @@ namespace gpp {
     class PriorityQueue : public std::priority_queue<T, std::vector<T>, LessByFScore<T>> {
     public:
         explicit PriorityQueue(
-                const LessByFScore<T> &pred
+            const LessByFScore<T>& pred
         ) : std::priority_queue<T, std::vector<T>, LessByFScore<T>>(pred) {}
 
-        bool contains(const T &item) {
-            for (const T &other : this->c) {
+        bool contains(const T& item) {
+            for (const T& other : this->c) {
                 if (other == item) {
                     return true;
                 }
@@ -59,21 +59,27 @@ namespace gpp {
     public:
         GraphPath() : vertices() {}
 
-        GraphPath(const std::vector<IndexType> &vertices) : vertices(vertices) {}
+        GraphPath(const std::vector<IndexType>& vertices) : vertices(vertices) {}
 
         size_t count() const {
             return vertices.size();
+        }
+
+        void for_each(const std::function<void(IndexType from, IndexType to)>& block) {
+            for (int i = 0; i < vertices.size() - 1; ++i) {
+                block(vertices[i], vertices[i + 1]);
+            }
         }
     };
 
     template<typename G>
     GraphPath<typename G::IndexType> astar(
-            G &graph,
-            typename G::IndexType from,
-            typename G::IndexType to,
-            std::function<float(typename G::IndexType from, typename G::IndexType to)> heuristics,
-            std::function<float(typename G::IndexType from, typename G::IndexType to,
-                                const typename G::EdgeType &edge)> distanceCalculator
+        G& graph,
+        typename G::IndexType from,
+        typename G::IndexType to,
+        std::function<float(typename G::IndexType from, typename G::IndexType to)> heuristics,
+        std::function<float(typename G::IndexType from, typename G::IndexType to,
+                            const typename G::EdgeType& edge)> distanceCalculator
     )
 //#ifdef __cpp_concepts
 //    requires std::is_assignable_v<gpp::Graph<typename GraphType::VertexType, typename GraphType::EdgeType, typename GraphType::IndexType>;
@@ -124,6 +130,7 @@ namespace gpp {
                 }
             }
         }
+        throw std::runtime_error("Unable to find path");
     }
 }
 #endif //GRAPPHS_ASTAR_H

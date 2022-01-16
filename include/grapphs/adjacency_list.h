@@ -9,11 +9,7 @@
 
 namespace gpp {
 
-    template<
-        typename VertexType,
-        typename EdgeType,
-        typename IndexType = DefaultGraphIndex
-    >
+    template<typename VertexType, typename EdgeType, typename IndexType = DefaultGraphIndex>
     class AdjacencyList : public Graph<VertexType, EdgeType, IndexType> {
     public:
         AdjacencyList() = default;

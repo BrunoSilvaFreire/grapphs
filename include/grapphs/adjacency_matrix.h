@@ -19,7 +19,8 @@ namespace gpp {
         explicit AdjacencyMatrix(IndexType size) : vertices(size), edges(size * size) {
         }
 
-        explicit AdjacencyMatrix(Graph <VertexType, EdgeType, IndexType> *other) : vertices(), edges() {
+        explicit AdjacencyMatrix(Graph<VertexType, EdgeType, IndexType>* other)
+            : vertices(), edges() {
             auto size = static_cast<IndexType>(other->size());
             vertices.resize(size);
             edges.resize(size * size);
@@ -44,19 +45,19 @@ namespace gpp {
             return vertices.size();
         }
 
-        VertexType *vertex(IndexType index) {
-            return static_cast<VertexType *>(&vertices[index]);
+        VertexType* vertex(IndexType index) {
+            return static_cast<VertexType*>(&vertices[index]);
         }
 
-        const VertexType *vertex(IndexType index) const {
-            return static_cast<const VertexType *>(&vertices[index]);
+        const VertexType* vertex(IndexType index) const {
+            return static_cast<const VertexType*>(&vertices[index]);
         }
 
         IndexType index(IndexType from, IndexType to) {
             return from * vertices.size() + to;
         }
 
-        EdgeType *edge(IndexType from, IndexType to) {
+        EdgeType* edge(IndexType from, IndexType to) {
             return &edges[index(from, to)];
         }
 
@@ -66,6 +67,7 @@ namespace gpp {
 
         bool disconnect(IndexType from, IndexType to) override {
             edges[index(from, to)] = EdgeType();
+            return true;
         }
 
         typedef typename Graph<VertexType, EdgeType, IndexType>::GraphIterator GraphIterator;
@@ -90,4 +92,4 @@ namespace gpp {
     };
 
 }
-#endif //GRAPPHS_ADJACENCY_MATRIX_H
+#endif
