@@ -62,8 +62,8 @@ namespace gpp {
     void traverse(
         const TGraph& graph,
         std::set<typename TGraph::IndexType> startingPoints,
-        VertexExplorer<TGraph> perVertex,
-        EdgeExplorer<TGraph> perEdge
+        const VertexExplorer<TGraph>& perVertex,
+        const EdgeExplorer<TGraph>& perEdge
     ) {
         using VertexType = typename TGraph::VertexType;
         using IndexType = typename TGraph::IndexType;
@@ -76,11 +76,11 @@ namespace gpp {
         }
         while (!open.empty()) {
             IndexType next = Traversal<TGraph, Order>::next(open);
+            perVertex(next);
             for (auto[neighbor, edge] : graph.edges_from(next)) {
                 if (visited.find(neighbor) != visited.end()) {
                     continue;
                 }
-                perVertex(neighbor);
                 visited.emplace(neighbor);
 
                 perEdge(
@@ -96,18 +96,23 @@ namespace gpp {
     void traverse(
         const TGraph& graph,
         typename TGraph::IndexType startingPoint,
-        VertexExplorer<TGraph> perVertex,
-        EdgeExplorer<TGraph> perEdge
+        const VertexExplorer<TGraph>& perVertex,
+        const EdgeExplorer<TGraph>& perEdge
     ) {
-        traverse<TGraph, Order>(graph, {startingPoint}, perVertex, perEdge);
+        traverse<TGraph, Order>(
+            graph,
+            std::set<typename TGraph::IndexType>({startingPoint}),
+            perVertex,
+            perEdge
+        );
     }
 
     template<typename TGraph>
     void breadth_first_traverse(
         const TGraph& graph,
         std::set<typename TGraph::IndexType> startingPoints,
-        VertexExplorer<TGraph> perVertex,
-        EdgeExplorer<TGraph> perEdge
+        const VertexExplorer<TGraph>& perVertex,
+        const EdgeExplorer<TGraph>& perEdge
     ) {
         traverse<TGraph, TraversalOrder::eBreadth>(graph, startingPoints, perVertex, perEdge);
     }
@@ -116,8 +121,8 @@ namespace gpp {
     void breadth_first_traverse(
         const TGraph& graph,
         typename TGraph::IndexType startingPoint,
-        VertexExplorer<TGraph> perVertex,
-        EdgeExplorer<TGraph> perEdge
+        const VertexExplorer<TGraph>& perVertex,
+        const EdgeExplorer<TGraph>& perEdge
     ) {
         traverse<TGraph, TraversalOrder::eBreadth>(graph, startingPoint, perVertex, perEdge);
     }
@@ -127,8 +132,8 @@ namespace gpp {
     void depth_first_traverse(
         const TGraph& graph,
         std::set<typename TGraph::IndexType> startingPoints,
-        VertexExplorer<TGraph> perVertex,
-        EdgeExplorer<TGraph> perEdge
+        const VertexExplorer<TGraph>& perVertex,
+        const EdgeExplorer<TGraph>& perEdge
     ) {
         traverse<TGraph, TraversalOrder::eDepth>(graph, startingPoints, perVertex, perEdge);
     }
@@ -137,8 +142,8 @@ namespace gpp {
     void depth_first_traverse(
         const TGraph& graph,
         typename TGraph::IndexType startingPoint,
-        VertexExplorer<TGraph> perVertex,
-        EdgeExplorer<TGraph> perEdge
+        const VertexExplorer<TGraph>& perVertex,
+        const EdgeExplorer<TGraph>& perEdge
     ) {
         traverse<TGraph, TraversalOrder::eDepth>(graph, startingPoint, perVertex, perEdge);
     }

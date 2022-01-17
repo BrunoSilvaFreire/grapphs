@@ -105,6 +105,8 @@ if (GRAPPHS_COMPILE_TESTS)
     add_executable(
             grapphs_tests
             tests/tests.cpp
+            tests/traversal.cpp
+            tests/maze.cpp
     )
     add_dependencies(
             grapphs_tests
