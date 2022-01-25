@@ -29,9 +29,7 @@ namespace gpp {
     struct Traversal {
         using IndexType = typename TGraph::IndexType;
 
-        static IndexType next(std::deque<IndexType>& open) {
-            static_assert(false, "");
-        }
+        static IndexType next(std::deque<IndexType>& open);
     };
 
     template<typename TGraph>
