@@ -47,7 +47,7 @@ if (GRAPPHS_COMPILE_TESTS)
 
     conan_cmake_configure(
             REQUIRES
-            gtest/1.10.0
+            gtest/1.11.0
             nlohmann_json/3.10.5
             GENERATORS cmake
     )
@@ -57,13 +57,13 @@ if (GRAPPHS_COMPILE_TESTS)
             BUILD missing
             SETTINGS ${CONAN_SETTINGS}
     )
-    include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+    include(${CMAKE_CURRENT_BINARY_DIR}/conanbuildinfo.cmake)
     conan_basic_setup(TARGETS)
 
     find_package(Python REQUIRED)
 
 
-    set(GRAPPHS_MAZES_SIZES 3 5 10 15 25 35 50 100)
+    set(GRAPPHS_MAZES_SIZES 10 25)
     add_custom_target(
             grapphs_generate_mazes
             COMMAND
@@ -76,7 +76,7 @@ if (GRAPPHS_COMPILE_TESTS)
                 grapphs_generate_mazes
                 COMMAND
                 ${Python_EXECUTABLE}
-                ${CMAKE_SOURCE_DIR}/scripts/maze_gen.py
+                ${CMAKE_CURRENT_SOURCE_DIR}/scripts/maze_gen.py
                 --size ${INDEX}
                 --monteMazes 10
                 --monteAttempts 10

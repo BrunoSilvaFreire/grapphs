@@ -36,6 +36,9 @@ if (GRAPPHS_COMPILE_TESTS AND GRAPPHS_COMPILE_VISUALIZATION_TESTS)
     )
     add_custom_command(
             TARGET grapphs_visualization_tests
-            COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_BINARY_DIR}/mazes ${CMAKE_CURRENT_BINARY_DIR}/mazes
+            COMMAND ${CMAKE_COMMAND}
+            -E copy_directory
+            $<TARGET_PROPERTY:grapphs,BINARY_DIR>/bin/mazes
+            ${CMAKE_CURRENT_BINARY_DIR}/mazes
     )
 endif ()
