@@ -63,7 +63,7 @@ if (GRAPPHS_COMPILE_TESTS)
     find_package(Python REQUIRED)
 
 
-    set(GRAPPHS_MAZES_SIZES 10 25)
+    set(GRAPPHS_MAZES_SIZES 3 5 10 15 25 35 50 100)
     add_custom_target(
             grapphs_generate_mazes
             COMMAND
