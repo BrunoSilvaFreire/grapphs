@@ -11,6 +11,9 @@ add_library(
         include/grapphs/algorithms/astar.h
         include/grapphs/algorithms/flood.h
         include/grapphs/algorithms/traversal.h
+        include/grapphs/algorithms/bfs_traversal.h
+        include/grapphs/algorithms/dfs_traversal.h
+        include/grapphs/algorithms/rlo_traversal.h
 )
 target_include_directories(
         grapphs
