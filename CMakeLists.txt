@@ -10,7 +10,8 @@ add_library(
         include/grapphs/static_adjacency_matrix.h
         include/grapphs/algorithms/astar.h
         include/grapphs/algorithms/flood.h
-        include/grapphs/algorithms/traversal.h)
+        include/grapphs/algorithms/traversal.h
+)
 target_include_directories(
         grapphs
         INTERFACE
@@ -90,7 +91,10 @@ if (GRAPPHS_COMPILE_TESTS)
     add_library(
             grapphs_testlib
             tests/shared/grapphs
-            tests/shared/grapphs/tests/mazes.cpp)
+            tests/shared/grapphs/tests/mazes.cpp
+            tests/shared/grapphs/tests/traversal_order.h
+            tests/shared/grapphs/tests/traversal_order.cpp
+    )
     target_link_libraries(
             grapphs_testlib
             grapphs

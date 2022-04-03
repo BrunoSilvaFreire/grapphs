@@ -75,7 +75,7 @@ namespace gpp {
         while (!open.empty()) {
             IndexType next = Traversal<TGraph, Order>::next(open);
             perVertex(next);
-            for (auto[neighbor, edge] : graph.edges_from(next)) {
+            for (auto [neighbor, edge] : graph.edges_from(next)) {
                 if (visited.find(neighbor) != visited.end()) {
                     continue;
                 }
@@ -145,5 +145,6 @@ namespace gpp {
     ) {
         traverse<TGraph, TraversalOrder::eDepth>(graph, startingPoint, perVertex, perEdge);
     }
+
 }
 #endif
