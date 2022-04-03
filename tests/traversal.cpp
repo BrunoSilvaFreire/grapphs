@@ -1,8 +1,7 @@
 #include <grapphs/adjacency_list.h>
-#include <grapphs/adjacency_matrix.h>
-#include <grapphs/algorithms/flood.h>
-#include <grapphs/algorithms/astar.h>
-#include <grapphs/tests/mazes.h>
+#include <grapphs/algorithms/bfs_traversal.h>
+#include <grapphs/algorithms/dfs_traversal.h>
+#include <grapphs/algorithms/rlo_traversal.h>
 #include <gtest/gtest.h>
 #include <nlohmann/json.hpp>
 #include <cstdint>
@@ -10,7 +9,7 @@
 #include <random>
 #include <fstream>
 #include <ostream>
-#include "grapphs/tests/traversal_order.h"
+#include <grapphs/tests/traversal_order.h>
 
 typedef std::pair<std::size_t, std::size_t> EdgeIdentifier;
 
@@ -74,21 +73,7 @@ void test_order(
             vertexIndex++;
         },
         [&](std::size_t from, std::size_t to) {
-/*            auto expectedEdge = edgeOrder[edgeIndex];
-            auto expectedOrigin = expectedEdge.first;
-            auto expectedDestination = expectedEdge.second;*/
             receivedEdges.emplace_back(from, to);
-            /*  EXPECT_TRUE(from == expectedOrigin)
-                              << "Edge origin " << from << " doesn't match " << expectedOrigin
-                              << " for step #" << edgeIndex <<
-                              " (" << expectedOrigin << "->" << expectedDestination << " vs " << from
-                              << "->" << to << ")";
-              EXPECT_TRUE(to == expectedDestination)
-                              << "Edge destination " << from << " doesn't match "
-                              << expectedDestination
-                              << " for step #" << edgeIndex <<
-                              " (" << expectedOrigin << "->" << expectedDestination << " vs " << from
-                              << "->" << to << ")";*/
             edgeIndex++;
         }
     );
@@ -122,4 +107,32 @@ TEST(grapphs, traversal_depth_order) {
         ->then({4, 5});
 
     test_order<gpp::TraversalOrder::eDepth>(order);
+}
+
+TEST(grapphs, reverse_level_order_traversal) {
+    gpp::AdjacencyList<int, bool> graph = build_traversal_graph();
+    gpp::ExpectedTraversalOrder expected = {
+        7, 8, 9, 4, 5
+    };
+
+    expected.then({6, 3})
+        ->then({2})
+        ->then({1})
+        ->then({0});
+    std::size_t vertexIndex = 0;
+    gpp::reverse_level_order_traverse<decltype(graph)>(
+        graph,
+        0,
+        [&](size_t vertex) {
+            bool isCorrect = expected.pop(vertex);
+            EXPECT_TRUE(isCorrect) << "Vertex " << vertex << " was not allowed for step #"
+                                   << vertexIndex
+                                   << "(" << expected.listAvailable() << ")";
+            GTEST_LOG_(INFO) << "#" << vertexIndex << ": " << vertex;
+            vertexIndex++;
+        },
+        [&](size_t from, size_t to) {
+            GTEST_LOG_(INFO) << from << " -> " << to;
+        }
+    );
 }

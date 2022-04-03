@@ -4,7 +4,7 @@
 #include <set>
 
 #include <grapphs/graph.h>
-#include <grapphs/algorithms/traversal.h>
+#include <grapphs/algorithms/bfs_traversal.h>
 #include <queue>
 
 namespace gpp {
