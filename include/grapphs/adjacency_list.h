@@ -149,7 +149,7 @@ namespace gpp {
         }
 
         IndexType size() const override {
-            return nodes.size();
+            return static_cast<IndexType>(nodes.size());
         }
 
         VertexType* vertex(IndexType index) override {
