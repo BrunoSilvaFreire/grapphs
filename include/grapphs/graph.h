@@ -75,8 +75,14 @@ namespace gpp {
             }
         };
 
-        class GraphIterator : public std::iterator<std::input_iterator_tag, IndexType> {
+        class GraphIterator {
         public:
+            typedef std::input_iterator_tag iterator_category;
+            typedef IndexType value_type;
+            typedef std::ptrdiff_t difference_type;
+            typedef IndexType* pointer;
+            typedef IndexType& reference;
+
             bool operator==(const GraphIterator& rhs) const { return i == rhs.i; }
 
             bool operator!=(const GraphIterator& rhs) const { return i != rhs.i; }
@@ -105,9 +111,14 @@ namespace gpp {
 
         };
 
-        class ConstGraphIterator
-            : public std::iterator<std::input_iterator_tag, IndexType> {
+        class ConstGraphIterator {
         public:
+            typedef std::input_iterator_tag iterator_category;
+            typedef IndexType value_type;
+            typedef std::ptrdiff_t difference_type;
+            typedef IndexType* pointer;
+            typedef IndexType& reference;
+
             bool operator==(const ConstGraphIterator& rhs) const { return i == rhs.i; }
 
             bool operator!=(const ConstGraphIterator& rhs) const { return i != rhs.i; }
