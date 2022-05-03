@@ -13,13 +13,13 @@ namespace gpp {
     std::string to_dot(const gpp::AdjacencyList<VertexType, EdgeType, IndexType>& graph) {
         std::stringstream stream;
         stream << "digraph {" << std::endl;
-        for (const auto &[vertexPtr, index]: graph.all_vertices()) {
+        for (const auto [vertexPtr, index] : graph.all_vertices()) {
             stream << std::string(4, ' ') << index << " [shape=box label=\"#" << index << ": "
                    << (*vertexPtr) << '"' <<
                    "];" << std::endl;
         }
-        for (auto[vertex, index]: graph.all_vertices()) {
-            for (auto[otherIndex, edge]: graph.edges_from(index)) {
+        for (auto [vertex, index] : graph.all_vertices()) {
+            for (auto [otherIndex, edge] : graph.edges_from(index)) {
                 stream << std::string(4, ' ') << index << " -> " << otherIndex /*<< " [label=\"" << index << "->"
                        << otherIndex << ": " << edge << '"' << "];"*/ << std::endl;
             }

@@ -61,8 +61,16 @@ namespace gpp {
         private:
             IteratorType first, last;
         public:
-            explicit GraphView(const OwnerGraph* graph) : first(graph, 0),
-                                                          last(graph, graph->size()) {
+            explicit GraphView(
+                OwnerGraph* graph
+            ) : first(graph, 0),
+                last(graph, graph->size()) {
+
+            }
+            explicit GraphView(
+                const OwnerGraph* graph
+            ) : first(graph, 0),
+                last(graph, graph->size()) {
 
             }
 
@@ -99,7 +107,7 @@ namespace gpp {
 
             typedef Graph<VertexType, EdgeType, IndexType> OwnerGraph;
         public:
-            GraphIterator(OwnerGraph* owner, IndexType i) : owner(owner), i(i) {}
+            GraphIterator(OwnerGraph* owner, IndexType i) : owner(owner), i(i) { }
 
         protected:
 
@@ -135,7 +143,7 @@ namespace gpp {
             typedef Graph<VertexType, EdgeType, IndexType> OwnerGraph;
         public:
             ConstGraphIterator(const OwnerGraph* owner, IndexType i) : owner(owner),
-                                                                       i(i) {}
+                                                                       i(i) { }
 
         protected:
 
