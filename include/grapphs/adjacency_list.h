@@ -25,9 +25,13 @@ namespace gpp {
             ConnectionMap map;
             VertexType vertex;
         public:
-            Node() : map(0), vertex() {}
+            Node() : map(0), vertex() { }
 
-            explicit Node(const VertexType& data) : vertex(std::move(data)) {
+            explicit Node(const VertexType& data) : vertex(data) {
+
+            }
+
+            explicit Node(VertexType&& data) : vertex(std::move(data)) {
 
             }
 
@@ -140,7 +144,7 @@ namespace gpp {
             if (!freeIndices.empty()) {
                 index = freeIndices.front();
                 freeIndices.pop();
-                nodes[index].data() = vertex;
+                nodes[index].data() = std::move(vertex);
             } else {
                 index = static_cast<IndexType>(nodes.size());
                 nodes.emplace_back(std::move(vertex));
@@ -230,6 +234,10 @@ namespace gpp {
                 return std::make_pair(owner->vertex(i), i);
             }
 
+            std::pair<VertexType*, IndexType> operator*() {
+                return std::make_pair(owner->vertex(i), i);
+            }
+
             PairedGraphIterator& operator++() {
                 i++;
                 return *this;
@@ -237,20 +245,53 @@ namespace gpp {
 
             typedef Graph<VertexType, EdgeType, IndexType> OwnerGraph;
         public:
-            PairedGraphIterator(const OwnerGraph* owner, IndexType i) : owner(owner),
-                                                                        i(i) {}
+            PairedGraphIterator(OwnerGraph* owner, IndexType i) : owner(owner),
+                                                                  i(i) { }
 
         protected:
             friend OwnerGraph;
 
 
+            OwnerGraph* owner;
+            IndexType i;
+        };
+
+        class ConstPairedGraphIterator : public std::iterator<std::input_iterator_tag, IndexType> {
+        public:
+            bool operator==(const ConstPairedGraphIterator& rhs) const { return i == rhs.i; }
+
+            bool operator!=(const ConstPairedGraphIterator& rhs) const { return i != rhs.i; }
+
+            std::pair<const VertexType*, IndexType> operator*() const {
+                return std::make_pair(owner->vertex(i), i);
+            }
+
+            ConstPairedGraphIterator& operator++() {
+                i++;
+                return *this;
+            }
+
+            typedef Graph<VertexType, EdgeType, IndexType> OwnerGraph;
+        public:
+            ConstPairedGraphIterator(
+                const OwnerGraph* owner,
+                IndexType i
+            ) : owner(owner), i(i) { }
+
+        protected:
+            friend OwnerGraph;
             const OwnerGraph* owner;
             IndexType i;
         };
 
+        typedef typename Graph<VertexType, EdgeType, IndexType>::template GraphView<ConstPairedGraphIterator> ConstPairedGraphView;
         typedef typename Graph<VertexType, EdgeType, IndexType>::template GraphView<PairedGraphIterator> PairedGraphView;
 
-        PairedGraphView all_vertices() const {
+        ConstPairedGraphView all_vertices() const {
+            return ConstPairedGraphView(this);
+        };
+
+        PairedGraphView all_vertices() {
             return PairedGraphView(this);
         };
     };
