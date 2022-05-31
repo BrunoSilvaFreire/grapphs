@@ -51,12 +51,11 @@ namespace gpp {
         while (!open.empty()) {
             IndexType next = Traversal<TGraph, Order>::next(open);
             perVertex(next);
+            visited.emplace(next);
             for (auto [neighbor, edge] : graph.edges_from(next)) {
                 if (visited.find(neighbor) != visited.end()) {
                     continue;
                 }
-                visited.emplace(neighbor);
-
                 perEdge(
                     static_cast<IndexType>(next),
                     static_cast<IndexType>(neighbor)

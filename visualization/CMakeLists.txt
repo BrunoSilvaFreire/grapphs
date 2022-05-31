@@ -1,11 +1,13 @@
 add_library(
         grapphs_visualization
         include/grapphs/dot.h
+        include/grapphs/graph_writer.h
         src/grapphs/dot.cpp
 )
 target_include_directories(
         grapphs_visualization
         INTERFACE
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include>
 )

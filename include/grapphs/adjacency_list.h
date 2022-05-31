@@ -223,9 +223,14 @@ namespace gpp {
             return ConstGraphIterator(this, size());
         }
 
-        class PairedGraphIterator
-            : public std::iterator<std::input_iterator_tag, IndexType> {
+        class PairedGraphIterator {
         public:
+            typedef std::input_iterator_tag iterator_category;
+            typedef std::pair<VertexType*, IndexType> value_type;
+            typedef std::ptrdiff_t difference_type;
+            typedef value_type* pointer;
+            typedef value_type& reference;
+
             bool operator==(const PairedGraphIterator& rhs) const { return i == rhs.i; }
 
             bool operator!=(const PairedGraphIterator& rhs) const { return i != rhs.i; }
@@ -256,8 +261,14 @@ namespace gpp {
             IndexType i;
         };
 
-        class ConstPairedGraphIterator : public std::iterator<std::input_iterator_tag, IndexType> {
+        class ConstPairedGraphIterator {
         public:
+            typedef std::input_iterator_tag iterator_category;
+            typedef std::pair<const VertexType*, IndexType> value_type;
+            typedef std::ptrdiff_t difference_type;
+            typedef value_type* pointer;
+            typedef value_type& reference;
+
             bool operator==(const ConstPairedGraphIterator& rhs) const { return i == rhs.i; }
 
             bool operator!=(const ConstPairedGraphIterator& rhs) const { return i != rhs.i; }

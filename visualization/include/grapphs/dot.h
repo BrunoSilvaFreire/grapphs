@@ -7,39 +7,22 @@
 #include <sstream>
 #include <fstream>
 #include <filesystem>
+#include <grapphs/graph_writer.h>
 
 namespace gpp {
-    template<typename VertexType, typename EdgeType, typename IndexType = DefaultGraphIndex>
-    std::string to_dot(const gpp::AdjacencyList<VertexType, EdgeType, IndexType>& graph) {
-        std::stringstream stream;
-        stream << "digraph {" << std::endl;
-        for (const auto [vertexPtr, index] : graph.all_vertices()) {
-            stream << std::string(4, ' ') << index << " [shape=box label=\"#" << index << ": "
-                   << (*vertexPtr) << '"' <<
-                   "];" << std::endl;
-        }
-        for (auto [vertex, index] : graph.all_vertices()) {
-            for (auto [otherIndex, edge] : graph.edges_from(index)) {
-                stream << std::string(4, ' ') << index << " -> " << otherIndex /*<< " [label=\"" << index << "->"
-                       << otherIndex << ": " << edge << '"' << "];"*/ << std::endl;
-            }
-        }
-        stream << "}";
-        return stream.str();
+    template<typename TGraph>
+    std::string to_dot(const TGraph& graph) {
+        gpp::GraphWriter<decltype(graph)> writer;
+        return writer.to_dot(graph);
     }
 
-    template<typename VertexType, typename EdgeType, typename IndexType = DefaultGraphIndex>
+    template<typename TGraph>
     bool save_to_dot(
-        const gpp::AdjacencyList<VertexType, EdgeType, IndexType>& graph,
+        const TGraph& graph,
         const std::filesystem::path& outputPath
     ) {
-        std::ofstream file(outputPath);
-        if (!file.is_open()) {
-            return false;
-        }
-        file << gpp::to_dot(graph);
-        file.close();
-        return true;
+        gpp::GraphWriter<decltype(graph)> writer;
+        return writer.save_to_dot(graph, outputPath);
     }
 }
 #endif
