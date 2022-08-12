@@ -38,6 +38,7 @@ namespace gpp {
         EdgeWriter edgeWriter;
         VertexPredicate vertexPredicate;
         EdgePredicate edgePredicate;
+        std::vector<std::string> notes;
     public:
         GraphWriter() {
             vertexWriter = [](
@@ -73,6 +74,10 @@ namespace gpp {
             GraphWriter::edgePredicate = edgePredicate;
         }
 
+        void addNote(const std::string& note) {
+            notes.emplace_back(note);
+        }
+
         std::string to_dot(const GraphType& graph) {
             std::stringstream stream;
             stream << "digraph {" << std::endl;
@@ -93,6 +98,16 @@ namespace gpp {
                     edgeWriter(stream, fromIndex, toIndex, edge);
                     stream << std::endl;
                 }
+            }
+            if (!notes.empty()) {
+                stream << "subgraph cluster_notes {" << std::endl;
+                stream << "label = \"Notes\";" << std::endl;
+                stream << "shape = rectangle;" << std::endl;
+                stream << "color = black;" << std::endl;
+                for (const auto& note : notes) {
+                    stream << note << std::endl;
+                }
+                stream << "}" << std::endl;
             }
             stream << "}";
             return stream.str();
