@@ -55,7 +55,9 @@ if (GRAPPHS_COMPILE_TESTS)
             nlohmann_json/3.10.5
             GENERATORS cmake
     )
-    conan_cmake_autodetect(CONAN_SETTINGS BUILD_TYPE ${CMAKE_BUILD_TYPE})
+    if (CONAN_SETTINGS STREQUAL "")
+        conan_cmake_autodetect(CONAN_SETTINGS BUILD_TYPE ${CMAKE_BUILD_TYPE})
+    endif ()
     conan_cmake_install(
             PATH_OR_REFERENCE .
             BUILD missing
