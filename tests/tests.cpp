@@ -67,14 +67,18 @@ void populate(TestGraph& graph) {
     }
 }
 
+ inline float distance(float x0, float y0, float x1, float y1) {
+    float diffX = (x1 - x0);
+    float diffY = (y1 - y0);
+    return std::sqrt(diffX * diffX + diffY * diffY);
+}
+
 struct Position {
 
     float x, y;
 
     float distance(const Position& other) const {
-        float diffX = (other.x - x);
-        float diffY = (other.y - y);
-        return std::sqrt(diffX * diffX + diffY * diffY);
+        return ::distance(x, y, other.x, other.y);
     }
 };
 
@@ -174,7 +178,8 @@ TEST(grapphs, astar_performance) {
         meanTime += time.count();
     }
     meanTime /= RUN_COUNT;
-    std::cout << "AStar for " << ASTAR_RADIUS << " radius took " << meanTime << "s on average (limit: " << frameTime
+    std::cout << "AStar for " << ASTAR_RADIUS << " radius took " << meanTime
+              << "s on average (limit: " << frameTime
               << "s, "
               << RUN_COUNT << " runs)"
               << std::endl;
@@ -183,3 +188,41 @@ TEST(grapphs, astar_performance) {
 }
 
 
+TEST(grapphs, astar) {
+    gpp::test_mazes(
+        [](gpp::Maze& maze) {
+            using IndexType = gpp::DefaultGraphIndex;
+            const gpp::AdjacencyList<gpp::Cell, int>& graph = maze.getGraph();
+            gpp::GraphPath path = gpp::astar(
+                graph,
+                maze.getStart(),
+                maze.getEnd(),
+                [&](IndexType from, IndexType to) {
+                    const gpp::Cell* originCell = graph.vertex(from);
+                    const gpp::Cell* destinationCell = graph.vertex(to);
+                    return distance(
+                        static_cast<float>(originCell->x),
+                        static_cast<float>(destinationCell->x),
+                        static_cast<float>(originCell->y),
+                        static_cast<float>(destinationCell->y)
+                    );
+                },
+                [](IndexType, IndexType, int distance) {
+                    return static_cast<float>(distance);
+                }
+            );
+            const std::vector<size_t>& shortestPath = maze.getShortestPath();
+            EXPECT_EQ(path.count(), shortestPath.size())
+                            << "AStar returned a different path from the shortest one";
+            std::size_t max = std::min(path.count(), shortestPath.size());
+            const std::vector<IndexType>& vertices = path.get_vertices();
+            for (std::size_t i = 0; i < max; ++i) {
+                IndexType actual = vertices[i];
+                IndexType expected = shortestPath[i];
+                GTEST_LOG_(INFO) << "Step #" << i << ", expected: " << expected << ", actual: "
+                                 << actual;
+                EXPECT_EQ(expected, actual) << "Incorrect step";
+            }
+        }
+    );
+}

@@ -61,6 +61,10 @@ namespace gpp {
 
         GraphPath(const std::vector<IndexType>& vertices) : vertices(vertices) {}
 
+        const std::vector<IndexType>& get_vertices() const {
+            return vertices;
+        }
+
         size_t count() const {
             return vertices.size();
         }
@@ -119,6 +123,7 @@ namespace gpp {
             for (const auto[neighborIndex, edge] : graph.edges_from(next)) {
                 float attempt = gScore[next] + distanceCalculator(next, neighborIndex, edge);
                 Iterator existing = gScore.find(neighborIndex);
+
                 // Not yet explored or we found a better path?
                 if (existing == gScore.end() || (*existing).second > attempt) {
                     history[neighborIndex] = next;
@@ -128,6 +133,7 @@ namespace gpp {
                         open.push(neighborIndex);
                     }
                 }
+
             }
         }
         throw std::runtime_error("Unable to find path");
