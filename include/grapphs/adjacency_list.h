@@ -10,12 +10,17 @@
 namespace gpp {
 
     template<
-        typename VertexType,
-        typename EdgeType,
-        typename IndexType = DefaultGraphIndex
+        typename TVertex,
+        typename TEdge,
+        typename TIndex = DefaultGraphIndex
     >
-    class AdjacencyList : public Graph<VertexType, EdgeType, IndexType> {
+    class AdjacencyList : public Graph<TVertex, TEdge, TIndex> {
     public:
+
+        using VertexType = TVertex;
+        using EdgeType = TEdge;
+        using IndexType = TIndex;
+
         AdjacencyList() = default;
 
         class Node {
