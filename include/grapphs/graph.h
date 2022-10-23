@@ -14,16 +14,13 @@
 namespace gpp {
     typedef size_t DefaultGraphIndex;
 
-    template<
-        typename TVertex,
-        typename TEdge,
-        typename TIndex = DefaultGraphIndex
-    >
+    template<typename TVertex, typename TEdge, typename TIndex = DefaultGraphIndex>
     class Graph {
     public:
-        typedef TVertex VertexType;
-        typedef TEdge EdgeType;
-        typedef TIndex IndexType;
+
+        using VertexType = TVertex;
+        using EdgeType = TEdge;
+        using IndexType = TIndex;
 
         virtual IndexType size() const = 0;
 
@@ -54,7 +51,7 @@ namespace gpp {
         }
 
     private:
-        typedef Graph<VertexType, EdgeType, IndexType> OwnerGraph;
+        using OwnerGraph = Graph<VertexType, EdgeType, IndexType>;
     public:
         template<class IteratorType>
         class GraphView {
@@ -67,6 +64,7 @@ namespace gpp {
                 last(graph, graph->size()) {
 
             }
+
             explicit GraphView(
                 const OwnerGraph* graph
             ) : first(graph, 0),
@@ -107,7 +105,7 @@ namespace gpp {
 
             typedef Graph<VertexType, EdgeType, IndexType> OwnerGraph;
         public:
-            GraphIterator(OwnerGraph* owner, IndexType i) : owner(owner), i(i) { }
+            GraphIterator(OwnerGraph* owner, IndexType i) : owner(owner), i(i) {}
 
         protected:
 
@@ -140,16 +138,11 @@ namespace gpp {
                 return *this;
             }
 
-            typedef Graph<VertexType, EdgeType, IndexType> OwnerGraph;
         public:
             ConstGraphIterator(const OwnerGraph* owner, IndexType i) : owner(owner),
                                                                        i(i) { }
 
         protected:
-
-            friend OwnerGraph;
-
-
             const OwnerGraph* owner;
             IndexType i;
 
