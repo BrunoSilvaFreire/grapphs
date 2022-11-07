@@ -14,7 +14,7 @@ add_library(
         include/grapphs/algorithms/bfs_traversal.h
         include/grapphs/algorithms/dfs_traversal.h
         include/grapphs/algorithms/rlo_traversal.h
-)
+        samples/osm_explorer/main.cpp)
 target_include_directories(
         grapphs
         INTERFACE
@@ -36,6 +36,8 @@ install(
 
 option(GRAPPHS_COMPILE_TESTS "Create Unit Test executable?" ON)
 option(GRAPPHS_COMPILE_VISUALIZATION "Create visualization target?" ON)
+option(GRAPPHS_COMPILE_SAMPLES "Create samples targets?" ON)
+
 if (GRAPPHS_COMPILE_TESTS)
     if (NOT EXISTS "${CMAKE_BINARY_DIR}/conan.cmake")
         message(STATUS "Downloading conan.cmake from https://github.com/conan-io/cmake-conan")
@@ -53,9 +55,11 @@ if (GRAPPHS_COMPILE_TESTS)
             REQUIRES
             gtest/1.11.0
             nlohmann_json/3.10.5
+            readosm/1.1.0a
             GENERATORS cmake
     )
-    if (CONAN_SETTINGS STREQUAL "")
+    message("Settings: ${CONAN_SETTINGS}")
+    if ("${CONAN_SETTINGS}" STREQUAL "")
         conan_cmake_autodetect(CONAN_SETTINGS BUILD_TYPE ${CMAKE_BUILD_TYPE})
     endif ()
     conan_cmake_install(
@@ -126,6 +130,12 @@ if (GRAPPHS_COMPILE_TESTS)
             grapphs_testlib
     )
 endif ()
+
 if (GRAPPHS_COMPILE_VISUALIZATION)
     add_subdirectory(visualization)
+endif ()
+
+if (GRAPPHS_COMPILE_SAMPLES)
+    add_subdirectory(samples/libosm)
+    add_subdirectory(samples/osm_explorer)
 endif ()
