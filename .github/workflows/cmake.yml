@@ -33,7 +33,7 @@ jobs:
         run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
       - name: Test grapphs
         working-directory: ${{github.workspace}}/build/bin
-        run: ./grapphs_tests
-      - name: Test grapphs_visualization
+        run: ./grapphs-tests
+      - name: Test grapphs-visualization
         working-directory: ${{github.workspace}}/build/bin
-        run: ./grapphs_visualization_tests
+        run: ./grapphs-visualization-tests
