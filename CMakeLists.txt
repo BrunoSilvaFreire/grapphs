@@ -124,17 +124,17 @@ if (GRAPPHS_COMPILE_TESTS)
             tests/shared
     )
     add_executable(
-            grapphs_tests
+            grapphs-tests
             tests/tests.cpp
             tests/traversal.cpp
             tests/maze.cpp
     )
     add_dependencies(
-            grapphs_tests
+            grapphs-tests
             grapphs-generate-mazes
     )
     target_link_libraries(
-            grapphs_tests
+            grapphs-tests
             grapphs-testlib
     )
 endif ()
