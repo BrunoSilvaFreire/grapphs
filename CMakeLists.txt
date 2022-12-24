@@ -1,7 +1,12 @@
 cmake_minimum_required(VERSION 3.19)
-project(grapphs)
+project(grapphs LANGUAGES CXX)
+
 set(CMAKE_CXX_STANDARD 17)
+
 include(GNUInstallDirs)
+include(CMakePrintHelpers)
+include(ExternalData)
+
 add_library(
         grapphs INTERFACE
         include/grapphs/graph.h
@@ -14,14 +19,17 @@ add_library(
         include/grapphs/algorithms/bfs_traversal.h
         include/grapphs/algorithms/dfs_traversal.h
         include/grapphs/algorithms/rlo_traversal.h
-        samples/osm_explorer/main.cpp)
+        samples/osm_explorer/main.cpp
+)
+
+add_library(grapphs::grapphs ALIAS grapphs)
+
 target_include_directories(
         grapphs
         INTERFACE
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
-include(CMakePrintHelpers)
 
 set_target_properties(
         grapphs
@@ -35,7 +43,7 @@ install(
 )
 
 option(GRAPPHS_COMPILE_TESTS "Create Unit Test executable?" ON)
-option(GRAPPHS_COMPILE_VISUALIZATION "Create visualization target?" ON)
+option(GRAPPHS_COMPILE_GRAPHVIZ "Create graphviz support target?" ON)
 option(GRAPPHS_COMPILE_SAMPLES "Create samples targets?" ON)
 
 if (GRAPPHS_COMPILE_TESTS)
@@ -75,7 +83,7 @@ if (GRAPPHS_COMPILE_TESTS)
 
     set(GRAPPHS_MAZES_SIZES 3 5 10 15 25 35 50 100)
     add_custom_target(
-            grapphs_generate_mazes
+            grapphs-generate-mazes
             COMMAND
             ${CMAKE_COMMAND} -E make_directory ${CMAKE_INSTALL_BINDIR}/mazes
     )
@@ -83,7 +91,7 @@ if (GRAPPHS_COMPILE_TESTS)
         set(MAZE_OUTPUT ${CMAKE_INSTALL_BINDIR}/mazes/maze_${INDEX}.json)
         add_custom_command(
                 TARGET
-                grapphs_generate_mazes
+                grapphs-generate-mazes
                 COMMAND
                 ${Python_EXECUTABLE}
                 ${CMAKE_CURRENT_SOURCE_DIR}/scripts/maze_gen.py
@@ -98,20 +106,20 @@ if (GRAPPHS_COMPILE_TESTS)
         )
     endforeach ()
     add_library(
-            grapphs_testlib
+            grapphs-testlib
             tests/shared/grapphs
             tests/shared/grapphs/tests/mazes.cpp
             tests/shared/grapphs/tests/traversal_order.h
             tests/shared/grapphs/tests/traversal_order.cpp
     )
     target_link_libraries(
-            grapphs_testlib
+            grapphs-testlib
             grapphs
             CONAN_PKG::nlohmann_json
             CONAN_PKG::gtest
     )
     target_include_directories(
-            grapphs_testlib
+            grapphs-testlib
             PUBLIC
             tests/shared
     )
@@ -123,16 +131,16 @@ if (GRAPPHS_COMPILE_TESTS)
     )
     add_dependencies(
             grapphs_tests
-            grapphs_generate_mazes
+            grapphs-generate-mazes
     )
     target_link_libraries(
             grapphs_tests
-            grapphs_testlib
+            grapphs-testlib
     )
 endif ()
 
-if (GRAPPHS_COMPILE_VISUALIZATION)
-    add_subdirectory(visualization)
+if (GRAPPHS_COMPILE_GRAPHVIZ)
+    add_subdirectory(modules/graphviz)
 endif ()
 
 if (GRAPPHS_COMPILE_SAMPLES)
