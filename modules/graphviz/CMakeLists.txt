@@ -1,43 +1,45 @@
 add_library(
-        grapphs_visualization
+        grapphs-graphviz
         include/grapphs/dot.h
         include/grapphs/graph_writer.h
         src/grapphs/dot.cpp
 )
+
+add_library(grapphs::graphviz ALIAS grapphs-graphviz)
+
 target_include_directories(
-        grapphs_visualization
+        grapphs-graphviz
         INTERFACE
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include>
 )
 set_target_properties(
-        grapphs_visualization
+        grapphs-graphviz
         PROPERTIES
         LINKER_LANGUAGE CXX
 )
 target_link_libraries(
-        grapphs_visualization
+        grapphs-graphviz
         grapphs
 )
 option(GRAPPHS_COMPILE_VISUALIZATION_TESTS "Create visualization target tests?" ON)
 
 if (GRAPPHS_COMPILE_TESTS AND GRAPPHS_COMPILE_VISUALIZATION_TESTS)
     add_executable(
-            grapphs_visualization_tests
+            grapphs-graphviz-tests
             tests/tests.cpp
     )
     target_link_libraries(
-            grapphs_visualization_tests
-            grapphs_visualization
-            grapphs_testlib
+            grapphs-graphviz-tests
+            grapphs-graphviz
+            grapphs-testlib
     )
     add_dependencies(
-            grapphs_visualization_tests
-            grapphs_generate_mazes
+            grapphs-graphviz-tests
+            grapphs-generate-mazes
     )
     add_custom_command(
-            TARGET grapphs_visualization_tests
+            TARGET grapphs-graphviz-tests
             COMMAND ${CMAKE_COMMAND}
             -E copy_directory
             $<TARGET_PROPERTY:grapphs,BINARY_DIR>/bin/mazes
