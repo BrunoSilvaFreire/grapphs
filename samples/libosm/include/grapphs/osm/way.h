@@ -58,6 +58,12 @@ namespace gpp::osm {
 
     public:
         WayMetadata(const std::string& name, Flags flags, Kind kind);
+
+        const std::string& get_name() const;
+
+        Flags get_flags() const;
+
+        Kind get_kind() const;
     };
 
     class Way {
@@ -65,12 +71,17 @@ namespace gpp::osm {
         std::size_t _metadataIndex;
 
     public:
-        Way(size_t metadataIndex = -1);
+        static constexpr std::size_t invalid_metadata() {
+            return -1;
+        }
+
+        Way(size_t metadataIndex = invalid_metadata());
 
         size_t get_metadata_index() const;
 
         friend std::ostream& operator<<(std::ostream& os, const Way& way);
 
+        bool has_metadata() const;
     };
 
     class OSMGraph : public gpp::AdjacencyList<Node, Way> {
