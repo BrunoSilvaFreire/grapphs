@@ -65,7 +65,6 @@ if (GRAPPHS_COMPILE_TESTS)
             gtest/1.11.0
             nlohmann_json/3.10.5
             readosm/1.1.0a
-            xerces-c/3.2.4
             GENERATORS cmake
     )
     message("Settings: ${CONAN_SETTINGS}")
