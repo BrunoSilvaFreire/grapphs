@@ -43,14 +43,21 @@ namespace gpp::osm {
         return os;
     }
 
-    bool Way::has_metadata() const  {
+    WayMetadata::Flags operator|=(WayMetadata::Flags a, WayMetadata::Flags b) {
+        return a | b;
+    }
+
+    WayMetadata::Flags operator|(WayMetadata::Flags a, WayMetadata::Flags b) {
+        return static_cast<WayMetadata::Flags>(static_cast<uint8_t>(a) | static_cast<uint8_t>(b));
+    }
+    WayMetadata::Flags operator&(WayMetadata::Flags a, WayMetadata::Flags b) {
+        return static_cast<WayMetadata::Flags>(static_cast<uint8_t>(a) & static_cast<uint8_t>(b));
+    }
+
+    bool Way::has_metadata() const {
         return _metadataIndex != invalid_metadata();
     }
 
-    WayMetadata::WayMetadata(
-        const std::string& name, WayMetadata::Flags flags, WayMetadata::Kind kind
-    ) : _name(name), _flags(flags), _kind(kind) {
-    }
 
     const std::string& WayMetadata::get_name() const {
         return _name;
@@ -58,6 +65,23 @@ namespace gpp::osm {
 
     WayMetadata::Flags WayMetadata::get_flags() const {
         return _flags;
+    }
+
+    WayMetadata::Surface WayMetadata::get_surface() const {
+        return _surface;
+    }
+
+    WayMetadata::WayMetadata(
+        const std::string& name,
+        float maxSpeed,
+        WayMetadata::Flags flags,
+        WayMetadata::Kind kind,
+        WayMetadata::Surface surface
+    ) : _name(name), _maxSpeed(maxSpeed), _flags(flags), _kind(kind), _surface(surface) {
+    }
+
+    float WayMetadata::get_max_speed() const {
+        return _maxSpeed;
     }
 
     WayMetadata::Kind WayMetadata::get_kind() const {

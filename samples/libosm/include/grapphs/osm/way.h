@@ -42,29 +42,52 @@ namespace gpp::osm {
     public:
         WayMetadata(const WayMetadata&) = default;
 
-        enum Flags {
+        enum class Flags : uint8_t {
             eSidewalkLeft = 1 << 0,
             eSidewalkRight = 1 << 1,
-            eSidewalkBoth = eSidewalkLeft | eSidewalkRight,
+            eLit = 1 << 2,
+            eBuilding,
+            eSidewalkBoth = eSidewalkLeft | eSidewalkRight
         };
-        enum Kind : uint8_t {
-            eDirt, eRoad, eAvenue, eHighway, eUnknown
+
+
+        enum class Surface : uint8_t {
+            eDirt, eAsphalt, eUnknown
         };
+        enum class Kind : uint8_t {
+            eWay, eRoad, eAvenue, eHighway, eUnknown
+        };
+
 
     private:
         std::string _name;
+        float _maxSpeed;
         Flags _flags;
         Kind _kind;
+        Surface _surface;
 
     public:
-        WayMetadata(const std::string& name, Flags flags, Kind kind);
+        WayMetadata() = default;
+
+        WayMetadata(const std::string& name, float maxSpeed, Flags flags,Kind kind, Surface surface);
 
         const std::string& get_name() const;
 
         Flags get_flags() const;
 
+        Surface get_surface() const;
+
+        float get_max_speed() const;
+
         Kind get_kind() const;
     };
+
+    WayMetadata::Flags operator|(WayMetadata::Flags a, WayMetadata::Flags b);
+
+    WayMetadata::Flags operator&(WayMetadata::Flags a, WayMetadata::Flags b);
+
+    WayMetadata::Flags operator|=(WayMetadata::Flags a, WayMetadata::Flags b);
+
 
     class Way {
     private:
@@ -83,6 +106,7 @@ namespace gpp::osm {
 
         bool has_metadata() const;
     };
+
 
     class OSMGraph : public gpp::AdjacencyList<Node, Way> {
     private:

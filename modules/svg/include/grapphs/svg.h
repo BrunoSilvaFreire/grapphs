@@ -23,35 +23,73 @@ namespace gpp {
     enum SVGWriterFlags : std::uint8_t {
         eVerbose = 1 << 0, eDrawVertices = 1 << 1, eDrawEdges = 1 << 2
     };
+
+    union SVGColor {
+        struct {
+            uint8_t r, g, b, a;
+        };
+        uint8_t rgba[4];
+        uint32_t rgba32;
+
+        SVGColor(uint32_t rgba) : rgba32(rgba) {
+        }
+
+        static SVGColor black();
+
+        friend std::ostream& operator<<(std::ostream& os, const SVGColor& color);
+
+    };
+
+    struct SVGAttributes {
+        SVGColor color = SVGColor::black();
+        float size = 1;
+
+        friend std::ostream& operator<<(std::ostream& os, const SVGAttributes& attributes);
+    };
+
     template<typename TGraph>
     class SVGWriter {
     public:
         using IndexType = typename TGraph::IndexType;
         using VertexType = typename TGraph::VertexType;
         using EdgeType = typename TGraph::EdgeType;
+
         using PositionFunctor = std::function<
             void(
                 IndexType i, const VertexType& vertex, float& x, float& y
             )
         >;
+
         using VertexFilter = std::function<
             bool(
                 IndexType i, const VertexType& vertex
             )
         >;
+
         using EdgeFilter = std::function<
             bool(
                 IndexType from, IndexType to, const EdgeType& edgeType
             )
         >;
-     
+
+        template<typename TElement> using Customizer = std::function<
+            void(
+                const TElement& entry, SVGAttributes& attributes
+            )
+        >;
+
+        using VertexCustomizer = Customizer<VertexType>;
+        using EdgeCustomizer = Customizer<EdgeType>;
     private:
         SVGViewBox _viewBox;
         float _nodeRadius = 1;
         PositionFunctor _positionFunctor;
-        SVGWriterFlags _flags = static_cast<SVGWriterFlags>(SVGWriterFlags::eDrawEdges | SVGWriterFlags::eDrawVertices);
+        SVGWriterFlags _flags = static_cast<SVGWriterFlags>(SVGWriterFlags::eDrawEdges |
+                                                            SVGWriterFlags::eDrawVertices);
         VertexFilter _vertexFilter;
         EdgeFilter _edgeFilter;
+        VertexCustomizer _vertexCustomizer;
+        EdgeCustomizer _edgeCustomizer;
 
         bool testFlags(SVGWriterFlags flags) {
             return (_flags & flags) == flags;
@@ -79,6 +117,14 @@ namespace gpp {
             _edgeFilter = edgeFilter;
         }
 
+        void set_vertex_customizer(const VertexCustomizer& vertexCustomizer) {
+            _vertexCustomizer = vertexCustomizer;
+        }
+
+        void set_edge_customizer(const EdgeCustomizer& edgeCustomizer) {
+            _edgeCustomizer = edgeCustomizer;
+        }
+
         void write(
             std::ostream& os, const gpp::AdjacencyList<VertexType, EdgeType, IndexType>& graph
         ) {
@@ -90,7 +136,6 @@ namespace gpp {
             if (testFlags(SVGWriterFlags::eDrawVertices)) {
                 for (IndexType i = 0; i < graph.size(); i++) {
                     const VertexType& vertex = *graph.vertex(i);
-
                     if (_vertexFilter != nullptr && !_vertexFilter(i, vertex)) {
                         continue;
                     }
@@ -102,9 +147,15 @@ namespace gpp {
                         os << "<!-- " << i << " --> " << std::endl;
                     }
 
+                    SVGAttributes attributes;
+                    attributes.size = _nodeRadius;
 
-                    os << "<circle cx=\"" << x << "\" cy=\"" << y << "\" r=\"" << _nodeRadius
-                       << "\" fill=\"black\"/> " << std::endl;
+                    if (_vertexCustomizer != nullptr) {
+                        _vertexCustomizer(vertex, attributes);
+                    }
+
+                    os << "<circle cx=\"" << x << "\" cy=\"" << y << "\" r=\"" << attributes.size
+                       << "\" fill=\"" << attributes.color << "\"/> " << std::endl;
                 }
             }
             if (testFlags(SVGWriterFlags::eDrawEdges)) {
@@ -125,9 +176,15 @@ namespace gpp {
                         if (verbose) {
                             os << "<!-- " << i << "-" << j << " --> " << std::endl;
                         }
+                        SVGAttributes attributes;
+                        attributes.size = _nodeRadius;
 
+                        if (_edgeCustomizer != nullptr) {
+                            _edgeCustomizer(edge, attributes);
+                        }
                         os << "<line x1=\"" << x1 << "\" y1=\"" << y1 << "\" x2=\"" << x2
-                           << "\" y2=\"" << y2 << "\" stroke=\"black\"/>" << std::endl;
+                           << "\" y2=\"" << y2 << "\" stroke=\"" << attributes.color
+                           << "\" stroke-width=\"" << attributes.size << "\"/>" << std::endl;
                     }
                 }
             }
