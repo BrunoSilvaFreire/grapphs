@@ -13,7 +13,6 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v3
       - name: Setup Ninja
@@ -34,6 +33,6 @@ jobs:
       - name: Test grapphs
         working-directory: ${{github.workspace}}/build/bin
         run: ./grapphs-tests
-      - name: Test grapphs-visualization
+      - name: Test grapphs-graphviz
         working-directory: ${{github.workspace}}/build/bin
-        run: ./grapphs-visualization-tests
+        run: ./grapphs-graphviz-tests
