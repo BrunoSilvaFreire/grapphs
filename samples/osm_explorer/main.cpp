@@ -1,6 +1,7 @@
 #include <iostream>
+#include <fstream>
 #include <grapphs/osm/parse.h>
-#include <grapphs/dot.h>
+#include <grapphs/svg.h>
 
 
 class AABB {
@@ -10,8 +11,8 @@ public:
     AABB(
         double minX = std::numeric_limits<double>::max(),
         double minY = std::numeric_limits<double>::max(),
-        double maxX = std::numeric_limits<double>::min(),
-        double maxY = std::numeric_limits<double>::min())
+        double maxX = -std::numeric_limits<double>::max(),
+        double maxY = -std::numeric_limits<double>::max())
         : minX(minX), minY(minY), maxX(maxX), maxY(maxY) {
     }
 
@@ -71,16 +72,11 @@ int main(int argc, char** argv) {
                   << std::endl;
         return 1;
     }
-    int maxExportIndex = 50;
-    if (argc > 1) {
-        maxExportIndex = atoi(argv[1]);
-    }
-
     gpp::osm::OSMGraph graph;
 
     gpp::osm::parse(file, graph);
 
-    std::cout << "Graph size: " << graph.size();
+    std::cout << "Graph size: " << graph.size() << std::endl;
 
     AABB aabb;
     for (std::size_t i = 0; i < graph.size(); ++i) {
@@ -101,35 +97,31 @@ int main(int argc, char** argv) {
             aabb.set_min_y(y);
         }
     }
-
-    gpp::GraphWriter<gpp::osm::OSMGraph> writer;
-
-    writer.setVertexPredicate(
-        [&](std::size_t index, const gpp::osm::Node& vertex) {
-            return index < maxExportIndex;
-        }
+    std::cout << "AABB min X: " << aabb.get_min_x() << std::endl;
+    std::cout << "AABB max X: " << aabb.get_max_x() << std::endl;
+    std::cout << "AABB min Y: " << aabb.get_min_y() << std::endl;
+    std::cout << "AABB max Y: " << aabb.get_max_y() << std::endl;
+    gpp::SVGViewBox viewBox = gpp::SVGViewBox::centralized(4000, 4000);
+    AABB viewportAABB(
+        viewBox.minX, viewBox.minY, viewBox.minX + viewBox.width, viewBox.minY + viewBox.height
     );
-    writer.setEdgePredicate(
-        [](std::size_t from, std::size_t to, const gpp::osm::Way& edge) {
-            return false;
-        }
-    );
-    float mapSize = 500;
-    writer.setVertexWriter(
-        [&](
-            std::stringstream& stream, std::size_t index, const gpp::osm::Node& vertex
+    gpp::SVGWriter<gpp::osm::OSMGraph> writer(
+        viewBox, [&](
+            std::size_t index, const gpp::osm::Node& node, float& x, float& y
         ) {
-            const gpp::osm::Coordinate& coordinate = vertex.get_location();
-            double x = coordinate.get_longitude();
-            double y = coordinate.get_latitude();
-
-            double fx = lerp<double>(0.0, mapSize, inv_lerp(aabb.get_min_x(), aabb.get_max_x(), x));
-            double fy = lerp<double>(0.0, mapSize, inv_lerp(aabb.get_min_y(), aabb.get_max_y(), y));
-
-            stream << " [shape=point width=0.005 label=\"\" pos=\"" << fx << "," << fy << "!\""
-                   << "];";
+            const gpp::osm::Coordinate& location = node.get_location();
+            double relX = inv_lerp(aabb.get_min_x(), aabb.get_max_x(), location.get_longitude());
+            double relY = inv_lerp(aabb.get_min_y(), aabb.get_max_y(), location.get_latitude());
+            x = lerp(viewportAABB.get_min_x(), viewportAABB.get_max_x(), relX);
+            y = lerp(viewportAABB.get_min_y(), viewportAABB.get_max_x(), relY);
         }
     );
+    writer.set_flags(gpp::SVGWriterFlags::eDrawEdges);
 
-    writer.save_to_dot(graph, src / "curitiba.dot");
+    auto svgFile = src / "curitiba.svg";
+    {
+        std::ofstream stream(svgFile);
+        writer.write(stream, graph);
+        std::cout << "SVG File: " << std::filesystem::absolute(svgFile) << std::endl;
+    }
 }

@@ -43,9 +43,25 @@ namespace gpp::osm {
         return os;
     }
 
+    bool Way::has_metadata() const  {
+        return _metadataIndex != invalid_metadata();
+    }
+
     WayMetadata::WayMetadata(
         const std::string& name, WayMetadata::Flags flags, WayMetadata::Kind kind
     ) : _name(name), _flags(flags), _kind(kind) {
+    }
+
+    const std::string& WayMetadata::get_name() const {
+        return _name;
+    }
+
+    WayMetadata::Flags WayMetadata::get_flags() const {
+        return _flags;
+    }
+
+    WayMetadata::Kind WayMetadata::get_kind() const {
+        return _kind;
     }
 
     std::size_t OSMGraph::push_meta(WayMetadata&& metadata) {

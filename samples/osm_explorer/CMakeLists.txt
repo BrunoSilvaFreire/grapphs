@@ -8,7 +8,7 @@ target_link_libraries(
         grapphs-osm-explorer
         PUBLIC
         grapphs-libosm
-        grapphs-graphviz
+        grapphs-svg
 )
 
 add_custom_command(

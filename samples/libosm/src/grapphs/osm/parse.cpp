@@ -48,6 +48,10 @@ namespace gpp::osm {
         return "";
     }
 
+    bool is_interesting(const gpp::osm::WayMetadata& meta){
+        return !meta.get_name().empty();
+    }
+
     int way_parse(const void* pHelper, const readosm_way* way) {
         auto& into = const_cast<ParserHelper&>(*static_cast<const ParserHelper*>(pHelper));
 
@@ -75,16 +79,18 @@ namespace gpp::osm {
         gpp::osm::WayMetadata meta(name, flags, kind);
 
         OSMGraph& graph = into.get_graph();
-
-        std::size_t metaIndex = graph.push_meta(std::move(meta));
+        std::size_t metaIndex;
+        if (is_interesting(meta)){
+            metaIndex = graph.push_meta(std::move(meta));
+        } else {
+            metaIndex = gpp::osm::Way::invalid_metadata();
+        }
 
         for (int i = 1; i < way->node_ref_count; ++i) {
             const auto& from = into.get_gpp_index(way->node_refs[i - 1]);
             const auto& to = into.get_gpp_index(way->node_refs[i]);
             graph.connect(from, to, gpp::osm::Way(metaIndex));
         }
-
-        std::cout << std::endl;
 
         return READOSM_OK;
     }

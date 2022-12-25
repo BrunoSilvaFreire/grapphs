@@ -44,6 +44,7 @@ install(
 
 option(GRAPPHS_COMPILE_TESTS "Create Unit Test executable?" ON)
 option(GRAPPHS_COMPILE_GRAPHVIZ "Create graphviz support target?" ON)
+option(GRAPPHS_COMPILE_SVG "Create svg target?" ON)
 option(GRAPPHS_COMPILE_SAMPLES "Create samples targets?" ON)
 
 if (GRAPPHS_COMPILE_TESTS)
@@ -64,6 +65,7 @@ if (GRAPPHS_COMPILE_TESTS)
             gtest/1.11.0
             nlohmann_json/3.10.5
             readosm/1.1.0a
+            xerces-c/3.2.4
             GENERATORS cmake
     )
     message("Settings: ${CONAN_SETTINGS}")
@@ -141,6 +143,10 @@ endif ()
 
 if (GRAPPHS_COMPILE_GRAPHVIZ)
     add_subdirectory(modules/graphviz)
+endif ()
+
+if (GRAPPHS_COMPILE_SVG)
+    add_subdirectory(modules/svg)
 endif ()
 
 if (GRAPPHS_COMPILE_SAMPLES)
