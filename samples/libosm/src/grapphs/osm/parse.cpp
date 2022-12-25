@@ -5,6 +5,11 @@
 #include <unordered_map>
 
 namespace gpp::osm {
+
+    static std::unordered_map<std::string, gpp::osm::WayMetadata::Surface> kName2Surface = {
+        {"dirt", gpp::osm::WayMetadata::Surface::eDirt},
+        {"asphalt", gpp::osm::WayMetadata::Surface::eAsphalt}};
+
     class ParserHelper {
     private:
         std::unordered_map<std::size_t, std::size_t> _osm2gpp;
@@ -48,8 +53,17 @@ namespace gpp::osm {
         return "";
     }
 
-    bool is_interesting(const gpp::osm::WayMetadata& meta){
-        return !meta.get_name().empty();
+    bool is_interesting(const gpp::osm::WayMetadata& meta) {
+        if (meta.get_kind() != WayMetadata::Kind::eUnknown) {
+            return true;
+        }
+        if (meta.get_surface() != WayMetadata::Surface::eUnknown) {
+            return true;
+        }
+        if (meta.get_max_speed() > 0) {
+            return true;
+        }
+        return false;
     }
 
     int way_parse(const void* pHelper, const readosm_way* way) {
@@ -73,14 +87,53 @@ namespace gpp::osm {
         }*/
         std::string name = find_tag("name", way);
 
-        gpp::osm::WayMetadata::Flags flags{};
-        gpp::osm::WayMetadata::Kind kind = gpp::osm::WayMetadata::Kind::eUnknown;
+        gpp::osm::WayMetadata::Surface surface = gpp::osm::WayMetadata::Surface::eUnknown;
+        std::string surfaceKind = find_tag("surface", way);
+        if (auto it = kName2Surface.find(surfaceKind); it != kName2Surface.end()) {
+            surface = it->second;
+        }
 
-        gpp::osm::WayMetadata meta(name, flags, kind);
+        gpp::osm::WayMetadata::Flags flags{};
+
+
+        if (find_tag("lit", way) == "yes") {
+            flags |= gpp::osm::WayMetadata::Flags::eLit;
+        }
+
+        if (find_tag("building", way) == "yes") {
+            flags |= gpp::osm::WayMetadata::Flags::eBuilding;
+        }
+
+        gpp::osm::WayMetadata::Kind kind = gpp::osm::WayMetadata::Kind::eUnknown;
+        if (!find_tag("highway", way).empty()) {
+            kind = gpp::osm::WayMetadata::Kind::eHighway;
+        } else {
+            std::string lanesStr = find_tag("lanes", way);
+            if (!lanesStr.empty()) {
+                auto numLanes = std::stoi(lanesStr);
+                if (numLanes > 4) {
+                    kind = gpp::osm::WayMetadata::Kind::eHighway;
+                } else if (numLanes > 2) {
+                    kind = gpp::osm::WayMetadata::Kind::eAvenue;
+                } else if (numLanes > 1) {
+                    kind = gpp::osm::WayMetadata::Kind::eRoad;
+                } else if (numLanes == 1) {
+                    kind = gpp::osm::WayMetadata::Kind::eWay;
+                }
+            }
+        }
+
+        float maxSpeed = -1;
+        std::string speedStr = find_tag("max_speed", way);
+        if (!speedStr.empty()) {
+            maxSpeed = std::stof(speedStr);
+        }
+
+        gpp::osm::WayMetadata meta(name, maxSpeed, flags, kind, surface);
 
         OSMGraph& graph = into.get_graph();
         std::size_t metaIndex;
-        if (is_interesting(meta)){
+        if (is_interesting(meta)) {
             metaIndex = graph.push_meta(std::move(meta));
         } else {
             metaIndex = gpp::osm::Way::invalid_metadata();
@@ -96,13 +149,13 @@ namespace gpp::osm {
     }
 
     int relation_parse(const void* pHelper, const readosm_relation* relation) {
-      /*  std::cout << "Parsed relation @ " << relation->id << " (" << relation->member_count
-                  << " members)." << std::endl;
-        for (std::size_t i = 0; i < relation->member_count; ++i) {
-            const readosm_member& member = relation->members[i];
-            std::cout << "#" << i << ": " << member.id << ", type: " << member.member_type
-                      << ", role " << member.role << std::endl;
-        }*/
+        /*  std::cout << "Parsed relation @ " << relation->id << " (" << relation->member_count
+                    << " members)." << std::endl;
+          for (std::size_t i = 0; i < relation->member_count; ++i) {
+              const readosm_member& member = relation->members[i];
+              std::cout << "#" << i << ": " << member.id << ", type: " << member.member_type
+                        << ", role " << member.role << std::endl;
+          }*/
 
         return READOSM_OK;
     }

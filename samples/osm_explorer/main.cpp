@@ -101,23 +101,64 @@ int main(int argc, char** argv) {
     std::cout << "AABB max X: " << aabb.get_max_x() << std::endl;
     std::cout << "AABB min Y: " << aabb.get_min_y() << std::endl;
     std::cout << "AABB max Y: " << aabb.get_max_y() << std::endl;
+
     gpp::SVGViewBox viewBox = gpp::SVGViewBox::centralized(4000, 4000);
     AABB viewportAABB(
         viewBox.minX, viewBox.minY, viewBox.minX + viewBox.width, viewBox.minY + viewBox.height
     );
+
     gpp::SVGWriter<gpp::osm::OSMGraph> writer(
         viewBox, [&](
             std::size_t index, const gpp::osm::Node& node, float& x, float& y
         ) {
             const gpp::osm::Coordinate& location = node.get_location();
+
             double relX = inv_lerp(aabb.get_min_x(), aabb.get_max_x(), location.get_longitude());
             double relY = inv_lerp(aabb.get_min_y(), aabb.get_max_y(), location.get_latitude());
-            x = lerp(viewportAABB.get_min_x(), viewportAABB.get_max_x(), relX);
-            y = lerp(viewportAABB.get_min_y(), viewportAABB.get_max_x(), relY);
+
+            x = static_cast<float>(lerp(viewportAABB.get_min_x(), viewportAABB.get_max_x(), relX));
+            y = static_cast<float>(lerp(viewportAABB.get_min_y(), viewportAABB.get_max_x(), relY));
         }
     );
+
     writer.set_flags(gpp::SVGWriterFlags::eDrawEdges);
 
+    writer.set_edge_filter(
+        [&](std::size_t from, std::size_t to, const gpp::osm::Way& way) {
+            gpp::osm::WayMetadata meta;
+            if (!graph.get_metadata(way, meta)) {
+                return true;
+            }
+            return (meta.get_flags() & gpp::osm::WayMetadata::Flags::eBuilding) != gpp::osm::WayMetadata::Flags::eBuilding;
+        }
+    );
+
+    writer.set_edge_customizer(
+        [&](const gpp::osm::Way& way, gpp::SVGAttributes& attributes) {
+
+            gpp::osm::WayMetadata meta;
+            if (!graph.get_metadata(way, meta)) {
+                return;
+            }
+            attributes.color.r = static_cast<uint8_t>(lerp<float>(
+                0, 255, inv_lerp<float>(
+                    0, 80, meta.get_max_speed())));
+            switch (meta.get_kind()) {
+                case gpp::osm::WayMetadata::Kind::eWay:
+                    attributes.size = 0.5F;
+                    break;
+                case gpp::osm::WayMetadata::Kind::eRoad:
+                    attributes.size = 1.0F;
+                    break;
+                case gpp::osm::WayMetadata::Kind::eAvenue:
+                    attributes.size = 1.5F;
+                    break;
+                case gpp::osm::WayMetadata::Kind::eHighway:
+                    attributes.size = 2.0F;
+                    break;
+            }
+        }
+    );
     auto svgFile = src / "curitiba.svg";
     {
         std::ofstream stream(svgFile);
