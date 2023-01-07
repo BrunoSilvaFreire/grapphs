@@ -143,6 +143,7 @@ int main(int argc, char** argv) {
             attributes.color.r = static_cast<uint8_t>(lerp<float>(
                 0, 255, inv_lerp<float>(
                     0, 80, meta.get_max_speed())));
+
             switch (meta.get_kind()) {
                 case gpp::osm::way_metadata::kind::WAY:
                     attributes.size = 0.5F;
@@ -155,6 +156,8 @@ int main(int argc, char** argv) {
                     break;
                 case gpp::osm::way_metadata::kind::HIGHWAY:
                     attributes.size = 2.0F;
+                    break;
+                default:
                     break;
             }
         }
