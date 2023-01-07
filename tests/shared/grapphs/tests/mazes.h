@@ -20,27 +20,26 @@ namespace gpp {
         friend std::ostream& operator<<(std::ostream& os, const Cell& cell);
     };
 
-    class Maze {
+    class maze {
     private:
-        gpp::AdjacencyList<Cell, int> graph;
-        std::size_t start, end;
-        std::size_t size;
-        std::vector<size_t> shortestPath;
+        gpp::adjacency_list<Cell, int> _graph;
+        std::size_t _start, _end;
+        std::size_t _size;
+        std::vector<size_t> _shortestPath;
     public:
-        Maze(const std::filesystem::path& jsonPath);
+        maze(const std::filesystem::path& jsonPath);
 
-        const gpp::AdjacencyList<Cell, int>& getGraph() const;
+        const gpp::adjacency_list<Cell, int>& get_graph() const;
 
-        size_t getStart() const;
+        size_t get_start() const;
 
-        size_t getEnd() const;
+        size_t get_end() const;
 
-        size_t getSize() const;
+        size_t get_size() const;
 
-        const std::vector<size_t>& getShortestPath() const;
+        const std::vector<size_t>& get_shortest_path() const;
     };
 
-
-    void test_mazes(const std::function<void(Maze& maze)>& block);
+    void test_mazes(const std::function<void(maze& maze)>& block);
 }
 #endif //GRAPPHS_MAZES_H

@@ -9,85 +9,95 @@
 #include <stdexcept>
 
 namespace gpp {
-    template<typename VertexType, typename EdgeType, typename IndexType = DefaultGraphIndex>
-    class AdjacencyMatrix : public Graph<VertexType, EdgeType, IndexType> {
-    private:
-        std::vector<VertexType> vertices;
-        std::vector<EdgeType> edges;
+    template<typename t_vertex, typename t_edge, typename t_index = default_graph_index>
+    class adjacency_matrix : public graph<t_vertex, t_edge, t_index> {
     public:
 
-        explicit AdjacencyMatrix(IndexType size) : vertices(size), edges(size * size) {
+        using vertex_type = typename graph<t_vertex, t_edge, t_index>::vertex_type;
+        using edge_type = typename graph<t_vertex, t_edge, t_index>::edge_type;
+        using index_type = typename graph<t_vertex, t_edge, t_index>::index_type;
+
+    private:
+        std::vector<vertex_type> _vertices;
+        std::vector<edge_type> _edges;
+    public:
+
+        explicit adjacency_matrix(index_type size) : _vertices(size), _edges(size * size) {
         }
 
-        explicit AdjacencyMatrix(Graph<VertexType, EdgeType, IndexType>* other)
-            : vertices(), edges() {
-            auto size = static_cast<IndexType>(other->size());
-            vertices.resize(size);
-            edges.resize(size * size);
-            for (IndexType i = 0; i < size; ++i) {
-                VertexType vertex;
+        explicit adjacency_matrix(graph<vertex_type, edge_type, index_type>* other)
+            : _vertices(), _edges() {
+            auto size = static_cast<index_type>(other->size());
+            _vertices.resize(size);
+            _edges.resize(size * size);
+            for (index_type i = 0; i < size; ++i) {
+                vertex_type vertex;
                 if (other->try_get_vertex(i, vertex)) {
-                    vertices[i] = vertex;
+                    _vertices[i] = vertex;
                 }
             }
-            for (IndexType x = 0; x < size; ++x) {
-                for (IndexType y = 0; y < size; ++y) {
-                    EdgeType edge;
+            for (index_type x = 0; x < size; ++x) {
+                for (index_type y = 0; y < size; ++y) {
+                    edge_type edge;
                     if (other->try_get_edge(x, y, edge)) {
-                        IndexType i = index(x, y);
-                        edges[i] = edge;
+                        index_type i = index(x, y);
+                        _edges[i] = edge;
                     }
                 }
             }
         }
 
-        IndexType size() const override {
-            return vertices.size();
+        index_type size() const override {
+            return _vertices.size();
         }
 
-        VertexType* vertex(IndexType index) override {
-            return static_cast<VertexType*>(&vertices[index]);
+        vertex_type* vertex(index_type index) override {
+            return static_cast<vertex_type*>(&_vertices[index]);
         }
 
-        const VertexType* vertex(IndexType index) const override {
-            return static_cast<const VertexType*>(&vertices[index]);
+        const vertex_type* vertex(index_type index) const override {
+            return static_cast<const vertex_type*>(&_vertices[index]);
         }
 
-        IndexType index(IndexType from, IndexType to) {
-            return from * vertices.size() + to;
+        index_type index(index_type from, index_type to) {
+            return from * _vertices.size() + to;
         }
 
-        EdgeType* edge(IndexType from, IndexType to) override {
-            return &edges[index(from, to)];
+        edge_type* edge(index_type from, index_type to) override {
+            return &_edges[index(from, to)];
         }
 
-        void connect(IndexType from, IndexType to, EdgeType edge) override {
-            edges[index(from, to)] = edge;
+        void connect(index_type from, index_type to, edge_type edge) override {
+            _edges[index(from, to)] = edge;
         }
 
-        bool disconnect(IndexType from, IndexType to) override {
-            edges[index(from, to)] = EdgeType();
+        bool disconnect(index_type from, index_type to) override {
+            _edges[index(from, to)] = edge_type();
             return true;
         }
 
-        typedef typename Graph<VertexType, EdgeType, IndexType>::GraphIterator GraphIterator;
-        typedef typename Graph<VertexType, EdgeType, IndexType>::ConstGraphIterator ConstGraphIterator;
-        friend GraphIterator;
+        typedef typename graph<vertex_type, edge_type, index_type>::graph_iterator graph_iterator;
+        typedef typename graph<
+            vertex_type,
+            edge_type,
+            index_type
+        >::const_graph_iterator const_graph_iterator;
+        friend graph_iterator;
 
-        GraphIterator begin() override {
-            return GraphIterator(this, 0);
+        graph_iterator begin() override {
+            return graph_iterator(this, 0);
         }
 
-        GraphIterator end() override {
-            return GraphIterator(this, size());
+        graph_iterator end() override {
+            return graph_iterator(this, size());
         }
 
-        ConstGraphIterator begin() const override {
-            return ConstGraphIterator(this, 0);
+        const_graph_iterator begin() const override {
+            return const_graph_iterator(this, 0);
         }
 
-        ConstGraphIterator end() const override {
-            return ConstGraphIterator(this, size());
+        const_graph_iterator end() const override {
+            return const_graph_iterator(this, size());
         }
     };
 

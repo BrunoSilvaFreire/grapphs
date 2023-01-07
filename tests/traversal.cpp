@@ -11,7 +11,7 @@
 #include <ostream>
 #include <grapphs/tests/traversal_order.h>
 
-typedef std::pair<std::size_t, std::size_t> EdgeIdentifier;
+typedef std::pair<std::size_t, std::size_t> edge_identifier;
 
 void print_order(const std::vector<size_t>& order) {
     std::stringstream vertices;
@@ -36,8 +36,8 @@ void print_order(const std::vector<std::pair<size_t, size_t>>& order) {
     GTEST_LOG_(INFO) << vertices.str();
 }
 
-gpp::AdjacencyList<int, bool> build_traversal_graph() {
-    gpp::AdjacencyList<int, bool> graph;
+gpp::adjacency_list<int, bool> build_traversal_graph() {
+    gpp::adjacency_list<int, bool> graph;
     for (int i = 0; i <= 9; ++i) {
         graph.push(0);
     }
@@ -53,22 +53,23 @@ gpp::AdjacencyList<int, bool> build_traversal_graph() {
     return graph;
 }
 
-template<gpp::TraversalOrder Order>
+template<gpp::traversal_order Order>
 void test_order(
-    gpp::ExpectedTraversalOrder& expected
+    gpp::expected_traversal_order& expected
 ) {
-    gpp::AdjacencyList<int, bool> graph = build_traversal_graph();
+    gpp::adjacency_list<int, bool> graph = build_traversal_graph();
     std::size_t vertexIndex = 0;
     std::size_t edgeIndex = 0;
     std::vector<std::size_t> receivedVertices;
-    std::vector<EdgeIdentifier> receivedEdges;
-    gpp::traverse<gpp::AdjacencyList<int, bool>, Order>(
+    std::vector<edge_identifier> receivedEdges;
+    gpp::traverse<gpp::adjacency_list<int, bool>, Order>(
         graph,
         0,
         [&](std::size_t vertex) {
             bool isCorrect = expected.pop(vertex);
-            EXPECT_TRUE(isCorrect) << "Vertex " << vertex << " was not allowed for step #" << vertexIndex
-                                   << "(" << expected.listAvailable() << ")";
+            EXPECT_TRUE(isCorrect)
+                            << "Vertex " << vertex << " was not allowed for step #" << vertexIndex
+                            << "(" << expected.list_available() << ")";
             receivedVertices.emplace_back(vertex);
             vertexIndex++;
         },
@@ -84,41 +85,41 @@ void test_order(
 }
 
 TEST(grapphs, traversal_breadth_order) {
-    gpp::ExpectedTraversalOrder order = {
+    gpp::expected_traversal_order order = {
         0
     };
     order.then({1})
-        ->then({2, 3})
-        ->then({4, 5, 6})
-        ->then({7, 8, 9});
+         ->then({2, 3})
+         ->then({4, 5, 6})
+         ->then({7, 8, 9});
 
-    test_order<gpp::TraversalOrder::eBreadth>(order);
+    test_order<gpp::traversal_order::BREADTH>(order);
 }
 
 TEST(grapphs, traversal_depth_order) {
-    gpp::ExpectedTraversalOrder order = {
+    gpp::expected_traversal_order order = {
         0
     };
     order.then({1})
-        ->then({2})
-        ->then({6})
-        ->then({7, 8, 9})
-        ->then({3})
-        ->then({4, 5});
+         ->then({2})
+         ->then({6})
+         ->then({7, 8, 9})
+         ->then({3})
+         ->then({4, 5});
 
-    test_order<gpp::TraversalOrder::eDepth>(order);
+    test_order<gpp::traversal_order::DEPTH>(order);
 }
 
 TEST(grapphs, reverse_level_order_traversal) {
-    gpp::AdjacencyList<int, bool> graph = build_traversal_graph();
-    gpp::ExpectedTraversalOrder expected = {
+    gpp::adjacency_list<int, bool> graph = build_traversal_graph();
+    gpp::expected_traversal_order expected = {
         7, 8, 9, 4, 5
     };
 
     expected.then({6, 3})
-        ->then({2})
-        ->then({1})
-        ->then({0});
+            ->then({2})
+            ->then({1})
+            ->then({0});
     std::size_t vertexIndex = 0;
     gpp::reverse_level_order_traverse<decltype(graph)>(
         graph,
@@ -127,7 +128,7 @@ TEST(grapphs, reverse_level_order_traversal) {
             bool isCorrect = expected.pop(vertex);
             EXPECT_TRUE(isCorrect) << "Vertex " << vertex << " was not allowed for step #"
                                    << vertexIndex
-                                   << "(" << expected.listAvailable() << ")";
+                                   << "(" << expected.list_available() << ")";
             GTEST_LOG_(INFO) << "#" << vertexIndex << ": " << vertex;
             vertexIndex++;
         },

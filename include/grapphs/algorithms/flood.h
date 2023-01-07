@@ -12,21 +12,21 @@ namespace gpp {
 #if __cpp_concepts
 
     template<
-        gpp::is_graph GraphType,
+        gpp::is_graph graph_type,
         typename StartPointsContainer
     >
 #else
 
     template<
-        typename GraphType,
-        typename StartPointsContainer = std::set<typename GraphType::IndexType>
+        typename graph_type,
+        typename StartPointsContainer = std::set<typename graph_type::index_type>
     >
 #endif
     void flood(
-        const GraphType& graph,
+        const graph_type& graph,
         const StartPointsContainer& startingPoints,
-        const VertexExplorer<GraphType>& perVertex,
-        const EdgeExplorer<GraphType>& perEdge
+        const vertex_explorer<graph_type>& perVertex,
+        const edge_explorer<graph_type>& perEdge
     )
 #if __cpp_concepts
     requires std::input_iterator<typename StartPointsContainer::iterator>

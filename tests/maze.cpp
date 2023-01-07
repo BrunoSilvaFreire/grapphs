@@ -11,11 +11,11 @@
 #include <ostream>
 
 TEST(grapphs, maze_astar) {
-    gpp::test_mazes([](gpp::Maze& m) {
-        auto maze = m.getGraph();
-        auto start = m.getStart();
-        auto end = m.getEnd();
-        std::size_t size = m.getSize();
+    gpp::test_mazes([](gpp::maze& m) {
+        auto maze = m.get_graph();
+        auto start = m.get_start();
+        auto end = m.get_end();
+        std::size_t size = m.get_size();
         auto result = gpp::astar(
             maze, start, end,
             [&](size_t from, size_t to) -> float {
@@ -53,12 +53,12 @@ TEST(grapphs, maze_astar) {
 }
 
 TEST(grapphs, maze_shortest_path) {
-    gpp::test_mazes([](gpp::Maze& m) {
-        auto maze = m.getGraph();
-        auto start = m.getStart();
-        auto end = m.getEnd();
-        auto shortestPath = m.getShortestPath();
-        std::size_t size = m.getSize();
+    gpp::test_mazes([](gpp::maze& m) {
+        auto maze = m.get_graph();
+        auto start = m.get_start();
+        auto end = m.get_end();
+        auto shortestPath = m.get_shortest_path();
+        std::size_t size = m.get_size();
         auto result = gpp::astar(
             maze, start, end,
             [&](size_t from, size_t to) -> float {
@@ -93,12 +93,11 @@ TEST(grapphs, maze_shortest_path) {
     });
 }
 
-
 TEST(grapphs, maze_flood) {
-    gpp::test_mazes([](gpp::Maze& m) {
-        auto maze = m.getGraph();
-        auto start = m.getStart();
-        auto end = m.getEnd();
+    gpp::test_mazes([](gpp::maze& m) {
+        auto maze = m.get_graph();
+        auto start = m.get_start();
+        auto end = m.get_end();
         std::stringstream report;
         std::set<size_t> pending;
         for (size_t i = 0; i < maze.size(); ++i) {
@@ -110,7 +109,8 @@ TEST(grapphs, maze_flood) {
             [&](size_t index) {
                 pending.erase(index);
             },
-            [&](size_t from, size_t to) {}
+            [&](size_t from, size_t to) {
+            }
         );
         ASSERT_TRUE(pending.empty());
     });

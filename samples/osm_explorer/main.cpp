@@ -3,49 +3,48 @@
 #include <grapphs/osm/parse.h>
 #include <grapphs/svg.h>
 
-
-class AABB {
+class aabb {
 private:
-    double minX, minY, maxX, maxY;
+    double _minX, _minY, _maxX, _maxY;
 public:
-    AABB(
+    aabb(
         double minX = std::numeric_limits<double>::max(),
         double minY = std::numeric_limits<double>::max(),
         double maxX = -std::numeric_limits<double>::max(),
         double maxY = -std::numeric_limits<double>::max())
-        : minX(minX), minY(minY), maxX(maxX), maxY(maxY) {
+        : _minX(minX), _minY(minY), _maxX(maxX), _maxY(maxY) {
     }
 
     double get_min_x() const {
-        return minX;
+        return _minX;
     }
 
     void set_min_x(double minX) {
-        AABB::minX = minX;
+        aabb::_minX = minX;
     }
 
     double get_min_y() const {
-        return minY;
+        return _minY;
     }
 
     void set_min_y(double minY) {
-        AABB::minY = minY;
+        aabb::_minY = minY;
     }
 
     double get_max_x() const {
-        return maxX;
+        return _maxX;
     }
 
     void set_max_x(double maxX) {
-        AABB::maxX = maxX;
+        aabb::_maxX = maxX;
     }
 
     double get_max_y() const {
-        return maxY;
+        return _maxY;
     }
 
     void set_max_y(double maxY) {
-        AABB::maxY = maxY;
+        aabb::_maxY = maxY;
     }
 };
 
@@ -78,65 +77,66 @@ int main(int argc, char** argv) {
 
     std::cout << "Graph size: " << graph.size() << std::endl;
 
-    AABB aabb;
+    aabb cityAabb;
     for (std::size_t i = 0; i < graph.size(); ++i) {
         gpp::osm::Node* pNode = graph.vertex(i);
         const gpp::osm::Coordinate& coordinate = pNode->get_location();
         double x = coordinate.get_longitude();
         double y = coordinate.get_latitude();
-        if (x > aabb.get_max_x()) {
-            aabb.set_max_x(x);
+        if (x > cityAabb.get_max_x()) {
+            cityAabb.set_max_x(x);
         }
-        if (y > aabb.get_max_y()) {
-            aabb.set_max_y(y);
+        if (y > cityAabb.get_max_y()) {
+            cityAabb.set_max_y(y);
         }
-        if (x < aabb.get_min_x()) {
-            aabb.set_min_x(x);
+        if (x < cityAabb.get_min_x()) {
+            cityAabb.set_min_x(x);
         }
-        if (y < aabb.get_min_y()) {
-            aabb.set_min_y(y);
+        if (y < cityAabb.get_min_y()) {
+            cityAabb.set_min_y(y);
         }
     }
-    std::cout << "AABB min X: " << aabb.get_min_x() << std::endl;
-    std::cout << "AABB max X: " << aabb.get_max_x() << std::endl;
-    std::cout << "AABB min Y: " << aabb.get_min_y() << std::endl;
-    std::cout << "AABB max Y: " << aabb.get_max_y() << std::endl;
+    std::cout << "AABB min X: " << cityAabb.get_min_x() << std::endl;
+    std::cout << "AABB max X: " << cityAabb.get_max_x() << std::endl;
+    std::cout << "AABB min Y: " << cityAabb.get_min_y() << std::endl;
+    std::cout << "AABB max Y: " << cityAabb.get_max_y() << std::endl;
 
-    gpp::SVGViewBox viewBox = gpp::SVGViewBox::centralized(4000, 4000);
-    AABB viewportAABB(
+    gpp::svg_viewbox viewBox = gpp::svg_viewbox::centralized(4000, 4000);
+    aabb viewportAabb(
         viewBox.minX, viewBox.minY, viewBox.minX + viewBox.width, viewBox.minY + viewBox.height
     );
 
-    gpp::SVGWriter<gpp::osm::OSMGraph> writer(
+    gpp::svg_writer<gpp::osm::OSMGraph> writer(
         viewBox, [&](
             std::size_t index, const gpp::osm::Node& node, float& x, float& y
         ) {
             const gpp::osm::Coordinate& location = node.get_location();
 
-            double relX = inv_lerp(aabb.get_min_x(), aabb.get_max_x(), location.get_longitude());
-            double relY = inv_lerp(aabb.get_min_y(), aabb.get_max_y(), location.get_latitude());
+            double relX = inv_lerp(cityAabb.get_min_x(), cityAabb.get_max_x(), location.get_longitude());
+            double relY = inv_lerp(cityAabb.get_min_y(), cityAabb.get_max_y(), location.get_latitude());
 
-            x = static_cast<float>(lerp(viewportAABB.get_min_x(), viewportAABB.get_max_x(), relX));
-            y = static_cast<float>(lerp(viewportAABB.get_min_y(), viewportAABB.get_max_x(), relY));
+            x = static_cast<float>(lerp(viewportAabb.get_min_x(), viewportAabb.get_max_x(), relX));
+            y = static_cast<float>(lerp(viewportAabb.get_min_y(), viewportAabb.get_max_x(), relY));
         }
     );
 
-    writer.set_flags(gpp::SVGWriterFlags::eDrawEdges);
+    writer.set_flags(gpp::svg_writer_flags::DRAW_EDGES);
 
     writer.set_edge_filter(
         [&](std::size_t from, std::size_t to, const gpp::osm::Way& way) {
-            gpp::osm::WayMetadata meta;
+            gpp::osm::way_metadata meta;
             if (!graph.get_metadata(way, meta)) {
                 return true;
             }
-            return (meta.get_flags() & gpp::osm::WayMetadata::Flags::eBuilding) != gpp::osm::WayMetadata::Flags::eBuilding;
+            return (meta.get_flags() & gpp::osm::way_metadata::Flags::eBuilding)
+                   != gpp::osm::way_metadata::Flags::eBuilding;
         }
     );
 
     writer.set_edge_customizer(
         [&](const gpp::osm::Way& way, gpp::SVGAttributes& attributes) {
 
-            gpp::osm::WayMetadata meta;
+            gpp::osm::way_metadata meta;
             if (!graph.get_metadata(way, meta)) {
                 return;
             }
@@ -144,16 +144,16 @@ int main(int argc, char** argv) {
                 0, 255, inv_lerp<float>(
                     0, 80, meta.get_max_speed())));
             switch (meta.get_kind()) {
-                case gpp::osm::WayMetadata::Kind::eWay:
+                case gpp::osm::way_metadata::Kind::eWay:
                     attributes.size = 0.5F;
                     break;
-                case gpp::osm::WayMetadata::Kind::eRoad:
+                case gpp::osm::way_metadata::Kind::eRoad:
                     attributes.size = 1.0F;
                     break;
-                case gpp::osm::WayMetadata::Kind::eAvenue:
+                case gpp::osm::way_metadata::Kind::eAvenue:
                     attributes.size = 1.5F;
                     break;
-                case gpp::osm::WayMetadata::Kind::eHighway:
+                case gpp::osm::way_metadata::Kind::eHighway:
                     attributes.size = 2.0F;
                     break;
             }

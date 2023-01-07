@@ -10,18 +10,18 @@
 #include <grapphs/graph_writer.h>
 
 namespace gpp {
-    template<typename TGraph>
-    std::string to_dot(const TGraph& graph) {
-        gpp::GraphWriter<decltype(graph)> writer;
+    template<typename t_graph>
+    std::string to_dot(const t_graph& graph) {
+        gpp::graph_writer<decltype(graph)> writer;
         return writer.to_dot(graph);
     }
 
-    template<typename TGraph>
+    template<typename t_graph>
     bool save_to_dot(
-        const TGraph& graph,
+        const t_graph& graph,
         const std::filesystem::path& outputPath
     ) {
-        gpp::GraphWriter<decltype(graph)> writer;
+        gpp::graph_writer<decltype(graph)> writer;
         return writer.save_to_dot(graph, outputPath);
     }
 }

@@ -11,65 +11,65 @@
 #include <nlohmann/json.hpp>
 #include <grapphs/tests/mazes.h>
 
-enum MyFlags {
-    eA = 1 << 1,
-    eB = 1 << 2,
-    eC = 1 << 3
+enum my_flags {
+    A = 1 << 1,
+    B = 1 << 2,
+    C = 1 << 3
 };
 
-struct MyVertex {
+struct my_vertex {
 public:
-    MyFlags flags;
+    my_flags flags;
 
-    bool operator==(const MyVertex& rhs) const {
+    bool operator==(const my_vertex& rhs) const {
         return flags == rhs.flags;
     }
 
-    bool operator!=(const MyVertex& rhs) const {
+    bool operator!=(const my_vertex& rhs) const {
         return !(rhs == *this);
     }
 
-    friend std::ostream& operator<<(std::ostream& os, const MyVertex& vertex) {
+    friend std::ostream& operator<<(std::ostream& os, const my_vertex& vertex) {
         os << "flags: " << vertex.flags;
         return os;
     }
 };
 
-struct MyEdge {
+struct my_edge {
     float weight;
 
-    bool operator==(const MyEdge& rhs) const {
+    bool operator==(const my_edge& rhs) const {
         return weight == rhs.weight;
     }
 
-    bool operator!=(const MyEdge& rhs) const {
+    bool operator!=(const my_edge& rhs) const {
         return !(rhs == *this);
     }
 
-    friend std::ostream& operator<<(std::ostream& os, const MyEdge& edge) {
+    friend std::ostream& operator<<(std::ostream& os, const my_edge& edge) {
         os << "weight: " << edge.weight;
         return os;
     }
 };
 
-typedef gpp::AdjacencyList<MyVertex, MyEdge> TestGraph;
+typedef gpp::adjacency_list<my_vertex, my_edge> test_graph;
 
 #define NUM_GRAPH_ENTRIES 10
 
-void populate(TestGraph& graph) {
+void populate(test_graph& graph) {
     std::random_device device;
     std::uniform_real_distribution<float> distribution;
     graph.reserve(NUM_GRAPH_ENTRIES);
     for (int i = 0; i < NUM_GRAPH_ENTRIES; ++i) {
-        MyVertex vertex{};
-        vertex.flags = static_cast<MyFlags>(device() % 3);
+        my_vertex vertex{};
+        vertex.flags = static_cast<my_flags>(device() % 3);
         graph.push(vertex);
     }
     constexpr float connectionThreshold = 0.125F;
     for (size_t x = 0; x < NUM_GRAPH_ENTRIES; ++x) {
         for (size_t y = 0; y < NUM_GRAPH_ENTRIES; ++y) {
             if (x != y && distribution(device) < connectionThreshold) {
-                MyEdge edge{};
+                my_edge edge{};
                 edge.weight = distribution(device);
                 graph.connect(x, y, edge);
             }
@@ -77,25 +77,23 @@ void populate(TestGraph& graph) {
     }
 }
 
-
 TEST(grapphs_visualization, to_dot) {
-    TestGraph graph;
+    test_graph graph;
     populate(graph);
     auto outputPath = std::filesystem::current_path() / "output.dot";
     GTEST_LOG_(INFO) << "Writing dot to: " << outputPath;
     gpp::save_to_dot(graph, outputPath);
 }
 
-
 TEST(grapphs_visualization, maze_to_dot) {
-    TestGraph graph;
+    test_graph graph;
     std::filesystem::path jsonPath = std::filesystem::current_path() / "maze.json";
-    gpp::test_mazes([](gpp::Maze& m) {
-        auto maze = m.getGraph();
-        auto start = m.getStart();
-        auto end = m.getEnd();
+    gpp::test_mazes([](gpp::maze& m) {
+        auto maze = m.get_graph();
+        auto start = m.get_start();
+        auto end = m.get_end();
         std::stringstream name;
-        name << "maze_" << m.getSize() << ".dot";
+        name << "maze_" << m.get_size() << ".dot";
         gpp::save_to_dot(maze, std::filesystem::current_path() / name.str());
     });
 

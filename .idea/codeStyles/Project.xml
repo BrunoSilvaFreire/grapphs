@@ -2,9 +2,7 @@
   <code_scheme name="Project" version="173">
     <Objective-C>
       <option name="KEEP_DIRECTIVE_AT_FIRST_COLUMN" value="false" />
-      <option name="FUNCTION_PARAMETERS_WRAP" value="5" />
-      <option name="FUNCTION_PARAMETERS_NEW_LINE_AFTER_LPAR" value="true" />
-      <option name="FUNCTION_PARAMETERS_NEW_LINE_BEFORE_RPAR" value="true" />
+      <option name="FUNCTION_PARAMETERS_WRAP" value="0" />
       <option name="LAMBDA_CAPTURE_LIST_WRAP" value="5" />
       <option name="LAMBDA_CAPTURE_LIST_ALIGN_MULTILINE" value="true" />
       <option name="LAMBDA_CAPTURE_LIST_NEW_LINE_AFTER_LBRACKET" value="true" />
@@ -13,9 +11,7 @@
       <option name="STRUCTURED_BINDING_LIST_ALIGN_MULTILINE" value="true" />
       <option name="STRUCTURED_BINDING_LIST_NEW_LINE_AFTER_LBRACKET" value="true" />
       <option name="STRUCTURED_BINDING_LIST_NEW_LINE_BEFORE_RBRACKET" value="true" />
-      <option name="FUNCTION_CALL_ARGUMENTS_WRAP" value="5" />
-      <option name="FUNCTION_CALL_ARGUMENTS_NEW_LINE_AFTER_LPAR" value="true" />
-      <option name="FUNCTION_CALL_ARGUMENTS_NEW_LINE_BEFORE_RPAR" value="true" />
+      <option name="FUNCTION_CALL_ARGUMENTS_WRAP" value="0" />
       <option name="TEMPLATE_PARAMETERS_WRAP" value="5" />
       <option name="TEMPLATE_PARAMETERS_ALIGN_MULTILINE" value="true" />
       <option name="TEMPLATE_PARAMETERS_NEW_LINE_AFTER_LT" value="true" />
@@ -24,7 +20,7 @@
       <option name="TEMPLATE_CALL_ARGUMENTS_ALIGN_MULTILINE" value="true" />
       <option name="TEMPLATE_CALL_ARGUMENTS_NEW_LINE_AFTER_LT" value="true" />
       <option name="TEMPLATE_CALL_ARGUMENTS_NEW_LINE_BEFORE_GT" value="true" />
-      <option name="CLASS_CONSTRUCTOR_INIT_LIST_WRAP" value="5" />
+      <option name="CLASS_CONSTRUCTOR_INIT_LIST_WRAP" value="0" />
       <option name="SUPERCLASS_LIST_WRAP" value="2" />
       <option name="SPACE_BEFORE_COLON_IN_FOREACH" value="true" />
       <option name="SPACE_BEFORE_POINTER_IN_DECLARATION" value="false" />
@@ -34,44 +30,26 @@
     </Objective-C>
     <Objective-C-extensions>
       <rules>
-        <rule entity="NAMESPACE" visibility="ANY" specifier="ANY" prefix="" style="CAMEL_CASE" suffix="" />
         <rule entity="MACRO" visibility="ANY" specifier="ANY" prefix="" style="SCREAMING_SNAKE_CASE" suffix="" />
-        <rule entity="CLASS" visibility="ANY" specifier="ANY" prefix="" style="CAMEL_CASE" suffix="" />
-        <rule entity="STRUCT" visibility="ANY" specifier="ANY" prefix="" style="CAMEL_CASE" suffix="" />
-        <rule entity="ENUM" visibility="ANY" specifier="ANY" prefix="" style="CAMEL_CASE" suffix="" />
-        <rule entity="ENUMERATOR" visibility="ANY" specifier="ANY" prefix="" style="PASCAL_CASE" suffix="" />
-        <rule entity="TYPEDEF" visibility="ANY" specifier="ANY" prefix="" style="CAMEL_CASE" suffix="" />
-        <rule entity="UNION" visibility="ANY" specifier="ANY" prefix="" style="CAMEL_CASE" suffix="" />
-        <rule entity="CLASS_MEMBER_FUNCTION" visibility="ANY" specifier="ANY" prefix="" style="SNAKE_CASE" suffix="" />
-        <rule entity="STRUCT_MEMBER_FUNCTION" visibility="ANY" specifier="ANY" prefix="" style="SNAKE_CASE" suffix="" />
-        <rule entity="CLASS_MEMBER_FIELD" visibility="ANY" specifier="ANY" prefix="" style="CAMEL_CASE" suffix="" />
-        <rule entity="STRUCT_MEMBER_FIELD" visibility="ANY" specifier="ANY" prefix="" style="CAMEL_CASE" suffix="" />
+        <rule entity="ENUMERATOR" visibility="ANY" specifier="ANY" prefix="" style="SCREAMING_SNAKE_CASE" suffix="" />
+        <rule entity="NAMESPACE" visibility="ANY" specifier="ANY" prefix="" style="SNAKE_CASE" suffix="" />
+        <rule entity="CLASS,ENUM,UNION,TYPEDEF,CLASS_MEMBER_FUNCTION,STRUCT_MEMBER_FUNCTION" visibility="ANY" specifier="ANY" prefix="" style="SNAKE_CASE" suffix="" />
         <rule entity="GLOBAL_FUNCTION" visibility="ANY" specifier="ANY" prefix="" style="SNAKE_CASE" suffix="" />
-        <rule entity="GLOBAL_VARIABLE" visibility="ANY" specifier="ANY" prefix="" style="SNAKE_CASE" suffix="" />
-        <rule entity="PARAMETER" visibility="ANY" specifier="ANY" prefix="" style="CAMEL_CASE" suffix="" />
-        <rule entity="LOCAL_VARIABLE" visibility="ANY" specifier="ANY" prefix="" style="CAMEL_CASE" suffix="" />
-        <rule entity="CLASS_MEMBER_FIELD" visibility="PRIVATE" specifier="ANY" prefix="_" style="CAMEL_CASE" suffix="" />
+        <rule entity="GLOBAL_VARIABLE,PARAMETER" visibility="ANY" specifier="ANY" prefix="" style="SNAKE_CASE" suffix="" />
+        <rule entity="CLASS_MEMBER_FIELD,STRUCT_MEMBER_FIELD,PARAMETER,LOCAL_VARIABLE" visibility="ANY" specifier="ANY" prefix="" style="CAMEL_CASE" suffix="" />
+        <rule entity="CLASS_MEMBER_FIELD,STRUCT_MEMBER_FIELD" visibility="PROTECTED,PRIVATE" specifier="ANY" prefix="_" style="CAMEL_CASE" suffix="" />
       </rules>
     </Objective-C-extensions>
     <Objective-C-extensions>
       <rules>
-        <rule entity="NAMESPACE" visibility="ANY" specifier="ANY" prefix="" style="CAMEL_CASE" suffix="" />
         <rule entity="MACRO" visibility="ANY" specifier="ANY" prefix="" style="SCREAMING_SNAKE_CASE" suffix="" />
-        <rule entity="CLASS" visibility="ANY" specifier="ANY" prefix="" style="CAMEL_CASE" suffix="" />
-        <rule entity="STRUCT" visibility="ANY" specifier="ANY" prefix="" style="CAMEL_CASE" suffix="" />
-        <rule entity="ENUM" visibility="ANY" specifier="ANY" prefix="" style="CAMEL_CASE" suffix="" />
-        <rule entity="ENUMERATOR" visibility="ANY" specifier="ANY" prefix="" style="PASCAL_CASE" suffix="" />
-        <rule entity="TYPEDEF" visibility="ANY" specifier="ANY" prefix="" style="CAMEL_CASE" suffix="" />
-        <rule entity="UNION" visibility="ANY" specifier="ANY" prefix="" style="CAMEL_CASE" suffix="" />
-        <rule entity="CLASS_MEMBER_FUNCTION" visibility="ANY" specifier="ANY" prefix="" style="SNAKE_CASE" suffix="" />
-        <rule entity="STRUCT_MEMBER_FUNCTION" visibility="ANY" specifier="ANY" prefix="" style="SNAKE_CASE" suffix="" />
-        <rule entity="CLASS_MEMBER_FIELD" visibility="ANY" specifier="ANY" prefix="" style="CAMEL_CASE" suffix="" />
-        <rule entity="STRUCT_MEMBER_FIELD" visibility="ANY" specifier="ANY" prefix="" style="CAMEL_CASE" suffix="" />
+        <rule entity="ENUMERATOR" visibility="ANY" specifier="ANY" prefix="" style="SCREAMING_SNAKE_CASE" suffix="" />
+        <rule entity="NAMESPACE" visibility="ANY" specifier="ANY" prefix="" style="SNAKE_CASE" suffix="" />
+        <rule entity="CLASS,ENUM,UNION,TYPEDEF,CLASS_MEMBER_FUNCTION,STRUCT_MEMBER_FUNCTION" visibility="ANY" specifier="ANY" prefix="" style="SNAKE_CASE" suffix="" />
         <rule entity="GLOBAL_FUNCTION" visibility="ANY" specifier="ANY" prefix="" style="SNAKE_CASE" suffix="" />
-        <rule entity="GLOBAL_VARIABLE" visibility="ANY" specifier="ANY" prefix="" style="SNAKE_CASE" suffix="" />
-        <rule entity="PARAMETER" visibility="ANY" specifier="ANY" prefix="" style="CAMEL_CASE" suffix="" />
-        <rule entity="LOCAL_VARIABLE" visibility="ANY" specifier="ANY" prefix="" style="CAMEL_CASE" suffix="" />
-        <rule entity="CLASS_MEMBER_FIELD" visibility="PRIVATE" specifier="ANY" prefix="_" style="CAMEL_CASE" suffix="" />
+        <rule entity="GLOBAL_VARIABLE,PARAMETER" visibility="ANY" specifier="ANY" prefix="" style="SNAKE_CASE" suffix="" />
+        <rule entity="CLASS_MEMBER_FIELD,STRUCT_MEMBER_FIELD,PARAMETER,LOCAL_VARIABLE" visibility="ANY" specifier="ANY" prefix="" style="CAMEL_CASE" suffix="" />
+        <rule entity="CLASS_MEMBER_FIELD,STRUCT_MEMBER_FIELD" visibility="PROTECTED,PRIVATE" specifier="ANY" prefix="_" style="CAMEL_CASE" suffix="" />
       </rules>
     </Objective-C-extensions>
     <codeStyleSettings language="JSON">
@@ -81,16 +59,25 @@
     </codeStyleSettings>
     <codeStyleSettings language="ObjectiveC">
       <option name="RIGHT_MARGIN" value="100" />
-      <option name="KEEP_LINE_BREAKS" value="false" />
       <option name="KEEP_FIRST_COLUMN_COMMENT" value="false" />
       <option name="KEEP_CONTROL_STATEMENT_IN_ONE_LINE" value="false" />
+      <option name="KEEP_BLANK_LINES_IN_DECLARATIONS" value="1" />
+      <option name="KEEP_BLANK_LINES_IN_CODE" value="1" />
+      <option name="KEEP_BLANK_LINES_BEFORE_RBRACE" value="1" />
+      <option name="BLANK_LINES_BEFORE_IMPORTS" value="0" />
+      <option name="BLANK_LINES_AFTER_IMPORTS" value="0" />
+      <option name="BLANK_LINES_AROUND_CLASS" value="0" />
+      <option name="BLANK_LINES_AROUND_METHOD" value="0" />
+      <option name="BLANK_LINES_AROUND_METHOD_IN_INTERFACE" value="0" />
+      <option name="ELSE_ON_NEW_LINE" value="true" />
+      <option name="WHILE_ON_NEW_LINE" value="true" />
+      <option name="CATCH_ON_NEW_LINE" value="true" />
       <option name="ALIGN_MULTILINE_CHAINED_METHODS" value="true" />
       <option name="METHOD_CALL_CHAIN_WRAP" value="5" />
       <option name="PARENTHESES_EXPRESSION_LPAREN_WRAP" value="true" />
       <option name="PARENTHESES_EXPRESSION_RPAREN_WRAP" value="true" />
-      <option name="BINARY_OPERATION_WRAP" value="5" />
+      <option name="BINARY_OPERATION_SIGN_ON_NEXT_LINE" value="true" />
       <option name="KEEP_SIMPLE_BLOCKS_IN_ONE_LINE" value="false" />
-      <option name="KEEP_SIMPLE_METHODS_IN_ONE_LINE" value="false" />
       <indentOptions>
         <option name="CONTINUATION_INDENT_SIZE" value="4" />
       </indentOptions>
