@@ -23,70 +23,70 @@ namespace gpp::osm {
         friend std::ostream& operator<<(std::ostream& os, const Coordinate& coordinate);
     };
 
-    class Node {
+    class osm_node {
     private:
         Coordinate _location;
 
     public:
         const Coordinate& get_location() const;
 
-        explicit Node(const Coordinate& location);
+        explicit osm_node(const Coordinate& location);
 
-        friend std::ostream& operator<<(std::ostream& os, const Node& node);
+        friend std::ostream& operator<<(std::ostream& os, const osm_node& node);
     };
 
-    class Lane {
+    class lane {
     };
 
     class way_metadata {
     public:
         way_metadata(const way_metadata&) = default;
 
-        enum class Flags : uint8_t {
-            eSidewalkLeft = 1 << 0,
-            eSidewalkRight = 1 << 1,
-            eLit = 1 << 2,
-            eBuilding,
-            eSidewalkBoth = eSidewalkLeft | eSidewalkRight
+        enum class flags : uint8_t {
+            SIDEWALK_LEFT = 1 << 0,
+            SIDEWALK_RIGHT = 1 << 1,
+            LIT = 1 << 2,
+            BUILDING,
+            SIDEWALK_BOTH = SIDEWALK_LEFT | SIDEWALK_RIGHT
         };
 
-        enum class Surface : uint8_t {
-            eDirt, eAsphalt, eUnknown
+        enum class surface : uint8_t {
+            DIRT, ASPHALT, UNKNOWN
         };
-        enum class Kind : uint8_t {
-            eWay, eRoad, eAvenue, eHighway, eUnknown
+        enum class kind : uint8_t {
+            WAY, ROAD, AVENUE, HIGHWAY, UNKNOWN
         };
 
     private:
         std::string _name;
         float _maxSpeed;
-        Flags _flags;
-        Kind _kind;
-        Surface _surface;
+        flags _flags;
+        kind _kind;
+        surface _surface;
 
     public:
         way_metadata() = default;
 
-        way_metadata(const std::string& name, float maxSpeed, Flags flags, Kind kind, Surface surface);
+        way_metadata(const std::string& name, float maxSpeed, flags flags, kind kind, surface surface);
 
         const std::string& get_name() const;
 
-        Flags get_flags() const;
+        flags get_flags() const;
 
-        Surface get_surface() const;
+        surface get_surface() const;
 
         float get_max_speed() const;
 
-        Kind get_kind() const;
+        kind get_kind() const;
     };
 
-    way_metadata::Flags operator|(way_metadata::Flags a, way_metadata::Flags b);
+    way_metadata::flags operator|(way_metadata::flags a, way_metadata::flags b);
 
-    way_metadata::Flags operator&(way_metadata::Flags a, way_metadata::Flags b);
+    way_metadata::flags operator&(way_metadata::flags a, way_metadata::flags b);
 
-    way_metadata::Flags operator|=(way_metadata::Flags a, way_metadata::Flags b);
+    way_metadata::flags operator|=(way_metadata::flags a, way_metadata::flags b);
 
-    class Way {
+    class way {
     private:
         std::size_t _metadataIndex;
 
@@ -95,25 +95,25 @@ namespace gpp::osm {
             return -1;
         }
 
-        Way(size_t metadataIndex = invalid_metadata());
+        way(size_t metadataIndex = invalid_metadata());
 
         size_t get_metadata_index() const;
 
-        friend std::ostream& operator<<(std::ostream& os, const Way& way);
+        friend std::ostream& operator<<(std::ostream& os, const way& way);
 
         bool has_metadata() const;
     };
 
-    class OSMGraph : public gpp::adjacency_list<Node, Way> {
+    class osm_graph : public gpp::adjacency_list<osm_node, way> {
     private:
         std::vector<way_metadata> _metadata;
 
     public:
-        OSMGraph() = default;
+        osm_graph() = default;
 
         std::size_t push_meta(gpp::osm::way_metadata&& metadata);
 
-        bool get_metadata(const Way& way, gpp::osm::way_metadata& metadata);
+        bool get_metadata(const way& way, gpp::osm::way_metadata& metadata);
     };
 } // namespace gpp::osm
 #endif

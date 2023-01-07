@@ -71,7 +71,7 @@ int main(int argc, char** argv) {
                   << std::endl;
         return 1;
     }
-    gpp::osm::OSMGraph graph;
+    gpp::osm::osm_graph graph;
 
     gpp::osm::parse(file, graph);
 
@@ -79,7 +79,7 @@ int main(int argc, char** argv) {
 
     aabb cityAabb;
     for (std::size_t i = 0; i < graph.size(); ++i) {
-        gpp::osm::Node* pNode = graph.vertex(i);
+        gpp::osm::osm_node* pNode = graph.vertex(i);
         const gpp::osm::Coordinate& coordinate = pNode->get_location();
         double x = coordinate.get_longitude();
         double y = coordinate.get_latitude();
@@ -106,9 +106,9 @@ int main(int argc, char** argv) {
         viewBox.minX, viewBox.minY, viewBox.minX + viewBox.width, viewBox.minY + viewBox.height
     );
 
-    gpp::svg_writer<gpp::osm::OSMGraph> writer(
+    gpp::svg_writer<gpp::osm::osm_graph> writer(
         viewBox, [&](
-            std::size_t index, const gpp::osm::Node& node, float& x, float& y
+            std::size_t index, const gpp::osm::osm_node& node, float& x, float& y
         ) {
             const gpp::osm::Coordinate& location = node.get_location();
 
@@ -123,18 +123,18 @@ int main(int argc, char** argv) {
     writer.set_flags(gpp::svg_writer_flags::DRAW_EDGES);
 
     writer.set_edge_filter(
-        [&](std::size_t from, std::size_t to, const gpp::osm::Way& way) {
+        [&](std::size_t from, std::size_t to, const gpp::osm::way& way) {
             gpp::osm::way_metadata meta;
             if (!graph.get_metadata(way, meta)) {
                 return true;
             }
-            return (meta.get_flags() & gpp::osm::way_metadata::Flags::eBuilding)
-                   != gpp::osm::way_metadata::Flags::eBuilding;
+            return (meta.get_flags() & gpp::osm::way_metadata::flags::BUILDING)
+                   != gpp::osm::way_metadata::flags::BUILDING;
         }
     );
 
     writer.set_edge_customizer(
-        [&](const gpp::osm::Way& way, gpp::SVGAttributes& attributes) {
+        [&](const gpp::osm::way& way, gpp::SVGAttributes& attributes) {
 
             gpp::osm::way_metadata meta;
             if (!graph.get_metadata(way, meta)) {
@@ -144,16 +144,16 @@ int main(int argc, char** argv) {
                 0, 255, inv_lerp<float>(
                     0, 80, meta.get_max_speed())));
             switch (meta.get_kind()) {
-                case gpp::osm::way_metadata::Kind::eWay:
+                case gpp::osm::way_metadata::kind::WAY:
                     attributes.size = 0.5F;
                     break;
-                case gpp::osm::way_metadata::Kind::eRoad:
+                case gpp::osm::way_metadata::kind::ROAD:
                     attributes.size = 1.0F;
                     break;
-                case gpp::osm::way_metadata::Kind::eAvenue:
+                case gpp::osm::way_metadata::kind::AVENUE:
                     attributes.size = 1.5F;
                     break;
-                case gpp::osm::way_metadata::Kind::eHighway:
+                case gpp::osm::way_metadata::kind::HIGHWAY:
                     attributes.size = 2.0F;
                     break;
             }
