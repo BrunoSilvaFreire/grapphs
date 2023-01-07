@@ -7,49 +7,49 @@
 #include <set>
 
 namespace gpp {
-    template<typename GraphType>
-    using VertexExplorer = std::function<
+    template<typename graph_type>
+    using vertex_explorer = std::function<
         void(
-            typename GraphType::IndexType index
+            typename graph_type::index_type index
         )
     >;
-    template<typename GraphType>
-    using EdgeExplorer = std::function<
+    template<typename graph_type>
+    using edge_explorer = std::function<
         void(
-            typename GraphType::IndexType origin,
-            typename GraphType::IndexType destination
+            typename graph_type::index_type origin,
+            typename graph_type::index_type destination
         )
     >;
-    enum TraversalOrder {
-        eBreadth,
-        eDepth
+    enum traversal_order {
+        BREADTH,
+        DEPTH
     };
 
-    template<typename TGraph, TraversalOrder Order>
+    template<typename t_graph, traversal_order order>
     struct Traversal {
-        using IndexType = typename TGraph::IndexType;
+        using index_type = typename t_graph::index_type;
 
-        static IndexType next(std::deque<IndexType>& open);
+        static index_type next(std::deque<index_type>& open);
     };
 
-    template<typename TGraph, TraversalOrder Order>
+    template<typename t_graph, traversal_order order>
     void traverse(
-        const TGraph& graph,
-        std::set<typename TGraph::IndexType> startingPoints,
-        const VertexExplorer<TGraph>& perVertex,
-        const EdgeExplorer<TGraph>& perEdge
+        const t_graph& graph,
+        std::set<typename t_graph::index_type> startingPoints,
+        const vertex_explorer<t_graph>& perVertex,
+        const edge_explorer<t_graph>& perEdge
     ) {
-        using VertexType = typename TGraph::VertexType;
-        using IndexType = typename TGraph::IndexType;
-        using EdgeType = typename TGraph::EdgeType;
+        using vertex_type = typename t_graph::vertex_type;
+        using index_type = typename t_graph::index_type;
+        using edge_type = typename t_graph::edge_type;
 
-        std::deque<IndexType> open;
-        std::set<IndexType> visited;
-        for (IndexType item : startingPoints) {
+        std::deque<index_type> open;
+        std::set<index_type> visited;
+        for (index_type item : startingPoints) {
             open.push_back(item);
         }
         while (!open.empty()) {
-            IndexType next = Traversal<TGraph, Order>::next(open);
+            index_type next = Traversal<t_graph, order>::next(open);
             perVertex(next);
             visited.emplace(next);
             for (auto [neighbor, edge] : graph.edges_from(next)) {
@@ -57,24 +57,24 @@ namespace gpp {
                     continue;
                 }
                 perEdge(
-                    static_cast<IndexType>(next),
-                    static_cast<IndexType>(neighbor)
+                    static_cast<index_type>(next),
+                    static_cast<index_type>(neighbor)
                 );
                 open.push_back(neighbor);
             }
         }
     }
 
-    template<typename TGraph, TraversalOrder Order>
+    template<typename t_graph, traversal_order order>
     void traverse(
-        const TGraph& graph,
-        typename TGraph::IndexType startingPoint,
-        const VertexExplorer<TGraph>& perVertex,
-        const EdgeExplorer<TGraph>& perEdge
+        const t_graph& graph,
+        typename t_graph::index_type startingPoint,
+        const vertex_explorer<t_graph>& perVertex,
+        const edge_explorer<t_graph>& perEdge
     ) {
-        traverse<TGraph, Order>(
+        traverse<t_graph, order>(
             graph,
-            std::set<typename TGraph::IndexType>({startingPoint}),
+            std::set<typename t_graph::index_type>({startingPoint}),
             perVertex,
             perEdge
         );

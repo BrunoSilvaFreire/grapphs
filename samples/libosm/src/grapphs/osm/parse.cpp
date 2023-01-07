@@ -6,9 +6,9 @@
 
 namespace gpp::osm {
 
-    static std::unordered_map<std::string, gpp::osm::WayMetadata::Surface> kName2Surface = {
-        {"dirt", gpp::osm::WayMetadata::Surface::eDirt},
-        {"asphalt", gpp::osm::WayMetadata::Surface::eAsphalt}};
+    static std::unordered_map<std::string, gpp::osm::way_metadata::Surface> kName2Surface = {
+        {"dirt",    gpp::osm::way_metadata::Surface::eDirt},
+        {"asphalt", gpp::osm::way_metadata::Surface::eAsphalt}};
 
     class ParserHelper {
     private:
@@ -53,11 +53,11 @@ namespace gpp::osm {
         return "";
     }
 
-    bool is_interesting(const gpp::osm::WayMetadata& meta) {
-        if (meta.get_kind() != WayMetadata::Kind::eUnknown) {
+    bool is_interesting(const gpp::osm::way_metadata& meta) {
+        if (meta.get_kind() != way_metadata::Kind::eUnknown) {
             return true;
         }
-        if (meta.get_surface() != WayMetadata::Surface::eUnknown) {
+        if (meta.get_surface() != way_metadata::Surface::eUnknown) {
             return true;
         }
         if (meta.get_max_speed() > 0) {
@@ -87,38 +87,41 @@ namespace gpp::osm {
         }*/
         std::string name = find_tag("name", way);
 
-        gpp::osm::WayMetadata::Surface surface = gpp::osm::WayMetadata::Surface::eUnknown;
+        gpp::osm::way_metadata::Surface surface = gpp::osm::way_metadata::Surface::eUnknown;
         std::string surfaceKind = find_tag("surface", way);
         if (auto it = kName2Surface.find(surfaceKind); it != kName2Surface.end()) {
             surface = it->second;
         }
 
-        gpp::osm::WayMetadata::Flags flags{};
-
+        gpp::osm::way_metadata::Flags flags{};
 
         if (find_tag("lit", way) == "yes") {
-            flags |= gpp::osm::WayMetadata::Flags::eLit;
+            flags |= gpp::osm::way_metadata::Flags::eLit;
         }
 
         if (find_tag("building", way) == "yes") {
-            flags |= gpp::osm::WayMetadata::Flags::eBuilding;
+            flags |= gpp::osm::way_metadata::Flags::eBuilding;
         }
 
-        gpp::osm::WayMetadata::Kind kind = gpp::osm::WayMetadata::Kind::eUnknown;
+        gpp::osm::way_metadata::Kind kind = gpp::osm::way_metadata::Kind::eUnknown;
         if (!find_tag("highway", way).empty()) {
-            kind = gpp::osm::WayMetadata::Kind::eHighway;
-        } else {
+            kind = gpp::osm::way_metadata::Kind::eHighway;
+        }
+        else {
             std::string lanesStr = find_tag("lanes", way);
             if (!lanesStr.empty()) {
                 auto numLanes = std::stoi(lanesStr);
                 if (numLanes > 4) {
-                    kind = gpp::osm::WayMetadata::Kind::eHighway;
-                } else if (numLanes > 2) {
-                    kind = gpp::osm::WayMetadata::Kind::eAvenue;
-                } else if (numLanes > 1) {
-                    kind = gpp::osm::WayMetadata::Kind::eRoad;
-                } else if (numLanes == 1) {
-                    kind = gpp::osm::WayMetadata::Kind::eWay;
+                    kind = gpp::osm::way_metadata::Kind::eHighway;
+                }
+                else if (numLanes > 2) {
+                    kind = gpp::osm::way_metadata::Kind::eAvenue;
+                }
+                else if (numLanes > 1) {
+                    kind = gpp::osm::way_metadata::Kind::eRoad;
+                }
+                else if (numLanes == 1) {
+                    kind = gpp::osm::way_metadata::Kind::eWay;
                 }
             }
         }
@@ -129,13 +132,14 @@ namespace gpp::osm {
             maxSpeed = std::stof(speedStr);
         }
 
-        gpp::osm::WayMetadata meta(name, maxSpeed, flags, kind, surface);
+        gpp::osm::way_metadata meta(name, maxSpeed, flags, kind, surface);
 
         OSMGraph& graph = into.get_graph();
         std::size_t metaIndex;
         if (is_interesting(meta)) {
             metaIndex = graph.push_meta(std::move(meta));
-        } else {
+        }
+        else {
             metaIndex = gpp::osm::Way::invalid_metadata();
         }
 

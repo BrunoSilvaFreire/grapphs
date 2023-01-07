@@ -11,55 +11,55 @@
 #include <fstream>
 #include <ostream>
 
-enum MyFlags {
-    eA = 1 << 1,
-    eB = 1 << 2,
-    eC = 1 << 3
+enum my_flags {
+    A = 1 << 1,
+    B = 1 << 2,
+    C = 1 << 3
 };
 
-struct MyVertex {
+struct my_vertex {
 public:
-    MyFlags flags;
+    my_flags flags;
 
-    bool operator==(const MyVertex& rhs) const {
+    bool operator==(const my_vertex& rhs) const {
         return flags == rhs.flags;
     }
 
-    bool operator!=(const MyVertex& rhs) const {
+    bool operator!=(const my_vertex& rhs) const {
         return !(rhs == *this);
     }
 };
 
-struct MyEdge {
+struct my_edge {
     float weight;
 
-    bool operator==(const MyEdge& rhs) const {
+    bool operator==(const my_edge& rhs) const {
         return weight == rhs.weight;
     }
 
-    bool operator!=(const MyEdge& rhs) const {
+    bool operator!=(const my_edge& rhs) const {
         return !(rhs == *this);
     }
 };
 
-typedef gpp::AdjacencyList<MyVertex, MyEdge> TestGraph;
+typedef gpp::adjacency_list<my_vertex, my_edge> test_graph;
 
 #define NUM_GRAPH_ENTRIES 512
 
-void populate(TestGraph& graph) {
+void populate(test_graph& graph) {
     std::random_device device;
 
     graph.reserve(NUM_GRAPH_ENTRIES);
     for (int i = 0; i < NUM_GRAPH_ENTRIES; ++i) {
-        MyVertex vertex;
-        vertex.flags = static_cast<MyFlags>(device());
+        my_vertex vertex{};
+        vertex.flags = static_cast<my_flags>(device());
         graph.push(vertex);
     }
     for (size_t x = 0; x < NUM_GRAPH_ENTRIES; ++x) {
         for (size_t y = 0; y < NUM_GRAPH_ENTRIES; ++y) {
             if (device()) {
                 uint32_t data = device();
-                MyEdge edge;
+                my_edge edge;
                 edge.weight = *reinterpret_cast<float*>(&data);
                 graph.connect(x, y, edge);
             }
@@ -67,7 +67,7 @@ void populate(TestGraph& graph) {
     }
 }
 
- inline float distance(float x0, float y0, float x1, float y1) {
+inline float distance(float x0, float y0, float x1, float y1) {
     float diffX = (x1 - x0);
     float diffY = (y1 - y0);
     return std::sqrt(diffX * diffX + diffY * diffY);
@@ -82,23 +82,22 @@ struct Position {
     }
 };
 
-
 TEST(grapphs, graph_copies) {
-    TestGraph graph;
+    test_graph graph;
     populate(graph);
 
-    gpp::AdjacencyMatrix<MyVertex, MyEdge> copy(&graph);
+    gpp::adjacency_matrix<my_vertex, my_edge> copy(&graph);
 
     for (size_t i = 0; i < NUM_GRAPH_ENTRIES; i++) {
-        MyVertex a = *graph.vertex(i);
-        MyVertex b = *copy.vertex(i);
+        my_vertex a = *graph.vertex(i);
+        my_vertex b = *copy.vertex(i);
 
         ASSERT_TRUE(a == b);
     }
 }
 
 TEST(grapphs, index_reuse) {
-    gpp::AdjacencyList<int, bool> graph;
+    gpp::adjacency_list<int, bool> graph;
     graph.push(0);
     graph.push(0);
     graph.push(0);
@@ -107,7 +106,7 @@ TEST(grapphs, index_reuse) {
 }
 
 TEST(grapphs, vertex_access) {
-    gpp::AdjacencyList<int, bool> graph;
+    gpp::adjacency_list<int, bool> graph;
     std::mt19937 rand;
     std::uniform_int_distribution<> dist;
     for (int i = 0; i < std::numeric_limits<uint16_t>::max(); ++i) {
@@ -120,11 +119,11 @@ TEST(grapphs, vertex_access) {
     }
 }
 
-
 #define ASTAR_RADIUS 20
 #define INDEXOF(x, y)  x + (y) * ASTAR_RADIUS
+
 TEST(grapphs, astar_performance) {
-    gpp::AdjacencyList<Position, MyEdge> graph;
+    gpp::adjacency_list<Position, my_edge> graph;
     for (int x = 0; x < ASTAR_RADIUS; ++x) {
         for (int y = 0; y < ASTAR_RADIUS; ++y) {
             Position pos{};
@@ -133,7 +132,7 @@ TEST(grapphs, astar_performance) {
             graph.push(pos);
         }
     }
-    MyEdge prototype{};
+    my_edge prototype{};
     prototype.weight = 1;
     for (int x = 0; x < ASTAR_RADIUS; ++x) {
         for (int y = 0; y < ASTAR_RADIUS; ++y) {
@@ -153,22 +152,22 @@ TEST(grapphs, astar_performance) {
         }
     }
 
-    gpp::GraphPath<size_t> path;
+    gpp::graph_path<size_t> path;
 #define RUN_COUNT 10000
     double meanTime = 0;
     const float frameTime = 1.0F / 60.0F;
     for (int i = 0; i < RUN_COUNT; ++i) {
         auto begin = std::chrono::high_resolution_clock::now();
-        path = gpp::astar<gpp::AdjacencyList<Position, MyEdge>>(
+        path = gpp::astar<gpp::adjacency_list<Position, my_edge>>(
             graph,
             0,
             (ASTAR_RADIUS * ASTAR_RADIUS) - 1,
-            [&](gpp::DefaultGraphIndex from, gpp::DefaultGraphIndex to) -> float {
+            [&](gpp::default_graph_index from, gpp::default_graph_index to) -> float {
                 Position* fromPos = graph.vertex(from);
                 Position* toPos = graph.vertex(to);
                 return fromPos->distance(*toPos);
             },
-            [](gpp::DefaultGraphIndex from, gpp::DefaultGraphIndex to, const MyEdge& e) -> float {
+            [](gpp::default_graph_index from, gpp::default_graph_index to, const my_edge& e) -> float {
                 return e.weight;
             }
         );
@@ -187,17 +186,16 @@ TEST(grapphs, astar_performance) {
 
 }
 
-
 TEST(grapphs, astar) {
     gpp::test_mazes(
-        [](gpp::Maze& maze) {
-            using IndexType = gpp::DefaultGraphIndex;
-            const gpp::AdjacencyList<gpp::Cell, int>& graph = maze.getGraph();
-            gpp::GraphPath path = gpp::astar(
+        [](gpp::maze& maze) {
+            using index_type = gpp::default_graph_index;
+            const gpp::adjacency_list<gpp::Cell, int>& graph = maze.get_graph();
+            gpp::graph_path path = gpp::astar(
                 graph,
-                maze.getStart(),
-                maze.getEnd(),
-                [&](IndexType from, IndexType to) {
+                maze.get_start(),
+                maze.get_end(),
+                [&](index_type from, index_type to) {
                     const gpp::Cell* originCell = graph.vertex(from);
                     const gpp::Cell* destinationCell = graph.vertex(to);
                     return distance(
@@ -207,18 +205,18 @@ TEST(grapphs, astar) {
                         static_cast<float>(destinationCell->y)
                     );
                 },
-                [](IndexType, IndexType, int distance) {
+                [](index_type, index_type, int distance) {
                     return static_cast<float>(distance);
                 }
             );
-            const std::vector<size_t>& shortestPath = maze.getShortestPath();
+            const std::vector<size_t>& shortestPath = maze.get_shortest_path();
             EXPECT_EQ(path.count(), shortestPath.size())
                             << "AStar returned a different path from the shortest one";
             std::size_t max = std::min(path.count(), shortestPath.size());
-            const std::vector<IndexType>& vertices = path.get_vertices();
+            const std::vector<index_type>& vertices = path.get_vertices();
             for (std::size_t i = 0; i < max; ++i) {
-                IndexType actual = vertices[i];
-                IndexType expected = shortestPath[i];
+                index_type actual = vertices[i];
+                index_type expected = shortestPath[i];
                 GTEST_LOG_(INFO) << "Step #" << i << ", expected: " << expected << ", actual: "
                                  << actual;
                 EXPECT_EQ(expected, actual) << "Incorrect step";

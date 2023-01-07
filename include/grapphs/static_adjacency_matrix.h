@@ -10,22 +10,22 @@
 #include <stdexcept>
 
 namespace gpp {
-    template<typename V, typename E, size_t Size, typename GraphIndex = DefaultGraphIndex>
-    class StaticAdjacencyMatrix : public Graph<V, E, GraphIndex> {
+    template<typename V, typename E, size_t Size, typename GraphIndex = default_graph_index>
+    class static_adjacency_matrix : public graph<V, E, GraphIndex> {
     private:
-        std::array<V, Size> vertices;
-        std::array<E, Size * Size> edges;
+        std::array<V, Size> _vertices;
+        std::array<E, Size * Size> _edges;
     public:
-        StaticAdjacencyMatrix() : vertices(), edges() {
+        static_adjacency_matrix() : _vertices(), _edges() {
 
         }
 
         template<typename D>
-        explicit StaticAdjacencyMatrix(Graph<V, E, D>* other) : StaticAdjacencyMatrix() {
+        explicit static_adjacency_matrix(graph<V, E, D>* other) : static_adjacency_matrix() {
             for (GraphIndex i = 0; i < Size; ++i) {
                 V vertex;
                 if (other->try_get_vertex(i, vertex)) {
-                    vertices[i] = vertex;
+                    _vertices[i] = vertex;
                 }
             }
             for (GraphIndex x = 0; x < Size; ++x) {
@@ -33,7 +33,7 @@ namespace gpp {
                     E edge;
                     if (other->try_get_edge(x, y, edge)) {
                         GraphIndex i = index(x, y);
-                        edges[i] = edge;
+                        _edges[i] = edge;
                     }
                 }
             }
@@ -44,19 +44,19 @@ namespace gpp {
         }
 
         V* vertex(GraphIndex index) override {
-            return static_cast<V*>(&vertices[index]);
+            return static_cast<V*>(&_vertices[index]);
         }
 
         GraphIndex index(GraphIndex from, GraphIndex to) {
-            return from * vertices.size() + to;
+            return from * _vertices.size() + to;
         }
 
         E* edge(GraphIndex from, GraphIndex to) override {
-            return &edges[index(from, to)];
+            return &_edges[index(from, to)];
         }
 
         void connect(GraphIndex from, GraphIndex to, E edge) override {
-            edges[index(from, to)] = edge;
+            _edges[index(from, to)] = edge;
         }
 
         std::vector<std::pair<const GraphIndex, E>> edges_from(GraphIndex vertex) const override {

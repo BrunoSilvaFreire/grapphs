@@ -10,305 +10,318 @@
 namespace gpp {
 
     template<
-        typename TVertex,
-        typename TEdge,
-        typename TIndex = DefaultGraphIndex
+        typename t_vertex,
+        typename t_edge,
+        typename t_index = default_graph_index
     >
-    class AdjacencyList : public Graph<TVertex, TEdge, TIndex> {
+    class adjacency_list : public graph<t_vertex, t_edge, t_index> {
     public:
 
-        using VertexType = TVertex;
-        using EdgeType = TEdge;
-        using IndexType = TIndex;
+        using vertex_type = typename graph<t_vertex, t_edge, t_index>::vertex_type;
+        using edge_type = typename graph<t_vertex, t_edge, t_index>::edge_type;
+        using index_type = typename graph<t_vertex, t_edge, t_index>::index_type;
 
-        AdjacencyList() = default;
+        adjacency_list() = default;
 
-        class Node {
+        class adjacency_node {
         public:
-            typedef std::unordered_map<IndexType, EdgeType> ConnectionMap;
+            typedef std::unordered_map<index_type, edge_type> connection_map;
         private:
-            ConnectionMap map;
-            VertexType vertex;
+            connection_map _map;
+            vertex_type _vertex;
         public:
-            Node() : map(0), vertex() { }
+            adjacency_node() : _map(0), _vertex() {}
 
-            explicit Node(const VertexType& data) : vertex(data) {
-
-            }
-
-            explicit Node(VertexType&& data) : vertex(std::move(data)) {
+            explicit adjacency_node(const vertex_type& data) : _vertex(data) {
 
             }
 
-            const ConnectionMap& connections() const {
-                return map;
+            explicit adjacency_node(vertex_type&& data) : _vertex(std::move(data)) {
+
             }
 
-            ConnectionMap& connections() {
-                return map;
+            const connection_map& connections() const {
+                return _map;
             }
 
-            VertexType& data() {
-                return vertex;
+            connection_map& connections() {
+                return _map;
             }
 
-            const VertexType& data() const {
-                return vertex;
+            vertex_type& data() {
+                return _vertex;
             }
 
-            EdgeType* edge(IndexType to) {
-                typename ConnectionMap::iterator found = map.find(to);
-                if (found == map.end()) {
+            const vertex_type& data() const {
+                return _vertex;
+            }
+
+            edge_type* edge(index_type to) {
+                typename connection_map::iterator found = _map.find(to);
+                if (found == _map.end()) {
                     return nullptr;
                 }
                 return &found->second;
             }
 
-            const EdgeType* edge(IndexType to) const {
-                typename ConnectionMap::const_iterator found = map.find(to);
-                if (found == map.end()) {
+            const edge_type* edge(index_type to) const {
+                typename connection_map::const_iterator found = _map.find(to);
+                if (found == _map.end()) {
                     return nullptr;
                 }
                 return &found->second;
             }
 
-            void connect(IndexType index, const EdgeType& edgeData) {
-                map.emplace(index, std::move(edgeData));
+            void connect(index_type index, const edge_type& edgeData) {
+                _map.emplace(index, std::move(edgeData));
             }
 
-            bool disconnect(IndexType index) {
-                return map.erase(index) > 0;
+            bool disconnect(index_type index) {
+                return _map.erase(index) > 0;
             }
 
             void clear() {
-                map.clear();
+                _map.clear();
             }
         };
 
-        class EdgeView {
+        class edge_view {
         public:
-            typedef std::vector<std::pair<IndexType, EdgeType>> ConnectionVector;
+            typedef std::vector<std::pair<index_type, edge_type>> connection_vector;
         private:
-            ConnectionVector elements;
+            connection_vector _elements;
         public:
-            typedef typename ConnectionVector::iterator Iterator;
-            typedef typename ConnectionVector::const_iterator ConstIterator;
+            typedef typename connection_vector::iterator iterator;
+            typedef typename connection_vector::const_iterator const_iterator;
 
-            explicit EdgeView(const Node& owner) {
+            explicit edge_view(const adjacency_node& owner) {
                 auto& connections = owner.connections();
                 size_t num = connections.size();
-                elements.resize(num);
+                _elements.resize(num);
                 size_t i = 0;
-                for (const std::pair<IndexType, EdgeType>& item : connections) {
-                    elements[i++] = item;
+                for (const std::pair<index_type, edge_type>& item : connections) {
+                    _elements[i++] = item;
                 }
             }
 
-            Iterator begin() {
-                return elements.begin();
+            iterator begin() {
+                return _elements.begin();
             }
 
-            Iterator end() {
-                return elements.end();
+            iterator end() {
+                return _elements.end();
             }
 
-            ConstIterator begin() const { return elements.begin(); }
+            const_iterator begin() const { return _elements.begin(); }
 
-            ConstIterator end() const { return elements.end(); }
+            const_iterator end() const { return _elements.end(); }
         };
 
         void clear() {
-            nodes.clear();
+            _nodes.clear();
         }
 
     private:
-        std::vector<Node> nodes;
-        std::queue<IndexType> freeIndices;
+        std::vector<adjacency_node> _nodes;
+        std::queue<index_type> _freeIndices;
     public:
-        void remove(const IndexType& index) {
-            // std::memset(&nodes[index], 0, sizeof(VertexType));
-            nodes[index].clear();
-            freeIndices.push(index);
+        void remove(const index_type& index) {
+            // std::memset(&nodes[index], 0, sizeof(vertex_type));
+            _nodes[index].clear();
+            _freeIndices.push(index);
         }
 
-        IndexType push(const VertexType& vertex) {
-            IndexType index;
-            if (!freeIndices.empty()) {
-                index = freeIndices.front();
-                nodes[index].data() = vertex;
-                freeIndices.pop();
-            } else {
-                index = static_cast<IndexType>(nodes.size());
-                nodes.emplace_back(vertex);
+        index_type push(const vertex_type& vertex) {
+            index_type index;
+            if (!_freeIndices.empty()) {
+                index = _freeIndices.front();
+                _nodes[index].data() = vertex;
+                _freeIndices.pop();
+            }
+            else {
+                index = static_cast<index_type>(_nodes.size());
+                _nodes.emplace_back(vertex);
             }
             return index;
         }
 
-        IndexType push(VertexType&& vertex) {
-            IndexType index;
-            if (!freeIndices.empty()) {
-                index = freeIndices.front();
-                freeIndices.pop();
-                nodes[index].data() = std::move(vertex);
-            } else {
-                index = static_cast<IndexType>(nodes.size());
-                nodes.emplace_back(std::move(vertex));
+        index_type push(vertex_type&& vertex) {
+            index_type index;
+            if (!_freeIndices.empty()) {
+                index = _freeIndices.front();
+                _freeIndices.pop();
+                _nodes[index].data() = std::move(vertex);
+            }
+            else {
+                index = static_cast<index_type>(_nodes.size());
+                _nodes.emplace_back(std::move(vertex));
             }
             return index;
         }
 
-        IndexType size() const override {
-            return static_cast<IndexType>(nodes.size());
+        index_type size() const final {
+            return static_cast<index_type>(_nodes.size());
         }
 
-        VertexType* vertex(IndexType index) override {
+        vertex_type* vertex(index_type index) final {
             return &node(index).data();
         }
 
-        const VertexType* vertex(IndexType index) const override {
+        const vertex_type* vertex(index_type index) const final {
             return &node(index).data();
         }
 
-        EdgeType* edge(IndexType from, IndexType to) override {
+        edge_type* edge(index_type from, index_type to) final {
             return node(from).edge(to);
         }
 
-        const EdgeType* edge(IndexType from, IndexType to) const {
+        const edge_type* edge(index_type from, index_type to) const {
             return node(from).edge(to);
         }
 
-        void connect(IndexType from, IndexType to, EdgeType edge) override {
+        void connect(index_type from, index_type to, edge_type edge) final {
             node(from).connect(to, edge);
         }
 
-        EdgeView edges_from(IndexType index) {
-            return EdgeView(node(index));
+        edge_view edges_from(index_type index) {
+            return edge_view(node(index));
         }
 
-        EdgeView edges_from(IndexType index) const {
-            return EdgeView(node(index));
+        edge_view edges_from(index_type index) const {
+            return edge_view(node(index));
         }
 
-        Node& node(IndexType index) {
-            return nodes[index];
+        adjacency_node& node(index_type index) {
+            return _nodes[index];
         }
 
-        const Node& node(IndexType index) const {
-            return nodes[index];
+        const adjacency_node& node(index_type index) const {
+            return _nodes[index];
         }
 
-        void reserve(IndexType size) {
-            nodes.reserve(size);
+        void reserve(index_type size) {
+            _nodes.reserve(size);
         }
 
-        void resize(IndexType numVertices) {
-            nodes.resize(numVertices);
+        void resize(index_type numVertices) {
+            _nodes.resize(numVertices);
         }
 
-        bool disconnect(IndexType from, IndexType to) override {
+        bool disconnect(index_type from, index_type to) final {
             return node(from).disconnect(to);
         }
 
-        typedef typename Graph<VertexType, EdgeType, IndexType>::GraphIterator GraphIterator;
-        typedef typename Graph<VertexType, EdgeType, IndexType>::ConstGraphIterator ConstGraphIterator;
+        typedef typename graph<vertex_type, edge_type, index_type>::graph_iterator graph_iterator;
+        typedef typename graph<
+            vertex_type,
+            edge_type,
+            index_type
+        >::const_graph_iterator const_graph_iterator;
 
-        GraphIterator begin() override {
-            return GraphIterator(this, 0);
+        graph_iterator begin() final {
+            return graph_iterator(this, 0);
         }
 
-        GraphIterator end() override {
-            return GraphIterator(this, size());
+        graph_iterator end() final {
+            return graph_iterator(this, size());
         }
 
-        ConstGraphIterator begin() const override {
-            return ConstGraphIterator(this, 0);
+        const_graph_iterator begin() const final {
+            return const_graph_iterator(this, 0);
         }
 
-        ConstGraphIterator end() const override {
-            return ConstGraphIterator(this, size());
+        const_graph_iterator end() const final {
+            return const_graph_iterator(this, size());
         }
 
-        class PairedGraphIterator {
+        class paired_graph_iterator {
         public:
             typedef std::input_iterator_tag iterator_category;
-            typedef std::pair<VertexType*, IndexType> value_type;
+            typedef std::pair<vertex_type*, index_type> value_type;
             typedef std::ptrdiff_t difference_type;
             typedef value_type* pointer;
             typedef value_type& reference;
 
-            bool operator==(const PairedGraphIterator& rhs) const { return i == rhs.i; }
+            bool operator==(const paired_graph_iterator& rhs) const { return _index == rhs._index; }
 
-            bool operator!=(const PairedGraphIterator& rhs) const { return i != rhs.i; }
+            bool operator!=(const paired_graph_iterator& rhs) const { return _index != rhs._index; }
 
-            std::pair<const VertexType*, IndexType> operator*() const {
-                return std::make_pair(owner->vertex(i), i);
+            std::pair<const vertex_type*, index_type> operator*() const {
+                return std::make_pair(_owner->vertex(_index), _index);
             }
 
-            std::pair<VertexType*, IndexType> operator*() {
-                return std::make_pair(owner->vertex(i), i);
+            std::pair<vertex_type*, index_type> operator*() {
+                return std::make_pair(_owner->vertex(_index), _index);
             }
 
-            PairedGraphIterator& operator++() {
-                i++;
+            paired_graph_iterator& operator++() {
+                _index++;
                 return *this;
             }
 
-            typedef Graph<VertexType, EdgeType, IndexType> OwnerGraph;
+            typedef graph<vertex_type, edge_type, index_type> owner_graph;
         public:
-            PairedGraphIterator(OwnerGraph* owner, IndexType i) : owner(owner),
-                                                                  i(i) { }
+            paired_graph_iterator(owner_graph* owner, index_type i) : _owner(owner),
+                                                                      _index(i) {}
 
         protected:
-            friend OwnerGraph;
+            friend owner_graph;
 
-
-            OwnerGraph* owner;
-            IndexType i;
+            owner_graph* _owner;
+            index_type _index;
         };
 
-        class ConstPairedGraphIterator {
+        class const_paired_graph_iterator {
         public:
             typedef std::input_iterator_tag iterator_category;
-            typedef std::pair<const VertexType*, IndexType> value_type;
+            typedef std::pair<const vertex_type*, index_type> value_type;
             typedef std::ptrdiff_t difference_type;
             typedef value_type* pointer;
             typedef value_type& reference;
 
-            bool operator==(const ConstPairedGraphIterator& rhs) const { return i == rhs.i; }
-
-            bool operator!=(const ConstPairedGraphIterator& rhs) const { return i != rhs.i; }
-
-            std::pair<const VertexType*, IndexType> operator*() const {
-                return std::make_pair(owner->vertex(i), i);
+            bool operator==(const const_paired_graph_iterator& rhs) const {
+                return _index == rhs._index;
             }
 
-            ConstPairedGraphIterator& operator++() {
-                i++;
+            bool operator!=(const const_paired_graph_iterator& rhs) const {
+                return _index != rhs._index;
+            }
+
+            std::pair<const vertex_type*, index_type> operator*() const {
+                return std::make_pair(_owner->vertex(_index), _index);
+            }
+
+            const_paired_graph_iterator& operator++() {
+                _index++;
                 return *this;
             }
 
-            typedef Graph<VertexType, EdgeType, IndexType> OwnerGraph;
+            typedef graph<vertex_type, edge_type, index_type> owner_graph;
         public:
-            ConstPairedGraphIterator(
-                const OwnerGraph* owner,
-                IndexType i
-            ) : owner(owner), i(i) { }
+            const_paired_graph_iterator(
+                const owner_graph* owner,
+                index_type i
+            ) : _owner(owner), _index(i) {}
 
         protected:
-            friend OwnerGraph;
-            const OwnerGraph* owner;
-            IndexType i;
+            friend owner_graph;
+            const owner_graph* _owner;
+            index_type _index;
         };
 
-        typedef typename Graph<VertexType, EdgeType, IndexType>::template GraphView<ConstPairedGraphIterator> ConstPairedGraphView;
-        typedef typename Graph<VertexType, EdgeType, IndexType>::template GraphView<PairedGraphIterator> PairedGraphView;
+        typedef typename graph<vertex_type, edge_type, index_type>::template graph_view<
+            const_paired_graph_iterator
+        > const_paired_graph_view;
+        typedef typename graph<vertex_type, edge_type, index_type>::template graph_view<
+            paired_graph_iterator
+        > paired_graph_view;
 
-        ConstPairedGraphView all_vertices() const {
-            return ConstPairedGraphView(this);
+        const_paired_graph_view all_vertices() const {
+            return const_paired_graph_view(this);
         };
 
-        PairedGraphView all_vertices() {
-            return PairedGraphView(this);
+        paired_graph_view all_vertices() {
+            return paired_graph_view(this);
         };
     };
 }

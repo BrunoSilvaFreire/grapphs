@@ -10,94 +10,96 @@
 #include <grapphs/adjacency_list.h>
 
 namespace gpp {
-    struct SVGViewBox {
+    struct svg_viewbox {
     public:
         float minX, minY, width, height;
 
-        SVGViewBox(float minX, float minY, float width, float height);
+        svg_viewbox(float minX, float minY, float width, float height);
 
-        static SVGViewBox centralized(float width, float height);
+        static svg_viewbox centralized(float width, float height);
 
     };
 
-    enum SVGWriterFlags : std::uint8_t {
-        eVerbose = 1 << 0, eDrawVertices = 1 << 1, eDrawEdges = 1 << 2
+    enum svg_writer_flags : std::uint8_t {
+        VERBOSE = 1 << 0,
+        DRAW_VERTICES = 1 << 1,
+        DRAW_EDGES = 1 << 2
     };
 
-    union SVGColor {
+    union svg_color {
         struct {
             uint8_t r, g, b, a;
         };
         uint8_t rgba[4];
         uint32_t rgba32;
 
-        SVGColor(uint32_t rgba) : rgba32(rgba) {
+        svg_color(uint32_t rgba) : rgba32(rgba) {
         }
 
-        static SVGColor black();
+        static svg_color black();
 
-        friend std::ostream& operator<<(std::ostream& os, const SVGColor& color);
+        friend std::ostream& operator<<(std::ostream& os, const svg_color& color);
 
     };
 
     struct SVGAttributes {
-        SVGColor color = SVGColor::black();
+        svg_color color = svg_color::black();
         float size = 1;
 
         friend std::ostream& operator<<(std::ostream& os, const SVGAttributes& attributes);
     };
 
-    template<typename TGraph>
-    class SVGWriter {
+    template<typename t_graph>
+    class svg_writer {
     public:
-        using IndexType = typename TGraph::IndexType;
-        using VertexType = typename TGraph::VertexType;
-        using EdgeType = typename TGraph::EdgeType;
+        using index_type = typename t_graph::index_type;
+        using vertex_type = typename t_graph::vertex_type;
+        using edge_type = typename t_graph::edge_type;
 
-        using PositionFunctor = std::function<
+        using position_functor = std::function<
             void(
-                IndexType i, const VertexType& vertex, float& x, float& y
+                index_type i, const vertex_type& vertex, float& x, float& y
             )
         >;
 
-        using VertexFilter = std::function<
+        using vertex_filter = std::function<
             bool(
-                IndexType i, const VertexType& vertex
+                index_type i, const vertex_type& vertex
             )
         >;
 
-        using EdgeFilter = std::function<
+        using edge_filter = std::function<
             bool(
-                IndexType from, IndexType to, const EdgeType& edgeType
+                index_type from, index_type to, const edge_type& edgeType
             )
         >;
 
-        template<typename TElement> using Customizer = std::function<
+        template<typename TElement> using customizer = std::function<
             void(
                 const TElement& entry, SVGAttributes& attributes
             )
         >;
 
-        using VertexCustomizer = Customizer<VertexType>;
-        using EdgeCustomizer = Customizer<EdgeType>;
+        using vertex_customizer = customizer<vertex_type>;
+        using edge_customizer = customizer<edge_type>;
     private:
-        SVGViewBox _viewBox;
+        svg_viewbox _viewBox;
         float _nodeRadius = 1;
-        PositionFunctor _positionFunctor;
-        SVGWriterFlags _flags = static_cast<SVGWriterFlags>(SVGWriterFlags::eDrawEdges |
-                                                            SVGWriterFlags::eDrawVertices);
-        VertexFilter _vertexFilter;
-        EdgeFilter _edgeFilter;
-        VertexCustomizer _vertexCustomizer;
-        EdgeCustomizer _edgeCustomizer;
+        position_functor _positionFunctor;
+        svg_writer_flags _flags = static_cast<svg_writer_flags>(svg_writer_flags::DRAW_EDGES |
+                                                                svg_writer_flags::DRAW_VERTICES);
+        vertex_filter _vertexFilter;
+        edge_filter _edgeFilter;
+        vertex_customizer _vertexCustomizer;
+        edge_customizer _edgeCustomizer;
 
-        bool testFlags(SVGWriterFlags flags) {
+        bool test_flags(svg_writer_flags flags) {
             return (_flags & flags) == flags;
         }
 
     public:
-        SVGWriter(
-            SVGViewBox viewBox, const PositionFunctor& positionFunctor
+        svg_writer(
+            svg_viewbox viewBox, const position_functor& positionFunctor
         ) : _viewBox(viewBox), _positionFunctor(positionFunctor) {
         }
 
@@ -105,37 +107,37 @@ namespace gpp {
             _nodeRadius = nodeRadius;
         }
 
-        void set_flags(SVGWriterFlags flags) {
+        void set_flags(svg_writer_flags flags) {
             _flags = flags;
         }
 
-        void set_vertex_filter(const VertexFilter& vertexFilter) {
+        void set_vertex_filter(const vertex_filter& vertexFilter) {
             _vertexFilter = vertexFilter;
         }
 
-        void set_edge_filter(const EdgeFilter& edgeFilter) {
+        void set_edge_filter(const edge_filter& edgeFilter) {
             _edgeFilter = edgeFilter;
         }
 
-        void set_vertex_customizer(const VertexCustomizer& vertexCustomizer) {
+        void set_vertex_customizer(const vertex_customizer& vertexCustomizer) {
             _vertexCustomizer = vertexCustomizer;
         }
 
-        void set_edge_customizer(const EdgeCustomizer& edgeCustomizer) {
+        void set_edge_customizer(const edge_customizer& edgeCustomizer) {
             _edgeCustomizer = edgeCustomizer;
         }
 
         void write(
-            std::ostream& os, const gpp::AdjacencyList<VertexType, EdgeType, IndexType>& graph
+            std::ostream& os, const gpp::adjacency_list<vertex_type, edge_type, index_type>& graph
         ) {
-            bool verbose = testFlags(SVGWriterFlags::eVerbose);
+            bool verbose = test_flags(svg_writer_flags::VERBOSE);
             os << "<svg viewBox=\"" << _viewBox.minX << " " << _viewBox.minY << " "
                << _viewBox.width << " " << _viewBox.height
                << R"(" xmlns="http://www.w3.org/2000/svg">)" << std::endl;
 
-            if (testFlags(SVGWriterFlags::eDrawVertices)) {
-                for (IndexType i = 0; i < graph.size(); i++) {
-                    const VertexType& vertex = *graph.vertex(i);
+            if (test_flags(svg_writer_flags::DRAW_VERTICES)) {
+                for (index_type i = 0; i < graph.size(); i++) {
+                    const vertex_type& vertex = *graph.vertex(i);
                     if (_vertexFilter != nullptr && !_vertexFilter(i, vertex)) {
                         continue;
                     }
@@ -158,15 +160,15 @@ namespace gpp {
                        << "\" fill=\"" << attributes.color << "\"/> " << std::endl;
                 }
             }
-            if (testFlags(SVGWriterFlags::eDrawEdges)) {
-                for (IndexType i = 0; i < graph.size(); ++i) {
-                    const VertexType& fromVertex = *graph.vertex(i);
+            if (test_flags(svg_writer_flags::DRAW_EDGES)) {
+                for (index_type i = 0; i < graph.size(); ++i) {
+                    const vertex_type& fromVertex = *graph.vertex(i);
 
                     float x1, y1;
                     _positionFunctor(i, fromVertex, x1, y1);
                     for (const auto& [j, edge] : graph.edges_from(i)) {
                         float x2, y2;
-                        const VertexType& toVertex = *graph.vertex(j);
+                        const vertex_type& toVertex = *graph.vertex(j);
 
                         if (_edgeFilter != nullptr && !_edgeFilter(i, j, edge)) {
                             continue;
@@ -192,21 +194,21 @@ namespace gpp {
         }
     };
 
-    template<typename TGraph>
+    template<typename t_graph>
     void to_svg(
         std::size_t viewboxHeight,
         std::size_t viewboxWidth,
-        const TGraph& graph,
+        const t_graph& graph,
         std::ostream& stream
     ) {
-        using IndexType = typename TGraph::IndexType;
-        using VertexType = typename TGraph::VertexType;
-        using EdgeType = typename TGraph::EdgeType;
+        using index_type = typename t_graph::index_type;
+        using vertex_type = typename t_graph::vertex_type;
+        using edge_type = typename t_graph::edge_type;
 
-        gpp::Graph<typename TGraph::VertexType, typename TGraph::EdgeType> a;
+        gpp::graph<typename t_graph::vertex_type, typename t_graph::edge_type> a;
 
-        for (IndexType i = 0; i < a.size(); ++i) {
-            const VertexType& vertex = a.vertex(i);
+        for (index_type i = 0; i < a.size(); ++i) {
+            const vertex_type& vertex = a.vertex(i);
         }
     }
 }

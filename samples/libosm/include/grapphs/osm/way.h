@@ -38,9 +38,9 @@ namespace gpp::osm {
     class Lane {
     };
 
-    class WayMetadata {
+    class way_metadata {
     public:
-        WayMetadata(const WayMetadata&) = default;
+        way_metadata(const way_metadata&) = default;
 
         enum class Flags : uint8_t {
             eSidewalkLeft = 1 << 0,
@@ -50,14 +50,12 @@ namespace gpp::osm {
             eSidewalkBoth = eSidewalkLeft | eSidewalkRight
         };
 
-
         enum class Surface : uint8_t {
             eDirt, eAsphalt, eUnknown
         };
         enum class Kind : uint8_t {
             eWay, eRoad, eAvenue, eHighway, eUnknown
         };
-
 
     private:
         std::string _name;
@@ -67,9 +65,9 @@ namespace gpp::osm {
         Surface _surface;
 
     public:
-        WayMetadata() = default;
+        way_metadata() = default;
 
-        WayMetadata(const std::string& name, float maxSpeed, Flags flags,Kind kind, Surface surface);
+        way_metadata(const std::string& name, float maxSpeed, Flags flags, Kind kind, Surface surface);
 
         const std::string& get_name() const;
 
@@ -82,12 +80,11 @@ namespace gpp::osm {
         Kind get_kind() const;
     };
 
-    WayMetadata::Flags operator|(WayMetadata::Flags a, WayMetadata::Flags b);
+    way_metadata::Flags operator|(way_metadata::Flags a, way_metadata::Flags b);
 
-    WayMetadata::Flags operator&(WayMetadata::Flags a, WayMetadata::Flags b);
+    way_metadata::Flags operator&(way_metadata::Flags a, way_metadata::Flags b);
 
-    WayMetadata::Flags operator|=(WayMetadata::Flags a, WayMetadata::Flags b);
-
+    way_metadata::Flags operator|=(way_metadata::Flags a, way_metadata::Flags b);
 
     class Way {
     private:
@@ -107,17 +104,16 @@ namespace gpp::osm {
         bool has_metadata() const;
     };
 
-
-    class OSMGraph : public gpp::AdjacencyList<Node, Way> {
+    class OSMGraph : public gpp::adjacency_list<Node, Way> {
     private:
-        std::vector<WayMetadata> _metadata;
+        std::vector<way_metadata> _metadata;
 
     public:
         OSMGraph() = default;
 
-        std::size_t push_meta(gpp::osm::WayMetadata&& metadata);
+        std::size_t push_meta(gpp::osm::way_metadata&& metadata);
 
-        bool get_metadata(const Way& way, gpp::osm::WayMetadata& metadata);
+        bool get_metadata(const Way& way, gpp::osm::way_metadata& metadata);
     };
 } // namespace gpp::osm
 #endif
