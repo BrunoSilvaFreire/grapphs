@@ -1,15 +1,14 @@
 #include <grapphs/adjacency_list.h>
 #include <grapphs/adjacency_matrix.h>
 #include <grapphs/dot.h>
-#include "grapphs/algorithms/astar.h"
-#include <gtest/gtest.h>
-#include <chrono>
+#include <grapphs/tests/mazes.h>
 
+#include <gtest/gtest.h>
+
+#include <chrono>
 #include <random>
 #include <fstream>
 #include <ostream>
-#include <nlohmann/json.hpp>
-#include <grapphs/tests/mazes.h>
 
 enum my_flags {
     A = 1 << 1,

@@ -5,7 +5,7 @@
 #ifndef GRAPPHS_ASTAR_H
 #define GRAPPHS_ASTAR_H
 
-#include "grapphs/graph.h"
+#include <grapphs/graph.h>
 #include <stdexcept>
 #include <queue>
 #include <limits>
@@ -90,6 +90,10 @@ namespace gpp {
     >;
 
     template<typename t_graph>
+
+#ifdef __cpp_concepts
+    requires gpp::is_graph<t_graph>
+#endif
     graph_path<typename t_graph::index_type> astar(
         t_graph& graph,
         typename t_graph::index_type from,
@@ -97,9 +101,6 @@ namespace gpp {
         heuristics_function<t_graph> heuristics,
         distance_function<t_graph> distanceFunction
     )
-    //#ifdef __cpp_concepts
-    //    requires std::is_assignable_v<gpp::Graph<typename graph_type::vertex_type, typename graph_type::edge_type, typename graph_type::index_type>;
-    //#endif
     {
         using index_type = typename t_graph::index_type;
         using iterator = typename std::unordered_map<index_type, float>::iterator;

@@ -183,9 +183,9 @@ namespace gpp {
 
     template<typename graph_type>
     concept is_graph = std::is_base_of_v<
-        gpp::_graph<
+        gpp::graph<
             typename graph_type::vertex_type,
-            typename graph_type::edgeType,
+            typename graph_type::edge_type,
             typename graph_type::index_type
         >,
         graph_type
