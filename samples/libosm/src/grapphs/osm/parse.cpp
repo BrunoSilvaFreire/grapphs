@@ -35,7 +35,7 @@ namespace gpp::osm {
     };
 
     int node_parse(const void* pHelper, const readosm_node* node) {
-        gpp::osm::Coordinate loc(node->longitude, node->latitude);
+        gpp::osm::coordinate loc(node->longitude, node->latitude);
         auto& into = const_cast<parser_helper&>(*static_cast<const parser_helper*>(pHelper));
 
         gpp::osm::osm_node gppNode(loc);

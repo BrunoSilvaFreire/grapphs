@@ -80,7 +80,7 @@ int main(int argc, char** argv) {
     aabb cityAabb;
     for (std::size_t i = 0; i < graph.size(); ++i) {
         gpp::osm::osm_node* pNode = graph.vertex(i);
-        const gpp::osm::Coordinate& coordinate = pNode->get_location();
+        const gpp::osm::coordinate& coordinate = pNode->get_location();
         double x = coordinate.get_longitude();
         double y = coordinate.get_latitude();
         if (x > cityAabb.get_max_x()) {
@@ -110,7 +110,7 @@ int main(int argc, char** argv) {
         viewBox, [&](
             std::size_t index, const gpp::osm::osm_node& node, float& x, float& y
         ) {
-            const gpp::osm::Coordinate& location = node.get_location();
+            const gpp::osm::coordinate& location = node.get_location();
 
             double relX = inv_lerp(cityAabb.get_min_x(), cityAabb.get_max_x(), location.get_longitude());
             double relY = inv_lerp(cityAabb.get_min_y(), cityAabb.get_max_y(), location.get_latitude());
