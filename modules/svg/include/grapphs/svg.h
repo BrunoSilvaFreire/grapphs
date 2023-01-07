@@ -85,9 +85,10 @@ namespace gpp {
     private:
         svg_viewbox _viewBox;
         float _nodeRadius = 1;
+        svg_writer_flags _flags = static_cast<svg_writer_flags>(
+            svg_writer_flags::DRAW_EDGES | svg_writer_flags::DRAW_VERTICES
+        );
         position_functor _positionFunctor;
-        svg_writer_flags _flags = static_cast<svg_writer_flags>(svg_writer_flags::DRAW_EDGES |
-                                                                svg_writer_flags::DRAW_VERTICES);
         vertex_filter _vertexFilter;
         edge_filter _edgeFilter;
         vertex_customizer _vertexCustomizer;

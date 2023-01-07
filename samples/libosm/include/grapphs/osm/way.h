@@ -9,28 +9,28 @@
 
 namespace gpp::osm {
 
-    struct Coordinate {
+    struct coordinate {
     private:
         double _longitude, _latitude;
 
     public:
-        Coordinate(double longitude, double latitude);
+        coordinate(double longitude, double latitude);
 
         double get_longitude() const;
 
         double get_latitude() const;
 
-        friend std::ostream& operator<<(std::ostream& os, const Coordinate& coordinate);
+        friend std::ostream& operator<<(std::ostream& os, const coordinate& coordinate);
     };
 
     class osm_node {
     private:
-        Coordinate _location;
+        coordinate _location;
 
     public:
-        const Coordinate& get_location() const;
+        const coordinate& get_location() const;
 
-        explicit osm_node(const Coordinate& location);
+        explicit osm_node(const coordinate& location);
 
         friend std::ostream& operator<<(std::ostream& os, const osm_node& node);
     };

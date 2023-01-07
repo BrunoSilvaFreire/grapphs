@@ -2,28 +2,28 @@
 
 namespace gpp::osm {
 
-    Coordinate::Coordinate(double longitude, double latitude)
+    coordinate::coordinate(double longitude, double latitude)
         : _longitude(longitude), _latitude(latitude) {
     }
 
-    double Coordinate::get_longitude() const {
+    double coordinate::get_longitude() const {
         return _longitude;
     }
 
-    double Coordinate::get_latitude() const {
+    double coordinate::get_latitude() const {
         return _latitude;
     }
 
-    std::ostream& operator<<(std::ostream& os, const Coordinate& coordinate) {
+    std::ostream& operator<<(std::ostream& os, const coordinate& coordinate) {
         return os << "(longitude: " << coordinate._longitude << ", latitude: "
                   << coordinate._latitude << ")";
     }
 
-    const Coordinate& osm_node::get_location() const {
+    const coordinate& osm_node::get_location() const {
         return _location;
     }
 
-    osm_node::osm_node(const Coordinate& location) : _location(location) {
+    osm_node::osm_node(const coordinate& location) : _location(location) {
     }
 
     std::ostream& operator<<(std::ostream& os, const osm_node& node) {
