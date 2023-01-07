@@ -9,27 +9,21 @@
 
 namespace gpp {
 
-#if __cpp_concepts
-
-    template<
-        gpp::is_graph graph_type,
-        typename StartPointsContainer
-    >
-#else
-
     template<
         typename graph_type,
-        typename StartPointsContainer = std::set<typename graph_type::index_type>
+        typename origin_points_container= std::set<typename graph_type::index_type>
     >
+#if __cpp_concepts
+    requires gpp::is_graph<graph_type>
 #endif
     void flood(
         const graph_type& graph,
-        const StartPointsContainer& startingPoints,
+        const origin_points_container& startingPoints,
         const vertex_explorer<graph_type>& perVertex,
         const edge_explorer<graph_type>& perEdge
     )
 #if __cpp_concepts
-    requires std::input_iterator<typename StartPointsContainer::iterator>
+    requires std::input_iterator<typename origin_points_container::iterator>
 #endif
     {
         gpp::breadth_first_traverse(graph, startingPoints, perVertex, perEdge);
