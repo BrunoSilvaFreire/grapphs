@@ -3,6 +3,12 @@
   <component name="CMakeWorkspace" PROJECT_DIR="$PROJECT_DIR$" />
   <component name="CidrRootsConfiguration">
     <sourceRoots>
+      <file path="$PROJECT_DIR$/include" />
+      <file path="$PROJECT_DIR$/modules/graphviz" />
+      <file path="$PROJECT_DIR$/modules/svg" />
+      <file path="$PROJECT_DIR$/samples/libosm" />
+      <file path="$PROJECT_DIR$/samples/osm_explorer" />
+      <file path="$PROJECT_DIR$/tests" />
       <file path="$PROJECT_DIR$/tests/shared" />
     </sourceRoots>
   </component>
