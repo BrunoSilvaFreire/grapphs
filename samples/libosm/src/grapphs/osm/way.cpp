@@ -19,42 +19,42 @@ namespace gpp::osm {
                   << coordinate._latitude << ")";
     }
 
-    const Coordinate& Node::get_location() const {
+    const Coordinate& osm_node::get_location() const {
         return _location;
     }
 
-    Node::Node(const Coordinate& location) : _location(location) {
+    osm_node::osm_node(const Coordinate& location) : _location(location) {
     }
 
-    std::ostream& operator<<(std::ostream& os, const Node& node) {
+    std::ostream& operator<<(std::ostream& os, const osm_node& node) {
         os << "_location: " << node._location;
         return os;
     }
 
-    Way::Way(size_t metadataIndex) : _metadataIndex(metadataIndex) {
+    way::way(size_t metadataIndex) : _metadataIndex(metadataIndex) {
     }
 
-    size_t Way::get_metadata_index() const {
+    size_t way::get_metadata_index() const {
         return _metadataIndex;
     }
 
-    std::ostream& operator<<(std::ostream& os, const Way& way) {
+    std::ostream& operator<<(std::ostream& os, const way& way) {
         os << "_metadataIndex: " << way._metadataIndex;
         return os;
     }
 
-    way_metadata::Flags operator|=(way_metadata::Flags a, way_metadata::Flags b) {
+    way_metadata::flags operator|=(way_metadata::flags a, way_metadata::flags b) {
         return a | b;
     }
 
-    way_metadata::Flags operator|(way_metadata::Flags a, way_metadata::Flags b) {
-        return static_cast<way_metadata::Flags>(static_cast<uint8_t>(a) | static_cast<uint8_t>(b));
+    way_metadata::flags operator|(way_metadata::flags a, way_metadata::flags b) {
+        return static_cast<way_metadata::flags>(static_cast<uint8_t>(a) | static_cast<uint8_t>(b));
     }
-    way_metadata::Flags operator&(way_metadata::Flags a, way_metadata::Flags b) {
-        return static_cast<way_metadata::Flags>(static_cast<uint8_t>(a) & static_cast<uint8_t>(b));
+    way_metadata::flags operator&(way_metadata::flags a, way_metadata::flags b) {
+        return static_cast<way_metadata::flags>(static_cast<uint8_t>(a) & static_cast<uint8_t>(b));
     }
 
-    bool Way::has_metadata() const {
+    bool way::has_metadata() const {
         return _metadataIndex != invalid_metadata();
     }
 
@@ -62,20 +62,20 @@ namespace gpp::osm {
         return _name;
     }
 
-    way_metadata::Flags way_metadata::get_flags() const {
+    way_metadata::flags way_metadata::get_flags() const {
         return _flags;
     }
 
-    way_metadata::Surface way_metadata::get_surface() const {
+    way_metadata::surface way_metadata::get_surface() const {
         return _surface;
     }
 
     way_metadata::way_metadata(
         const std::string& name,
         float maxSpeed,
-        way_metadata::Flags flags,
-        way_metadata::Kind kind,
-        way_metadata::Surface surface
+        way_metadata::flags flags,
+        way_metadata::kind kind,
+        way_metadata::surface surface
     ) : _name(name), _maxSpeed(maxSpeed), _flags(flags), _kind(kind), _surface(surface) {
     }
 
@@ -83,17 +83,17 @@ namespace gpp::osm {
         return _maxSpeed;
     }
 
-    way_metadata::Kind way_metadata::get_kind() const {
+    way_metadata::kind way_metadata::get_kind() const {
         return _kind;
     }
 
-    std::size_t OSMGraph::push_meta(way_metadata&& metadata) {
+    std::size_t osm_graph::push_meta(way_metadata&& metadata) {
         std::size_t i = _metadata.size();
         _metadata.push_back(std::move(metadata));
         return i;
     }
 
-    bool OSMGraph::get_metadata(const Way& way, way_metadata& metadata) {
+    bool osm_graph::get_metadata(const way& way, way_metadata& metadata) {
         std::size_t index = way.get_metadata_index();
         if (index >= _metadata.size()) {
             return false;

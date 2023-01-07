@@ -7,7 +7,7 @@
 
 namespace gpp::osm {
 
-    void parse(const std::filesystem::path& file, gpp::osm::OSMGraph& into);
+    void parse(const std::filesystem::path& file, gpp::osm::osm_graph& into);
 }
 
 #endif
