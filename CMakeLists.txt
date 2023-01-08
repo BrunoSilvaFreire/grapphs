@@ -1,5 +1,16 @@
 cmake_minimum_required(VERSION 3.19)
-project(grapphs LANGUAGES CXX)
+
+
+include(cmake/GrapphsVersion.cmake)
+
+grapphs_detect_version(GRAPPHS_VERSION)
+message(STATUS "Grapphs version is: ${GRAPPHS_VERSION}")
+set(CMAKE_PROJECT_VERSION ${GRAPPHS_VERSION})
+if(NOT GRAPPHS_VERSION_FULL STREQUAL "")
+    project(grapphs LANGUAGES CXX VERSION "${GRAPPHS_VERSION_FULL}")
+else()
+    project(grapphs LANGUAGES CXX)
+endif()
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -19,7 +30,6 @@ add_library(
         include/grapphs/algorithms/bfs_traversal.h
         include/grapphs/algorithms/dfs_traversal.h
         include/grapphs/algorithms/rlo_traversal.h
-        samples/osm_explorer/main.cpp
 )
 
 add_library(grapphs::grapphs ALIAS grapphs)
@@ -36,24 +46,28 @@ set_target_properties(
         PROPERTIES
         PUBLIC_HEADER $<TARGET_PROPERTY:grapphs,INTERFACE_INCLUDE_DIRECTORIES>
 )
-
+install(
+        EXPORT grapphs
+        DESTINATION .
+        NAMESPACE grapphs::
+)
 install(
         TARGETS grapphs
-        PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+        EXPORT grapphs
+        PUBLIC_HEADER DESTINATION .
 )
-
 option(GRAPPHS_COMPILE_TESTS "Create Unit Test executable?" ON)
 option(GRAPPHS_COMPILE_GRAPHVIZ "Create graphviz support target?" ON)
 option(GRAPPHS_COMPILE_SVG "Create svg target?" ON)
 option(GRAPPHS_COMPILE_SAMPLES "Create samples targets?" ON)
 
-if (GRAPPHS_COMPILE_TESTS)
-    if (NOT EXISTS "${CMAKE_BINARY_DIR}/conan.cmake")
+if(GRAPPHS_COMPILE_TESTS)
+    if(NOT EXISTS "${CMAKE_BINARY_DIR}/conan.cmake")
         message(STATUS "Downloading conan.cmake from https://github.com/conan-io/cmake-conan")
         file(DOWNLOAD "https://raw.githubusercontent.com/conan-io/cmake-conan/release/0.17/conan.cmake"
                 "${CMAKE_BINARY_DIR}/conan.cmake"
                 TLS_VERIFY ON)
-    endif ()
+    endif()
 
     include(${CMAKE_BINARY_DIR}/conan.cmake)
 
@@ -68,9 +82,9 @@ if (GRAPPHS_COMPILE_TESTS)
             GENERATORS cmake
     )
     message("Settings: ${CONAN_SETTINGS}")
-    if ("${CONAN_SETTINGS}" STREQUAL "")
+    if("${CONAN_SETTINGS}" STREQUAL "")
         conan_cmake_autodetect(CONAN_SETTINGS BUILD_TYPE ${CMAKE_BUILD_TYPE})
-    endif ()
+    endif()
     conan_cmake_install(
             PATH_OR_REFERENCE .
             BUILD missing
@@ -79,7 +93,7 @@ if (GRAPPHS_COMPILE_TESTS)
     include(${CMAKE_CURRENT_BINARY_DIR}/conanbuildinfo.cmake)
     conan_basic_setup(TARGETS)
 
-    find_package(Python REQUIRED)
+    find_package(Python 3.10 REQUIRED)
 
 
     set(GRAPPHS_MAZES_SIZES 3 5 10 15 25 35 50 100)
@@ -88,7 +102,7 @@ if (GRAPPHS_COMPILE_TESTS)
             COMMAND
             ${CMAKE_COMMAND} -E make_directory ${CMAKE_INSTALL_BINDIR}/mazes
     )
-    foreach (INDEX IN LISTS GRAPPHS_MAZES_SIZES)
+    foreach(INDEX IN LISTS GRAPPHS_MAZES_SIZES)
         set(MAZE_OUTPUT ${CMAKE_INSTALL_BINDIR}/mazes/maze_${INDEX}.json)
         add_custom_command(
                 TARGET
@@ -105,7 +119,7 @@ if (GRAPPHS_COMPILE_TESTS)
                 COMMENT "Generating maze of size ${INDEX}..."
 
         )
-    endforeach ()
+    endforeach()
     add_library(
             grapphs-testlib
             tests/shared/grapphs
@@ -138,17 +152,17 @@ if (GRAPPHS_COMPILE_TESTS)
             grapphs-tests
             grapphs-testlib
     )
-endif ()
+endif()
 
-if (GRAPPHS_COMPILE_GRAPHVIZ)
+if(GRAPPHS_COMPILE_GRAPHVIZ)
     add_subdirectory(modules/graphviz)
-endif ()
+endif()
 
-if (GRAPPHS_COMPILE_SVG)
+if(GRAPPHS_COMPILE_SVG)
     add_subdirectory(modules/svg)
-endif ()
+endif()
 
-if (GRAPPHS_COMPILE_SAMPLES)
+if(GRAPPHS_COMPILE_SAMPLES)
     add_subdirectory(samples/libosm)
     add_subdirectory(samples/osm_explorer)
-endif ()
+endif()
