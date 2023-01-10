@@ -168,7 +168,8 @@ namespace gpp::osm {
     void parse(const std::filesystem::path& file, gpp::osm::osm_graph& into) {
         const void* osmHandle;
         parser_helper helper(&into);
-        readosm_open(file.c_str(), reinterpret_cast<const void**>(&osmHandle));
+        const std::string& fileStr = file.string();
+        readosm_open(fileStr.c_str(), reinterpret_cast<const void**>(&osmHandle));
 
         readosm_node_callback pfnNodeCb = &node_parse;
         readosm_way_callback pfnWayCb = &way_parse;
