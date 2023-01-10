@@ -1,16 +1,18 @@
 cmake_minimum_required(VERSION 3.19)
 
-
+include(cmake/Grapphs.cmake)
 include(cmake/GrapphsVersion.cmake)
 
 grapphs_detect_version(GRAPPHS_VERSION)
 message(STATUS "Grapphs version is: ${GRAPPHS_VERSION}")
-set(CMAKE_PROJECT_VERSION ${GRAPPHS_VERSION})
+
 if(NOT GRAPPHS_VERSION_FULL STREQUAL "")
     project(grapphs LANGUAGES CXX VERSION "${GRAPPHS_VERSION_FULL}")
 else()
     project(grapphs LANGUAGES CXX)
 endif()
+
+grapphs_bootstrap()
 
 set(CMAKE_CXX_STANDARD 17)
 
