@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.19)
+cmake_minimum_required(VERSION 3.23)
 
 include(cmake/Grapphs.cmake)
 include(cmake/GrapphsVersion.cmake)
@@ -21,8 +21,17 @@ include(CMakePrintHelpers)
 include(ExternalData)
 include(cmake/GrapphsConan.cmake)
 
-add_library(
-        grapphs INTERFACE
+### Prepare install export
+install(
+        EXPORT grapphs
+        DESTINATION .
+        NAMESPACE grapphs::
+)
+
+### Prepare grapphs header-only library target
+set(
+        GRAPPHS_HEADERS
+
         include/grapphs/graph.h
         include/grapphs/adjacency_list.h
         include/grapphs/adjacency_matrix.h
@@ -35,6 +44,11 @@ add_library(
         include/grapphs/algorithms/rlo_traversal.h
 )
 
+add_library(
+        grapphs INTERFACE
+        ${GRAPPHS_HEADERS}
+)
+
 add_library(grapphs::grapphs ALIAS grapphs)
 
 target_include_directories(
@@ -44,21 +58,22 @@ target_include_directories(
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
-set_target_properties(
+target_sources(
         grapphs
-        PROPERTIES
-        PUBLIC_HEADER $<TARGET_PROPERTY:grapphs,INTERFACE_INCLUDE_DIRECTORIES>
+        PUBLIC
+        FILE_SET HEADERS
+        TYPE HEADERS
+        BASE_DIRS include
+        FILES "${GRAPPHS_HEADERS}"
 )
-install(
-        EXPORT grapphs
-        DESTINATION .
-        NAMESPACE grapphs::
-)
+
 install(
         TARGETS grapphs
         EXPORT grapphs
-        PUBLIC_HEADER DESTINATION .
+        FILE_SET HEADERS
 )
+
+### Check for modules
 option(GRAPPHS_COMPILE_TESTS "Create Unit Test executable?" ON)
 option(GRAPPHS_COMPILE_GRAPHVIZ "Create graphviz support target?" ON)
 option(GRAPPHS_COMPILE_SVG "Create svg target?" ON)
