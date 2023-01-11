@@ -43,6 +43,6 @@ if (GRAPPHS_COMPILE_TESTS AND GRAPPHS_COMPILE_VISUALIZATION_TESTS)
             COMMAND ${CMAKE_COMMAND}
             -E copy_directory
             $<TARGET_PROPERTY:grapphs,BINARY_DIR>/bin/mazes
-            ${CMAKE_CURRENT_BINARY_DIR}/mazes
+            ${CMAKE_CURRENT_BINARY_DIR}/bin/mazes
     )
 endif ()

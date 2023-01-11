@@ -78,7 +78,7 @@ if(GRAPPHS_COMPILE_TESTS)
             ${CMAKE_COMMAND} -E make_directory ${CMAKE_INSTALL_BINDIR}/mazes
     )
     foreach(INDEX IN LISTS GRAPPHS_MAZES_SIZES)
-        set(MAZE_OUTPUT ${CMAKE_INSTALL_BINDIR}/mazes/maze_${INDEX}.json)
+        set(MAZE_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_INSTALL_BINDIR}/mazes/maze_${INDEX}.json)
         add_custom_command(
                 TARGET
                 grapphs-generate-mazes
