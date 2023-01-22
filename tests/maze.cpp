@@ -31,7 +31,7 @@ TEST(grapphs, maze_astar) {
                     dx * dx + dy * dy
                 );
             },
-            [](size_t from, size_t to, int value) {
+            [](size_t from, size_t to, const int& value) {
                 return value;
             }
         );
