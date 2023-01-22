@@ -1,7 +1,3 @@
-//
-// Created by bruno on 05/04/2021.
-//
-
 #ifndef GRAPPHS_ASTAR_H
 #define GRAPPHS_ASTAR_H
 
@@ -11,6 +7,26 @@
 #include <limits>
 
 namespace gpp {
+
+#if __cpp_concepts
+    template<typename t_function, typename t_graph>
+    concept is_heuristics_function = std::is_invocable_r_v<
+        float,
+        t_function,
+        typename t_graph::index_type,
+        typename t_graph::index_type
+    >;
+
+    template<typename t_function, typename t_graph>
+    concept is_distance_function = std::is_invocable_r_v<
+        float,
+        t_function,
+        typename t_graph::index_type,
+        typename t_graph::index_type,
+        const typename t_graph::edge_type&
+    >;
+#endif
+
     template<typename I>
     class less_by_f_score {
     private:
@@ -68,7 +84,7 @@ namespace gpp {
             return _vertices;
         }
 
-        size_t count() const {
+        std::size_t count() const {
             return _vertices.size();
         }
 
@@ -78,81 +94,106 @@ namespace gpp {
             }
         }
     };
-    template<typename t_graph>
-    using heuristics_function = std::function<float(typename t_graph::index_type from, typename t_graph::index_type to)>;
-
-    template<typename t_graph>
-    using distance_function = std::function<
-        float(
-            typename t_graph::index_type from,
-            typename t_graph::index_type to,
-            const typename t_graph::edge_type& edge)
-    >;
 
     template<typename t_graph>
 
 #ifdef __cpp_concepts
     requires gpp::is_graph<t_graph>
 #endif
-    graph_path<typename t_graph::index_type> astar(
-        t_graph& graph,
-        typename t_graph::index_type from,
-        typename t_graph::index_type to,
-        heuristics_function<t_graph> heuristics,
-        distance_function<t_graph> distanceFunction
-    )
-    {
+
+    class astar_algorithm {
+    public:
         using index_type = typename t_graph::index_type;
         using iterator = typename std::unordered_map<index_type, float>::iterator;
 
-        std::unordered_map<index_type, float> gScore;
-        std::unordered_map<index_type, float> fScore;
-        std::unordered_map<index_type, index_type> history;
+        template<typename t_heuristics, typename t_distance>
+#ifdef __cpp_concepts
+        requires gpp::is_heuristics_function<t_heuristics, t_graph> &&
+                 gpp::is_distance_function<t_distance, t_graph>
+#endif
+        static graph_path<typename t_graph::index_type> invoke(
+            t_graph& graph,
+            index_type from,
+            index_type to,
+            const t_heuristics& heuristics,
+            const t_distance& distanceFunction
+        ) {
 
-        gpp::less_by_f_score<index_type> predicate(&fScore);
-        priority_queue<index_type> open(predicate);
+            std::unordered_map<index_type, float> gScore;
+            std::unordered_map<index_type, float> fScore;
+            std::unordered_map<index_type, index_type> history;
 
-        gScore[from] = 0;
-        fScore[from] = heuristics(from, to);
-        open.push(from);
+            gpp::less_by_f_score<index_type> predicate(&fScore);
+            gpp::priority_queue<index_type> open(predicate);
 
-        while (!open.empty()) {
-            index_type next = open.top();
-            open.pop();
-            if (next == to) {
-                std::vector<index_type> indices;
-                index_type current = to;
-                indices.push_back(current);
-                do {
-                    auto candidate = history.find(current);
-                    if (candidate == history.end()) {
+            gScore[from] = 0;
+            fScore[from] = heuristics(from, to);
+            open.push(from);
 
-                        throw std::runtime_error("");
-                    }
-                    current = (*candidate).second;
-                    indices.push_back(current);
-                }
-                while (current != from);
-                std::reverse(indices.begin(), indices.end());
-                return graph_path<index_type>(indices);
-            }
-            for (const auto [neighborIndex, edge] : graph.edges_from(next)) {
-                float attempt = gScore[next] + distanceFunction(next, neighborIndex, edge);
-                iterator existing = gScore.find(neighborIndex);
+            while (!open.empty()) {
+                index_type next = open.top();
+                open.pop();
 
-                // Not yet explored or we found a better path?
-                if (existing == gScore.end() || (*existing).second > attempt) {
-                    history[neighborIndex] = next;
-                    gScore[neighborIndex] = attempt;
-                    fScore[neighborIndex] = attempt + distanceFunction(neighborIndex, to, edge);
-                    if (!open.contains(neighborIndex)) {
-                        open.push(neighborIndex);
-                    }
+                if (next == to) {
+                    return rebuild_path(from, to, history);
                 }
 
+                for (const auto [neighborIndex, edge] : graph.edges_from(next)) {
+                    float attempt = gScore[next] + distanceFunction(next, neighborIndex, edge);
+                    iterator existing = gScore.find(neighborIndex);
+
+                    if (existing == gScore.end() || existing->second > attempt) {
+                        history[neighborIndex] = next;
+                        gScore[neighborIndex] = attempt;
+                        fScore[neighborIndex] = attempt + distanceFunction(neighborIndex, to, edge);
+
+                        if (!open.contains(neighborIndex)) {
+                            open.push(neighborIndex);
+                        }
+                    }
+                }
             }
+
+            throw std::runtime_error("Unable to find path");
         }
-        throw std::runtime_error("Unable to find path");
+
+    private:
+        static graph_path<index_type> rebuild_path(
+            index_type origin,
+            index_type current,
+            const std::unordered_map<index_type, index_type>& history
+        ) {
+            std::vector<index_type> indices = { current };
+
+            do {
+                current = history[current];
+                indices.push_back(current);
+            } while (current != origin);
+
+            std::reverse(indices.begin(), indices.end());
+            return graph_path<index_type>(indices);
+        }
+    };
+
+    template<
+        typename t_graph,
+        typename t_heuristics,
+        typename t_distances
+    >
+#ifdef __cpp_concepts
+    requires gpp::is_graph<t_graph>
+             && gpp::is_heuristics_function<t_heuristics, t_graph>
+             && gpp::is_distance_function<t_distances, t_graph>
+
+#endif
+    inline graph_path<typename t_graph::index_type> astar(
+        t_graph& graph,
+        typename t_graph::index_type from,
+        typename t_graph::index_type to,
+        t_heuristics heuristics,
+        t_distances distanceFunction
+    ) {
+        return gpp::astar_algorithm<t_graph>::invoke(graph, from, to, heuristics, distanceFunction);
     }
 }
 #endif //GRAPPHS_ASTAR_H
