@@ -1,13 +1,15 @@
 cmake_minimum_required(VERSION 3.23)
 
+find_package(Python 3.10 REQUIRED)
+
 include(cmake/Grapphs.cmake)
 include(cmake/GrapphsVersion.cmake)
 
 grapphs_detect_version(GRAPPHS_VERSION)
-message(STATUS "Grapphs version is: ${GRAPPHS_VERSION}")
+message(STATUS "Grapphs version is: ${GRAPPHS_VERSION} (${GRAPPHS_VERSION_RAW})")
 
-if(NOT GRAPPHS_VERSION_FULL STREQUAL "")
-    project(grapphs LANGUAGES CXX VERSION "${GRAPPHS_VERSION_FULL}")
+if(NOT GRAPPHS_VERSION STREQUAL "")
+    project(grapphs LANGUAGES CXX VERSION "${GRAPPHS_VERSION}")
 else()
     project(grapphs LANGUAGES CXX)
 endif()
@@ -83,7 +85,6 @@ grapphs_try_run_conan_install()
 
 if(GRAPPHS_COMPILE_TESTS)
 
-    find_package(Python 3.10 REQUIRED)
 
 
     set(GRAPPHS_MAZES_SIZES 3 5 10 15 25 35 50 100)
@@ -156,3 +157,5 @@ if(GRAPPHS_COMPILE_SAMPLES)
     add_subdirectory(samples/libosm)
     add_subdirectory(samples/osm_explorer)
 endif()
+
+include(CPack)
