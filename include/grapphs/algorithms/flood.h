@@ -2,10 +2,14 @@
 #define GRAPPHS_FLOOD_H
 
 #include <set>
-
+#include <queue>
+#include <iterator>
 #include <grapphs/graph.h>
 #include <grapphs/algorithms/bfs_traversal.h>
-#include <queue>
+
+#if __cpp_concepts
+#include <concepts>
+#endif
 
 namespace gpp {
 
@@ -15,17 +19,15 @@ namespace gpp {
     >
 #if __cpp_concepts
     requires gpp::is_graph<graph_type>
+    &&
+    std::input_iterator<typename origin_points_container::iterator>
 #endif
     void flood(
         const graph_type& graph,
         const origin_points_container& startingPoints,
         const vertex_explorer<graph_type>& perVertex,
         const edge_explorer<graph_type>& perEdge
-    )
-#if __cpp_concepts
-    requires std::input_iterator<typename origin_points_container::iterator>
-#endif
-    {
+    ) {
         gpp::breadth_first_traverse(graph, startingPoints, perVertex, perEdge);
     }
 }
