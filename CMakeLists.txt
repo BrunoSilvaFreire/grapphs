@@ -113,7 +113,8 @@ if(GRAPPHS_COMPILE_TESTS)
     endforeach()
     add_library(
             grapphs-testlib
-            tests/shared/grapphs
+            tests/shared/grapphs/tests/geometry.h
+            tests/shared/grapphs/tests/mazes.h
             tests/shared/grapphs/tests/mazes.cpp
             tests/shared/grapphs/tests/traversal_order.h
             tests/shared/grapphs/tests/traversal_order.cpp
@@ -134,6 +135,8 @@ if(GRAPPHS_COMPILE_TESTS)
             tests/tests.cpp
             tests/traversal.cpp
             tests/maze.cpp
+            tests/iteration.cpp
+            tests/astar.cpp
     )
     add_dependencies(
             grapphs-tests

@@ -1,14 +1,9 @@
 #include <grapphs/adjacency_list.h>
 #include <grapphs/adjacency_matrix.h>
-#include <grapphs/algorithms/flood.h>
-#include <grapphs/algorithms/astar.h>
-#include <grapphs/tests/mazes.h>
+#include <grapphs/tests/geometry.h>
 #include <gtest/gtest.h>
-#include <nlohmann/json.hpp>
-#include <cstdint>
 #include <chrono>
 #include <random>
-#include <fstream>
 #include <ostream>
 
 enum my_flags {
@@ -67,11 +62,6 @@ void populate(test_graph& graph) {
     }
 }
 
-inline float distance(float x0, float y0, float x1, float y1) {
-    float diffX = (x1 - x0);
-    float diffY = (y1 - y0);
-    return std::sqrt(diffX * diffX + diffY * diffY);
-}
 
 struct Position {
 
@@ -120,8 +110,10 @@ TEST(grapphs, vertex_access) {
 }
 
 #define ASTAR_RADIUS 20
-#define INDEXOF(x, y)  x + (y) * ASTAR_RADIUS
 
+inline int index_of(int x, int y) { return x + (y) * ASTAR_RADIUS; }
+
+/*
 TEST(grapphs, astar_performance) {
     gpp::adjacency_list<Position, my_edge> graph;
     for (int x = 0; x < ASTAR_RADIUS; ++x) {
@@ -136,18 +128,18 @@ TEST(grapphs, astar_performance) {
     prototype.weight = 1;
     for (int x = 0; x < ASTAR_RADIUS; ++x) {
         for (int y = 0; y < ASTAR_RADIUS; ++y) {
-            uint32_t index = INDEXOF(x, y);
+            uint32_t index = index_of(x, y);
             if (x != 0) {
-                graph.connect(index, INDEXOF(x - 1, y), prototype);
+                graph.connect(index, index_of(x - 1, y), prototype);
             }
             if (y != 0) {
-                graph.connect(index, INDEXOF(x, y - 1), prototype);
+                graph.connect(index, index_of(x, y - 1), prototype);
             }
             if (x != ASTAR_RADIUS - 1) {
-                graph.connect(index, INDEXOF(x + 1, y), prototype);
+                graph.connect(index, index_of(x + 1, y), prototype);
             }
             if (y != ASTAR_RADIUS - 1) {
-                graph.connect(index, INDEXOF(x, y + 1), prototype);
+                graph.connect(index, index_of(x, y + 1), prototype);
             }
         }
     }
@@ -184,43 +176,4 @@ TEST(grapphs, astar_performance) {
               << std::endl;
     ASSERT_LT(meanTime, frameTime);
 
-}
-
-TEST(grapphs, astar) {
-    gpp::test_mazes(
-        [](gpp::maze& maze) {
-            using index_type = gpp::default_graph_index;
-            const gpp::adjacency_list<gpp::Cell, int>& graph = maze.get_graph();
-            gpp::graph_path path = gpp::astar(
-                graph,
-                maze.get_start(),
-                maze.get_end(),
-                [&](index_type from, index_type to) {
-                    const gpp::Cell* originCell = graph.vertex(from);
-                    const gpp::Cell* destinationCell = graph.vertex(to);
-                    return distance(
-                        static_cast<float>(originCell->x),
-                        static_cast<float>(destinationCell->x),
-                        static_cast<float>(originCell->y),
-                        static_cast<float>(destinationCell->y)
-                    );
-                },
-                [](index_type, index_type, int distance) {
-                    return static_cast<float>(distance);
-                }
-            );
-            const std::vector<size_t>& shortestPath = maze.get_shortest_path();
-            EXPECT_EQ(path.count(), shortestPath.size())
-                            << "AStar returned a different path from the shortest one";
-            std::size_t max = std::min(path.count(), shortestPath.size());
-            const std::vector<index_type>& vertices = path.get_vertices();
-            for (std::size_t i = 0; i < max; ++i) {
-                index_type actual = vertices[i];
-                index_type expected = shortestPath[i];
-                GTEST_LOG_(INFO) << "Step #" << i << ", expected: " << expected << ", actual: "
-                                 << actual;
-                EXPECT_EQ(expected, actual) << "Incorrect step";
-            }
-        }
-    );
-}
+}*/

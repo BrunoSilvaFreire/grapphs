@@ -77,11 +77,7 @@ void test_order(
             receivedEdges.emplace_back(from, to);
             edgeIndex++;
         }
-    );
-    GTEST_LOG_(INFO) << "Received vertices:";
-    print_order(receivedVertices);
-    GTEST_LOG_(INFO) << "Received edges:";
-    print_order(receivedEdges);
+    );;
 }
 
 TEST(grapphs, traversal_breadth_order) {
