@@ -137,6 +137,7 @@ if(GRAPPHS_COMPILE_TESTS)
             tests/maze.cpp
             tests/iteration.cpp
             tests/astar.cpp
+            tests/adjacency_list.cpp
     )
     add_dependencies(
             grapphs-tests

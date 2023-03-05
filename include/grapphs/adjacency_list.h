@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <utility>
 #include <queue>
+#include <set>
 
 namespace gpp {
 
@@ -20,6 +21,7 @@ namespace gpp {
         using vertex_type = typename graph<t_vertex, t_edge, t_index>::vertex_type;
         using edge_type = typename graph<t_vertex, t_edge, t_index>::edge_type;
         using index_type = typename graph<t_vertex, t_edge, t_index>::index_type;
+        using graph_type = gpp::adjacency_list<t_vertex, t_edge, t_index>;
 
         adjacency_list() = default;
 
@@ -82,6 +84,7 @@ namespace gpp {
 
             void clear() {
                 _map.clear();
+                _vertex = 0;
             }
         };
 
@@ -124,17 +127,20 @@ namespace gpp {
     private:
         std::vector<adjacency_node> _nodes;
         std::queue<index_type> _freeIndices;
+        std::set<index_type> _freeIndicesSet;
     public:
         void remove(const index_type& index) {
             // std::memset(&nodes[index], 0, sizeof(vertex_type));
             _nodes[index].clear();
             _freeIndices.push(index);
+            _freeIndicesSet.emplace(index);
         }
 
         index_type push(const vertex_type& vertex) {
             index_type index;
             if (!_freeIndices.empty()) {
                 index = _freeIndices.front();
+                _freeIndicesSet.erase(index);
                 _nodes[index].data() = vertex;
                 _freeIndices.pop();
             }
@@ -149,6 +155,7 @@ namespace gpp {
             index_type index;
             if (!_freeIndices.empty()) {
                 index = _freeIndices.front();
+                _freeIndicesSet.erase(index);
                 _freeIndices.pop();
                 _nodes[index].data() = std::move(vertex);
             }
@@ -160,7 +167,18 @@ namespace gpp {
         }
 
         index_type size() const final {
-            return static_cast<index_type>(_nodes.size());
+            return static_cast<index_type>(_nodes.size()) - _freeIndices.size();
+        }
+
+        std::vector<index_type> all_vertices_indices() const {
+            std::vector<index_type> indices;
+            for (index_type i = 0; i < _nodes.size(); ++i) {
+                if (_freeIndicesSet.find(i) != _freeIndicesSet.end()) {
+                    continue;
+                }
+                indices.push_back(i);
+            }
+            return indices;
         }
 
         vertex_type* vertex(index_type index) final {
@@ -211,118 +229,23 @@ namespace gpp {
             return node(from).disconnect(to);
         }
 
-        typedef typename graph<vertex_type, edge_type, index_type>::graph_iterator graph_iterator;
-        typedef typename graph<
-            vertex_type,
-            edge_type,
-            index_type
-        >::const_graph_iterator const_graph_iterator;
+        using vertex_view = graph_view<
+            adjacency_list<t_vertex, t_edge, t_index>,
+            vertex_iterator
+        >;
 
-        graph_iterator begin() final {
-            return graph_iterator(this, 0);
+        using const_vertex_view =  graph_view<
+            const adjacency_list<t_vertex, t_edge, t_index>,
+            const_vertex_iterator
+        >;
+
+        vertex_view all_vertices() {
+            return vertex_view(*this, all_vertices_indices());
         }
 
-        graph_iterator end() final {
-            return graph_iterator(this, size());
+        const_vertex_view all_vertices() const {
+            return const_vertex_view(*this, all_vertices_indices());
         }
-
-        const_graph_iterator begin() const final {
-            return const_graph_iterator(this, 0);
-        }
-
-        const_graph_iterator end() const final {
-            return const_graph_iterator(this, size());
-        }
-
-        class paired_graph_iterator {
-        public:
-            typedef std::input_iterator_tag iterator_category;
-            typedef std::pair<vertex_type*, index_type> value_type;
-            typedef std::ptrdiff_t difference_type;
-            typedef value_type* pointer;
-            typedef value_type& reference;
-
-            bool operator==(const paired_graph_iterator& rhs) const { return _index == rhs._index; }
-
-            bool operator!=(const paired_graph_iterator& rhs) const { return _index != rhs._index; }
-
-            std::pair<const vertex_type*, index_type> operator*() const {
-                return std::make_pair(_owner->vertex(_index), _index);
-            }
-
-            std::pair<vertex_type*, index_type> operator*() {
-                return std::make_pair(_owner->vertex(_index), _index);
-            }
-
-            paired_graph_iterator& operator++() {
-                _index++;
-                return *this;
-            }
-
-            typedef graph<vertex_type, edge_type, index_type> owner_graph;
-        public:
-            paired_graph_iterator(owner_graph* owner, index_type i) : _owner(owner),
-                                                                      _index(i) {}
-
-        protected:
-            friend owner_graph;
-
-            owner_graph* _owner;
-            index_type _index;
-        };
-
-        class const_paired_graph_iterator {
-        public:
-            typedef std::input_iterator_tag iterator_category;
-            typedef std::pair<const vertex_type*, index_type> value_type;
-            typedef std::ptrdiff_t difference_type;
-            typedef value_type* pointer;
-            typedef value_type& reference;
-
-            bool operator==(const const_paired_graph_iterator& rhs) const {
-                return _index == rhs._index;
-            }
-
-            bool operator!=(const const_paired_graph_iterator& rhs) const {
-                return _index != rhs._index;
-            }
-
-            std::pair<const vertex_type*, index_type> operator*() const {
-                return std::make_pair(_owner->vertex(_index), _index);
-            }
-
-            const_paired_graph_iterator& operator++() {
-                _index++;
-                return *this;
-            }
-
-            typedef graph<vertex_type, edge_type, index_type> owner_graph;
-        public:
-            const_paired_graph_iterator(
-                const owner_graph* owner,
-                index_type i
-            ) : _owner(owner), _index(i) {}
-
-        protected:
-            friend owner_graph;
-            const owner_graph* _owner;
-            index_type _index;
-        };
-
-        typedef typename graph<vertex_type, edge_type, index_type>::template graph_view<
-            const_paired_graph_iterator
-        > const_paired_graph_view;
-        typedef typename graph<vertex_type, edge_type, index_type>::template graph_view<
-            paired_graph_iterator
-        > paired_graph_view;
-
-        const_paired_graph_view all_vertices() const {
-            return const_paired_graph_view(this);
-        };
-
-        paired_graph_view all_vertices() {
-            return paired_graph_view(this);
-        };
     };
 }
 

@@ -12,7 +12,7 @@ TEST(grapphs, graph_iteration) {
         graph.push(value);
     }
 
-    for (int* vertex : graph) {
+    for (const auto  [index, vertex] : graph.all_vertices()) {
         auto numErased = pending.erase(*vertex);
 
         EXPECT_GT(numErased, 0) << "Vertex " << *vertex
