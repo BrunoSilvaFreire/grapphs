@@ -85,7 +85,7 @@ namespace gpp {
 
             void clear() {
                 _map.clear();
-                _vertex = 0;
+                _vertex = vertex_type{};
             }
         };
 
@@ -144,8 +144,7 @@ namespace gpp {
                 _freeIndicesSet.erase(index);
                 _nodes[index].data() = vertex;
                 _freeIndices.pop();
-            }
-            else {
+            } else {
                 index = static_cast<index_type>(_nodes.size());
                 _nodes.emplace_back(vertex);
             }
@@ -159,8 +158,7 @@ namespace gpp {
                 _freeIndicesSet.erase(index);
                 _freeIndices.pop();
                 _nodes[index].data() = std::move(vertex);
-            }
-            else {
+            } else {
                 index = static_cast<index_type>(_nodes.size());
                 _nodes.emplace_back(std::move(vertex));
             }
@@ -168,7 +166,7 @@ namespace gpp {
         }
 
         index_type size() const final {
-            return static_cast<index_type>(_nodes.size()) - _freeIndices.size();
+            return static_cast<index_type>(_nodes.size()) - static_cast<index_type>(_freeIndices.size());
         }
 
         std::vector<index_type> all_vertices_indices() const {
@@ -235,7 +233,7 @@ namespace gpp {
             vertex_iterator
         >;
 
-        using const_vertex_view =  graph_view<
+        using const_vertex_view = graph_view<
             const adjacency_list<t_vertex, t_edge, t_index>,
             const_vertex_iterator
         >;

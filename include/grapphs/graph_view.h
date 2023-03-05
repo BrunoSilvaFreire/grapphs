@@ -13,12 +13,12 @@ namespace gpp {
         using iterator_type = t_iterator<graph_view<t_graph, t_iterator>>;
     private:
         graph_type& _graph;
-        std::vector<std::size_t> _indices;
+        std::vector<index_type> _indices;
 
     public:
         graph_view(
             graph_type& graph,
-            const std::vector<std::size_t>& indices
+            const std::vector<index_type>& indices
         ) : _graph(graph), _indices(indices) {}
 
         iterator_type begin() {
@@ -52,7 +52,7 @@ namespace gpp {
         using index_type = typename graph_type::index_type;
 
         t_view& _owner;
-        std::size_t _index;
+        index_type _index;
     public:
         vertex_iterator(t_view& owner, size_t index) : _owner(owner), _index(index) {}
 
@@ -82,7 +82,7 @@ namespace gpp {
         using index_type = typename graph_type::index_type;
 
         t_view& _owner;
-        std::size_t _index;
+        index_type _index;
     public:
         const_vertex_iterator(t_view& owner, size_t index) : _owner(owner), _index(index) {}
 
