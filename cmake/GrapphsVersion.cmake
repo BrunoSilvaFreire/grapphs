@@ -2,8 +2,8 @@ function(grapphs_detect_version VERSION_OUTPUT)
 
     set(GPP_VERSION "")
     execute_process(
-            COMMAND ${Python_EXECUTABLE} ${CMAKE_SOURCE_DIR}/scripts/detect_version.py --json
-            WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+            COMMAND ${Python_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/scripts/detect_version.py --json
+            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
             RESULT_VARIABLE VERSION_RESULT
             OUTPUT_VARIABLE GPP_VERSION
     )
