@@ -2,11 +2,12 @@
 #ifndef GRAPPHS_ADJACENCY_LIST_H
 #define GRAPPHS_ADJACENCY_LIST_H
 
-#include <grapphs/graph.h>
 #include <unordered_map>
 #include <utility>
 #include <queue>
 #include <set>
+#include <grapphs/graph.h>
+#include <grapphs/graph_view.h>
 
 namespace gpp {
 
