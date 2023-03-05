@@ -4,8 +4,6 @@
 #include <string>
 #include <sstream>
 #include <functional>
-#include <grapphs/adjacency_list.h>
-#include <grapphs/adjacency_matrix.h>
 
 namespace gpp {
 
@@ -89,7 +87,7 @@ namespace gpp {
         std::string to_dot(const graph_type& graph) {
             std::stringstream stream;
             stream << "digraph {" << std::endl;
-            for (const auto [vertexPtr, index] : graph.all_vertices()) {
+            for (const auto [index, vertexPtr] : graph.all_vertices()) {
                 if (_vertexPredicate != nullptr && !_vertexPredicate(index, *vertexPtr)) {
                     continue;
                 }
@@ -97,7 +95,7 @@ namespace gpp {
                 _vertexWriter(stream, index, *vertexPtr);
                 stream << std::endl;
             }
-            for (auto [vertex, fromIndex] : graph.all_vertices()) {
+            for (auto [fromIndex, vertex] : graph.all_vertices()) {
                 for (auto [toIndex, edge] : graph.edges_from(fromIndex)) {
                     if (_edgePredicate != nullptr && !_edgePredicate(fromIndex, toIndex, edge)) {
                         continue;

@@ -70,113 +70,6 @@ namespace gpp {
             }
             return ptr != nullptr;
         }
-
-    private:
-        using owner_graph = graph<vertex_type, edge_type, index_type>;
-    public:
-        template<class t_iterator>
-        class graph_view {
-        public:
-            using iterator = t_iterator;
-        private:
-            iterator _first, _last;
-        public:
-            explicit graph_view(
-                owner_graph* graph
-            ) : _first(graph, 0),
-                _last(graph, graph->size()) {
-
-            }
-
-            explicit graph_view(
-                const owner_graph* graph
-            ) : _first(graph, 0),
-                _last(graph, graph->size()) {
-
-            }
-
-            iterator begin() {
-                return _first;
-            }
-
-            iterator end() {
-                return _last;
-            }
-        };
-
-        class graph_iterator {
-        public:
-            typedef std::input_iterator_tag iterator_category;
-            typedef index_type value_type;
-            typedef std::ptrdiff_t difference_type;
-            typedef index_type* pointer;
-            typedef index_type& reference;
-
-            bool operator==(const graph_iterator& rhs) const { return _index == rhs._index; }
-
-            bool operator!=(const graph_iterator& rhs) const { return _index != rhs._index; }
-
-            vertex_type* operator*() {
-                return _owner->vertex(_index);
-            }
-
-            graph_iterator& operator++() {
-                _index++;
-                return *this;
-            }
-
-        public:
-            graph_iterator(owner_graph* owner, index_type i) : _owner(owner), _index(i) {}
-
-        protected:
-
-            friend owner_graph;
-
-            owner_graph* _owner;
-            index_type _index;
-
-        };
-
-        class const_graph_iterator {
-        public:
-            typedef std::input_iterator_tag iterator_category;
-            typedef index_type value_type;
-            typedef std::ptrdiff_t difference_type;
-            typedef index_type* pointer;
-            typedef index_type& reference;
-
-            bool operator==(const const_graph_iterator& rhs) const { return _index == rhs._index; }
-
-            bool operator!=(const const_graph_iterator& rhs) const { return _index != rhs._index; }
-
-            const vertex_type* operator*() const {
-                return _owner->vertex(_index);
-            }
-
-            graph_iterator& operator++() {
-                _index++;
-                return *this;
-            }
-
-        public:
-            const_graph_iterator(
-                const owner_graph* owner,
-                index_type i
-            ) : _owner(owner),
-                _index(i) {}
-
-        protected:
-            const owner_graph* _owner;
-            index_type _index;
-        };
-
-        virtual graph_iterator begin() = 0;
-
-        virtual graph_iterator end() = 0;
-
-        virtual const_graph_iterator begin() const = 0;
-
-        virtual const_graph_iterator end() const = 0;
     };
 
 #if __cpp_concepts
@@ -192,6 +85,105 @@ namespace gpp {
     >;
 
 #endif
+
+    template<typename t_graph, template<typename> typename t_iterator>
+    class graph_view {
+    public:
+        using graph_type = t_graph;
+        using index_type = typename graph_type::index_type;
+        using iterator_type = t_iterator<graph_view<t_graph, t_iterator>>;
+    private:
+        graph_type& _graph;
+        std::vector<std::size_t> _indices;
+
+    public:
+        graph_view(
+            graph_type& graph,
+            const std::vector<std::size_t>& indices
+        ) : _graph(graph), _indices(indices) {}
+
+        iterator_type begin() {
+            return iterator_type(*this, 0);
+        }
+
+        iterator_type end() {
+            return iterator_type(*this, _indices.size());
+        }
+
+        iterator_type begin() const {
+            return iterator_type(*this, 0);
+        }
+
+        iterator_type end() const {
+            return iterator_type(*this, _indices.size());
+        }
+
+        template<typename>
+        friend class vertex_iterator;
+
+        template<typename>
+        friend class const_vertex_iterator;
+    };
+
+    template<typename t_view>
+    class vertex_iterator {
+    private:
+        using graph_type = typename t_view::graph_type;
+        using vertex_type = typename graph_type::vertex_type;
+        using index_type = typename graph_type::index_type;
+
+        t_view& _owner;
+        std::size_t _index;
+    public:
+        vertex_iterator(t_view& owner, size_t index) : _owner(owner), _index(index) {}
+
+        void operator++() {
+            _index++;
+        }
+        bool operator==(const vertex_iterator& other) {
+            return _index == other._index;
+        }
+
+        bool operator!=(const vertex_iterator& other) {
+            return !this->operator==(other);
+        }
+
+        std::pair<index_type, vertex_type*> operator*() {
+            index_type vertexIndex = _owner._indices[_index];
+            vertex_type* vertex = _owner._graph.vertex(vertexIndex);
+            return std::pair<index_type, vertex_type*>(vertexIndex, vertex);
+        }
+    };
+
+    template<typename t_view>
+    class const_vertex_iterator {
+    private:
+        using graph_type = typename t_view::graph_type;
+        using vertex_type = typename graph_type::vertex_type;
+        using index_type = typename graph_type::index_type;
+
+        t_view& _owner;
+        std::size_t _index;
+    public:
+        const_vertex_iterator(t_view& owner, size_t index) : _owner(owner), _index(index) {}
+
+        void operator++() {
+            _index++;
+        }
+        bool operator==(const const_vertex_iterator& other) {
+            return _index == other._index;
+        }
+
+        bool operator!=(const const_vertex_iterator& other) {
+            return !this->operator==(other);
+        }
+
+        std::pair<index_type, const vertex_type*> operator*() {
+            index_type vertexIndex = _owner._indices[_index];
+            const vertex_type* vertex = _owner._graph.vertex(vertexIndex);
+            return std::pair<index_type, const vertex_type*>(vertexIndex, vertex);
+        }
+    };
 
 }
 #endif

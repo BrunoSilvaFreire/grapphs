@@ -75,30 +75,6 @@ namespace gpp {
             _edges[index(from, to)] = edge_type();
             return true;
         }
-
-        typedef typename graph<vertex_type, edge_type, index_type>::graph_iterator graph_iterator;
-        typedef typename graph<
-            vertex_type,
-            edge_type,
-            index_type
-        >::const_graph_iterator const_graph_iterator;
-        friend graph_iterator;
-
-        graph_iterator begin() override {
-            return graph_iterator(this, 0);
-        }
-
-        graph_iterator end() override {
-            return graph_iterator(this, size());
-        }
-
-        const_graph_iterator begin() const override {
-            return const_graph_iterator(this, 0);
-        }
-
-        const_graph_iterator end() const override {
-            return const_graph_iterator(this, size());
-        }
     };
 
 }

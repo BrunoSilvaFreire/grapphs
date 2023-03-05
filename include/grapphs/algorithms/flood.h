@@ -19,8 +19,6 @@ namespace gpp {
     >
 #if __cpp_concepts
     requires gpp::is_graph<graph_type>
-    &&
-    std::input_iterator<typename origin_points_container::iterator>
 #endif
     void flood(
         const graph_type& graph,
