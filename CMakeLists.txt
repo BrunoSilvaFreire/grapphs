@@ -35,6 +35,7 @@ set(
         GRAPPHS_HEADERS
 
         include/grapphs/graph.h
+        include/grapphs/graph_view.h
         include/grapphs/adjacency_list.h
         include/grapphs/adjacency_matrix.h
         include/grapphs/static_adjacency_matrix.h
