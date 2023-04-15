@@ -22,7 +22,7 @@ namespace gpp {
                       << static_cast<int>(color.b);
     }
 
-    std::ostream& operator<<(std::ostream& os, const SVGAttributes& attributes) {
+    std::ostream& operator<<(std::ostream& os, const svg_attributes& attributes) {
         os << "color: " << attributes.color << " size: " << attributes.size;
         return os;
     }
