@@ -156,8 +156,8 @@ namespace gpp {
             if (!_freeIndices.empty()) {
                 index = _freeIndices.front();
                 _freeIndicesSet.erase(index);
-                _freeIndices.pop();
                 _nodes[index].data() = std::move(vertex);
+                _freeIndices.pop();
             } else {
                 index = static_cast<index_type>(_nodes.size());
                 _nodes.emplace_back(std::move(vertex));
