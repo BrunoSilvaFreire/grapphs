@@ -139,6 +139,7 @@ if(GRAPPHS_COMPILE_TESTS)
             tests/iteration.cpp
             tests/astar.cpp
             tests/adjacency_list.cpp
+            tests/adjacency_matrix.cpp
     )
     add_dependencies(
             grapphs-tests

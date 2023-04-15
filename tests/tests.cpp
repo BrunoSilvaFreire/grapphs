@@ -4,7 +4,6 @@
 #include <gtest/gtest.h>
 #include <chrono>
 #include <random>
-#include <ostream>
 
 enum my_flags {
     A = 1 << 1,
@@ -123,12 +122,18 @@ TEST(grapphs, adjacency_matrix_copy) {
 }
 
 TEST(grapphs, index_reuse) {
-    gpp::adjacency_list<int, bool> graph;
-    graph.push(0);
-    graph.push(0);
-    graph.push(0);
-    graph.remove(0);
-    ASSERT_EQ(graph.push(2), 0);
+    gpp::adjacency_list<my_vertex, bool> graph;
+    my_vertex a, b, c, d{};
+    a.flags = my_flags::A;
+    b.flags = my_flags::B;
+    c.flags = my_flags::C;
+    auto first = graph.push(a);
+    graph.push(b);
+    auto second = graph.push(std::move(c));
+    graph.remove(first);
+    ASSERT_EQ(graph.push(d), first);
+    graph.remove(second);
+    ASSERT_EQ(graph.push(std::move(b)), second);
 }
 
 TEST(grapphs, adjacency_list_vertex_access) {
@@ -146,10 +151,13 @@ TEST(grapphs, adjacency_matrix_vertex_access) {
     gpp::adjacency_matrix<int, int> graph(std::numeric_limits<uint8_t>::max());
     std::mt19937 rand;
     std::uniform_int_distribution<> dist;
+    const decltype(graph)& constGraph = graph;
     for (int i = 0; i < std::numeric_limits<uint8_t>::max(); ++i) {
         int value = dist(rand);
         graph[i] = value;
         ASSERT_TRUE(graph[i] == value);
+        const int asConst = *constGraph.vertex(i);
+        ASSERT_TRUE(asConst == value);
     }
 }
 

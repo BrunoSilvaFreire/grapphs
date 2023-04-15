@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <grapphs/adjacency_list.h>
 
-TEST(grapphs, removal) {
+TEST(grapphs, adjacency_list_removal) {
     gpp::adjacency_list<int, float> graph;
 
     graph.push(0);
@@ -24,7 +24,7 @@ TEST(grapphs, removal) {
     EXPECT_EQ(numIterations, 2);
 }
 
-TEST(grapphs, disconnecting) {
+TEST(grapphs, adjacency_list_disconnecting) {
     gpp::adjacency_list<int, int> graph;
 
     auto fromDisconnect = graph.push(0);
