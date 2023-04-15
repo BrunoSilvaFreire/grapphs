@@ -134,7 +134,7 @@ int main(int argc, char** argv) {
     );
 
     writer.set_edge_customizer(
-        [&](const gpp::osm::way& way, gpp::SVGAttributes& attributes) {
+        [&](const gpp::osm::way& way, gpp::svg_attributes& attributes) {
 
             gpp::osm::way_metadata meta;
             if (!graph.get_metadata(way, meta)) {
