@@ -61,6 +61,9 @@ def build_version(build_metadata, version):
 def git_describe():
     invocation = subprocess.run(["git", "describe", "--tags", "--always", "--first-parent", "--long"],
                                 capture_output=True)
+    if invocation.returncode != 0:
+        raise Exception(f"Git invocation failed with return code {invocation.returncode}: {str(invocation.stderr, 'utf-8')}")
+
     version_str = str(invocation.stdout, 'utf-8').removesuffix('\n')
     return version_str
 
