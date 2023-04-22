@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import argparse
 import json
 import re
@@ -17,20 +18,41 @@ def is_git_clean():
     return len(invocation.stdout) == 0
 
 
-def find_version():
-    description = git_describe()
-    match = re.match(GIT_EXPRESSION, description)
+def extract_simple_data(git_description, include_match: bool = False):
+    match = re.match(GIT_EXPRESSION, git_description)
     if match is None:
         raise Exception(
-            f"Unable to find version using git describe. (description: '{description}', expression: '{GIT_EXPRESSION}')",
-            description
+            f"Unable to find version using git describe. (git_description: '{git_description}', expression: '{GIT_EXPRESSION}')",
+            git_description
         )
+    version = match.group(1).removeprefix('v')
+    raw = version
+    semver_regex = re.match(SEMVER_EXPRESSION, raw)
+
+    response = {
+        "raw": raw,
+        "major": semver_regex.group("major"),
+        "minor": semver_regex.group("minor"),
+        "patch": semver_regex.group("patch")
+    }
+    if include_match:
+        response["match"] = match
+    return response
+
+
+def find_version_simple(include_match: bool = False):
+    return extract_simple_data(git_describe(), include_match)
+
+
+def find_version():
+    response = find_version_simple(True)
+    match = response.pop("match")
+
     version = match.group(1).removeprefix('v')
     num_commits_ahead = int(match.group(2))
     revision = match.group(3)
 
     build_metadata = list()
-
     if num_commits_ahead > 0:
         build_metadata.append(revision)
 
@@ -40,14 +62,11 @@ def find_version():
     raw = build_version(build_metadata, version)
     semver_regex = re.match(SEMVER_EXPRESSION, raw)
 
-    return {
-        "raw": raw,
-        "major": semver_regex.group("major"),
-        "minor": semver_regex.group("minor"),
-        "patch": semver_regex.group("patch"),
-        "prerelease": semver_regex.group("prerelease"),
-        "build_metadata": semver_regex.group("buildmetadata")
-    }
+    response["raw"] = raw
+    response["prerelease"] = semver_regex.group("prerelease")
+    response["build_metadata"] = semver_regex.group("buildmetadata")
+
+    return response
 
 
 def build_version(build_metadata, version):
@@ -62,7 +81,8 @@ def git_describe():
     invocation = subprocess.run(["git", "describe", "--tags", "--always", "--long"],
                                 capture_output=True)
     if invocation.returncode != 0:
-        raise Exception(f"Git invocation failed with return code {invocation.returncode}: {str(invocation.stderr, 'utf-8')}")
+        raise Exception(
+            f"Git invocation failed with return code {invocation.returncode}: {str(invocation.stderr, 'utf-8')}")
 
     version_str = str(invocation.stdout, 'utf-8').removesuffix('\n')
     return version_str

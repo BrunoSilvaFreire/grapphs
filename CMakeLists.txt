@@ -5,7 +5,10 @@ find_package(Python3 REQUIRED COMPONENTS Interpreter)
 include(cmake/Grapphs.cmake)
 include(cmake/GrapphsVersion.cmake)
 
-grapphs_detect_version(GRAPPHS_VERSION)
+if(NOT GRAPPHS_VERSION)
+    grapphs_detect_version(GRAPPHS_VERSION)
+endif()
+
 message(STATUS "Grapphs version is: ${GRAPPHS_VERSION} (${GRAPPHS_VERSION_RAW})")
 
 if(NOT GRAPPHS_VERSION STREQUAL "")
@@ -111,6 +114,9 @@ if(GRAPPHS_COMPILE_TESTS)
 
         )
     endforeach()
+    message("${CMAKE_MODULE_PATH}")
+    find_package(nlohmann_json REQUIRED)
+    find_package(GTest REQUIRED)
     add_library(
             grapphs-testlib
             tests/shared/grapphs/tests/geometry.h
@@ -122,8 +128,9 @@ if(GRAPPHS_COMPILE_TESTS)
     target_link_libraries(
             grapphs-testlib
             grapphs
-            CONAN_PKG::nlohmann_json
-            CONAN_PKG::gtest
+            nlohmann_json::nlohmann_json
+            GTest::gtest
+            GTest::gtest_main
     )
     target_include_directories(
             grapphs-testlib

@@ -37,26 +37,43 @@ function(grapphs_try_run_conan_install)
 
     get_property(is_multi_config GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
     if(is_multi_config)
-        set(conan_generator cmake_multi)
+        set(conan_generator cmake_find_package_multi)
     else()
-        set(conan_generator cmake)
+        set(conan_generator cmake_find_package)
     endif()
 
-    conan_cmake_configure(
-            REQUIRES
-            gtest/1.11.0
-            nlohmann_json/3.10.5
-            readosm/1.1.0a
-            GENERATORS
-            ${conan_generator}
-    )
     message(VERBOSE "Conan Settings: ${CONAN_SETTINGS}")
+
+    if(GRAPPHS_COMPILE_SAMPLES)
+        list(APPEND CONAN_OPTIONS "samples=True")
+    else()
+        list(APPEND CONAN_OPTIONS "samples=False")
+    endif()
+
+    if(GRAPPHS_COMPILE_TESTS)
+        list(APPEND CONAN_OPTIONS "samples=True")
+    else()
+        list(APPEND CONAN_OPTIONS "samples=False")
+    endif()
+
+    if(GRAPPHS_COMPILE_SVG)
+        list(APPEND CONAN_OPTIONS "samples=True")
+    else()
+        list(APPEND CONAN_OPTIONS "samples=False")
+    endif()
+
+    if(GRAPPHS_COMPILE_GRAPHVIZ)
+        list(APPEND CONAN_OPTIONS "samples=True")
+    else()
+        list(APPEND CONAN_OPTIONS "samples=False")
+    endif()
+
     if("${CONAN_SETTINGS}" STREQUAL "")
         if(is_multi_config)
             foreach(TYPE ${CMAKE_CONFIGURATION_TYPES})
                 conan_cmake_autodetect(settings BUILD_TYPE ${TYPE})
                 conan_cmake_install(
-                        PATH_OR_REFERENCE .
+                        PATH_OR_REFERENCE ${CMAKE_SOURCE_DIR}
                         BUILD missing
                         SETTINGS ${settings}
                 )
@@ -66,14 +83,14 @@ function(grapphs_try_run_conan_install)
         else()
             conan_cmake_autodetect(CONAN_SETTINGS BUILD_TYPE ${CMAKE_BUILD_TYPE})
             conan_cmake_install(
-                    PATH_OR_REFERENCE .
+                    PATH_OR_REFERENCE ${CMAKE_SOURCE_DIR}
                     BUILD missing
                     SETTINGS ${CONAN_SETTINGS}
             )
-            include(${CMAKE_CURRENT_BINARY_DIR}/conanbuildinfo.cmake)
+            #            include(${CMAKE_CURRENT_BINARY_DIR}/conanbuildinfo.cmake)
         endif()
     endif()
     message(VERBOSE "Conan Settings: ${CONAN_SETTINGS}")
-
-    conan_basic_setup(TARGETS)
+    list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_BINARY_DIR}")
+    set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" PARENT_SCOPE)
 endfunction()
