@@ -26,12 +26,16 @@ include(CMakePrintHelpers)
 include(ExternalData)
 include(cmake/GrapphsConan.cmake)
 
-### Prepare install export
-install(
-        EXPORT grapphs
-        DESTINATION .
-        NAMESPACE grapphs::
-)
+message("EXPORTED: ${CONAN_EXPORTED}")
+
+if(NOT CONAN_EXPORTED)
+    ### Prepare install export
+    install(
+            EXPORT grapphs
+            DESTINATION .
+            NAMESPACE grapphs::
+    )
+endif()
 
 ### Prepare grapphs header-only library target
 set(
