@@ -59,6 +59,14 @@ namespace gpp {
             return static_cast<const vertex_type*>(&_vertices[index]);
         }
 
+        vertex_type& operator[](index_type index) {
+            return _vertices[index];
+        }
+
+        const vertex_type& operator[](index_type index) const {
+            return _vertices[index];
+        }
+
         index_type index(index_type from, index_type to) {
             return from * _vertices.size() + to;
         }

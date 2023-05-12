@@ -42,11 +42,11 @@ namespace gpp {
 
     };
 
-    struct SVGAttributes {
+    struct svg_attributes {
         svg_color color = svg_color::black();
         float size = 1;
 
-        friend std::ostream& operator<<(std::ostream& os, const SVGAttributes& attributes);
+        friend std::ostream& operator<<(std::ostream& os, const svg_attributes& attributes);
     };
 
     template<typename t_graph>
@@ -76,7 +76,7 @@ namespace gpp {
 
         template<typename TElement> using customizer = std::function<
             void(
-                const TElement& entry, SVGAttributes& attributes
+                const TElement& entry, svg_attributes& attributes
             )
         >;
 
@@ -150,7 +150,7 @@ namespace gpp {
                         os << "<!-- " << i << " --> " << std::endl;
                     }
 
-                    SVGAttributes attributes;
+                    svg_attributes attributes;
                     attributes.size = _nodeRadius;
 
                     if (_vertexCustomizer != nullptr) {
@@ -179,7 +179,7 @@ namespace gpp {
                         if (verbose) {
                             os << "<!-- " << i << "-" << j << " --> " << std::endl;
                         }
-                        SVGAttributes attributes;
+                        svg_attributes attributes;
                         attributes.size = _nodeRadius;
 
                         if (_edgeCustomizer != nullptr) {
