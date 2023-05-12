@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.23)
 
-find_package(Python 3.10 REQUIRED)
+find_package(Python3 REQUIRED COMPONENTS Interpreter)
 
 include(cmake/Grapphs.cmake)
 include(cmake/GrapphsVersion.cmake)
@@ -85,7 +85,6 @@ option(GRAPPHS_COMPILE_SAMPLES "Create samples targets?" ON)
 grapphs_try_run_conan_install()
 
 if(GRAPPHS_COMPILE_TESTS)
-
 
 
     set(GRAPPHS_MAZES_SIZES 3 5 10 15 25 35 50 100)
