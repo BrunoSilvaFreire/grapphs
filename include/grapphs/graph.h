@@ -55,6 +55,13 @@ namespace gpp {
          */
         virtual bool disconnect(index_type from, index_type to) = 0;
 
+        /**
+         * Returns true if there are not vertices in this graph
+         */
+        bool empty() const {
+            return size() == 0;
+        }
+
         bool try_get_vertex(index_type index, vertex_type& output) {
             vertex_type* ptr = vertex(index);
             if (ptr != nullptr) {
