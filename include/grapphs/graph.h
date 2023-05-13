@@ -56,7 +56,7 @@ namespace gpp {
         virtual bool disconnect(index_type from, index_type to) = 0;
 
         /**
-         * Returns true if there are not vertices in this graph
+         * Returns true if there are no vertices in this graph
          */
         bool empty() const {
             return size() == 0;
