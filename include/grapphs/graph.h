@@ -18,6 +18,8 @@ namespace gpp {
     class graph {
     public:
 
+        static_assert(std::is_copy_assignable_v<t_vertex>, "t_vertex must be copy assignable");
+
         using vertex_type = t_vertex;
         using edge_type = t_edge;
         using index_type = t_index;
