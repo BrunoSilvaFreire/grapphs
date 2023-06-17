@@ -169,6 +169,10 @@ namespace gpp {
             return static_cast<index_type>(_nodes.size()) - static_cast<index_type>(_freeIndices.size());
         }
 
+        bool empty() const final {
+            return size() == 0;
+        }
+
         std::vector<index_type> all_vertices_indices() const {
             std::vector<index_type> indices;
             for (index_type i = 0; i < _nodes.size(); ++i) {

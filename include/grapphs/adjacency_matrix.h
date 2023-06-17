@@ -47,15 +47,19 @@ namespace gpp {
             }
         }
 
-        index_type size() const override {
+        index_type size() const final {
             return _vertices.size();
         }
 
-        vertex_type* vertex(index_type index) override {
+        bool empty() const final {
+            return size() == 0;
+        }
+
+        vertex_type* vertex(index_type index) final {
             return static_cast<vertex_type*>(&_vertices[index]);
         }
 
-        const vertex_type* vertex(index_type index) const override {
+        const vertex_type* vertex(index_type index) const final {
             return static_cast<const vertex_type*>(&_vertices[index]);
         }
 
@@ -71,15 +75,15 @@ namespace gpp {
             return from * _vertices.size() + to;
         }
 
-        edge_type* edge(index_type from, index_type to) override {
+        edge_type* edge(index_type from, index_type to) final {
             return &_edges[index(from, to)];
         }
 
-        void connect(index_type from, index_type to, edge_type edge) override {
+        void connect(index_type from, index_type to, edge_type edge) final {
             _edges[index(from, to)] = edge;
         }
 
-        bool disconnect(index_type from, index_type to) override {
+        bool disconnect(index_type from, index_type to) final {
             _edges[index(from, to)] = edge_type();
             return true;
         }
