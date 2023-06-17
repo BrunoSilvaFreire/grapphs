@@ -45,24 +45,27 @@ namespace gpp {
 
         std::deque<index_type> open;
         std::set<index_type> visited;
+
         for (index_type item : startingPoints) {
             open.push_back(item);
         }
+
         while (!open.empty()) {
             index_type next = Traversal<t_graph, order>::next(open);
+
             if (visited.find(next) != visited.end()) {
                 continue;
             }
+
             perVertex(next);
             visited.emplace(next);
+
             for (auto [neighbor, edge] : graph.edges_from(next)) {
                 if (visited.find(neighbor) != visited.end()) {
                     continue;
                 }
-                perEdge(
-                    static_cast<index_type>(next),
-                    static_cast<index_type>(neighbor)
-                );
+
+                perEdge(static_cast<index_type>(next), static_cast<index_type>(neighbor));
                 open.push_back(neighbor);
             }
         }

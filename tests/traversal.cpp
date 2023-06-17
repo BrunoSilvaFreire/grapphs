@@ -53,19 +53,22 @@ gpp::adjacency_list<int, bool> build_traversal_graph() {
     return graph;
 }
 
-template<gpp::traversal_order Order>
-void test_order(
-    gpp::expected_traversal_order& expected
+template<gpp::traversal_order order, typename t_entry_point>
+void test_graph_order(
+    gpp::expected_traversal_order& expected,
+    const gpp::adjacency_list<int, bool>& graph,
+    t_entry_point entryPoint
 ) {
-    gpp::adjacency_list<int, bool> graph = build_traversal_graph();
-    std::size_t vertexIndex = 0;
-    std::size_t edgeIndex = 0;
-    std::vector<std::size_t> receivedVertices;
+    size_t vertexIndex = 0;
+    size_t edgeIndex = 0;
+
+    std::vector<size_t> receivedVertices;
     std::vector<edge_identifier> receivedEdges;
-    gpp::traverse<gpp::adjacency_list<int, bool>, Order>(
+
+    gpp::traverse<gpp::adjacency_list<int, bool>, order>(
         graph,
-        0,
-        [&](std::size_t vertex) {
+        entryPoint,
+        [&](size_t vertex) {
             bool isCorrect = expected.pop(vertex);
             EXPECT_TRUE(isCorrect)
                             << "Vertex " << vertex << " was not allowed for step #" << vertexIndex
@@ -73,11 +76,17 @@ void test_order(
             receivedVertices.emplace_back(vertex);
             vertexIndex++;
         },
-        [&](std::size_t from, std::size_t to) {
+        [&](size_t from, size_t to) {
             receivedEdges.emplace_back(from, to);
             edgeIndex++;
         }
-    );;
+    );
+}
+
+template<gpp::traversal_order order, typename t_entry_point = std::size_t>
+void test_order(gpp::expected_traversal_order& expected, t_entry_point entryPoint = 0) {
+    gpp::adjacency_list<int, bool> graph = build_traversal_graph();
+    test_graph_order<order, t_entry_point>(expected, graph, entryPoint);
 }
 
 TEST(grapphs, traversal_breadth_order) {
@@ -89,7 +98,36 @@ TEST(grapphs, traversal_breadth_order) {
          ->then({4, 5, 6})
          ->then({7, 8, 9});
 
-    test_order<gpp::traversal_order::BREADTH>(order);
+    test_order<gpp::traversal_order::BREADTH>(order, 0);
+}
+
+TEST(grapphs, traversal_breadth_order_multiple_entrypoints) {
+    gpp::expected_traversal_order order = {
+        0,
+        1
+    };
+    order.then({2, 3})
+         ->then({4, 5, 6})
+         ->then({7, 8, 9});
+    gpp::adjacency_list<int, bool> graph;
+    for (int i = 0; i <= 9; ++i) {
+        graph.push(0);
+    }
+    graph.connect(0, 2, true);
+    graph.connect(1, 2, true);
+    graph.connect(1, 3, true);
+    graph.connect(2, 6, true);
+    graph.connect(3, 4, true);
+    graph.connect(3, 5, true);
+    graph.connect(6, 7, true);
+    graph.connect(6, 8, true);
+    graph.connect(6, 9, true);
+
+    std::set<std::size_t> startingPoints = {
+        0,
+        1
+    };
+    test_graph_order<gpp::traversal_order::BREADTH>(order, graph, startingPoints);
 }
 
 TEST(grapphs, traversal_depth_order) {
@@ -103,7 +141,7 @@ TEST(grapphs, traversal_depth_order) {
          ->then({3})
          ->then({4, 5});
 
-    test_order<gpp::traversal_order::DEPTH>(order);
+    test_order<gpp::traversal_order::DEPTH>(order, 0);
 }
 
 TEST(grapphs, reverse_level_order_traversal) {
