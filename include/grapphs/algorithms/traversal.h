@@ -50,6 +50,9 @@ namespace gpp {
         }
         while (!open.empty()) {
             index_type next = Traversal<t_graph, order>::next(open);
+            if (visited.find(next) != visited.end()) {
+                continue;
+            }
             perVertex(next);
             visited.emplace(next);
             for (auto [neighbor, edge] : graph.edges_from(next)) {
