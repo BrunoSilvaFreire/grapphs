@@ -2,6 +2,8 @@
 #include <grapphs/algorithms/flood.h>
 #include <grapphs/algorithms/astar.h>
 #include <grapphs/tests/mazes.h>
+#include <grapphs/tests/string_helper.h>
+
 #include <gtest/gtest.h>
 #include <nlohmann/json.hpp>
 #include <cstdint>
@@ -112,6 +114,6 @@ TEST(grapphs, maze_flood) {
             [&](size_t from, size_t to) {
             }
         );
-        ASSERT_TRUE(pending.empty());
+        ASSERT_TRUE(pending.empty()) << "Pending vertices " << gpp::tests::join_string(pending) << " were not visited.";
     });
 }

@@ -72,7 +72,7 @@ void test_graph_order(
             bool isCorrect = expected.pop(vertex);
             EXPECT_TRUE(isCorrect)
                             << "Vertex " << vertex << " was not allowed for step #" << vertexIndex
-                            << "(" << expected.list_available() << ")";
+                            << " (" << expected.list_available() << ")";
             receivedVertices.emplace_back(vertex);
             vertexIndex++;
         },
