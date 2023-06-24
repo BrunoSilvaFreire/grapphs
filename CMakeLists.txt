@@ -99,7 +99,7 @@ if(GRAPPHS_COMPILE_TESTS)
                 TARGET
                 grapphs-generate-mazes
                 COMMAND
-                ${Python_EXECUTABLE}
+                ${Python3_EXECUTABLE}
                 ${CMAKE_CURRENT_SOURCE_DIR}/scripts/maze_gen.py
                 --size ${INDEX}
                 --monteMazes 10
