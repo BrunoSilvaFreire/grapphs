@@ -1,4 +1,10 @@
 # Grapphs
+
+<img src="https://img.shields.io/github/license/BrunoSilvaFreire/grapphs.svg">
+<img src="https://img.shields.io/github/last-commit/BrunoSilvaFreire/grapphs.svg">
+<img src="https://img.shields.io/github/actions/workflow/status/BrunoSilvaFreire/grapphs/test.yml">  
+<img src="https://img.shields.io/github/tag/BrunoSilvaFreire/grapphs">
+
 ## Performance oriented header-only C++ graph theory library
 Grapphs is a library with implementations of graph theory algorithms and data structures  
 Some examples include:
@@ -13,6 +19,9 @@ Some examples include:
   * Breadth First Traversal
   * Depth First Traversal
   * Reverse Level Order Traversal
+
+![](docs/github/curitiba_render.png)
+<small text-align="center">The city of Curitiba exported as a SVG file by the grapphs svg module.</small>
 
 It makes heavy use of templates and static polymorphism, but also aims to have a concise and user
 friendly API.
