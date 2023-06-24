@@ -9,7 +9,7 @@ on:
 
 env:
   BUILD_TYPE: RelWithDebInfo
-
+  CONAN_DATA_DIRECTORY: ~/.conan/data
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -17,24 +17,59 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
+
       - name: Setup Ninja
         uses: ashutoshvarma/setup-ninja@master
+
       - name: Setup Python
         uses: actions/setup-python@v4.3.0
         with:
           python-version: '3.10'
           cache: 'pip'
           cache-dependency-path: .github/requirements.package.txt
+
       - name: Install Python Dependencies
         run: pip install -r .github/requirements.package.txt
+
+      - name: Restore Conan Dependencies
+        id: conan-cache
+        uses: actions/cache/restore@v3
+        with:
+          path: ${{ env.CONAN_DATA_DIRECTORY }}
+          key: ${{ runner.os }}-conan
+
       - name: Configure CMake
         run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DGRAPPHS_COMPILE_SAMPLES=Off
+
+      - name: Save Conan Dependencies
+        uses: actions/cache/save@v3
+        if: steps.conan-cache.outputs.cache-hit != 'true'
+        with:
+          path: ${{ env.CONAN_DATA_DIRECTORY }}
+          key: ${{ runner.os }}-conan
+
+      - name: Restore Mazes
+        id: maze-cache
+        uses: actions/cache/restore@v3
+        with:
+          path: ${{github.workspace}}/build/bin/mazes
+          key: ${{ runner.os }}-mazes
+
       - name: Build
         # Build your program with the given configuration
         run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+
+      - name: Save Mazes
+        uses: actions/cache/restore@v3
+        if: steps.maze-cache.outputs.cache-hit != 'true'
+        with:
+          path: ${{github.workspace}}/build/bin/mazes
+          key: ${{ runner.os }}-mazes
+
       - name: Test grapphs
         working-directory: ${{github.workspace}}/build/bin
         run: ./grapphs-tests
+
       - name: Test grapphs-graphviz
         working-directory: ${{github.workspace}}/build/modules/graphviz/bin
         run: ./grapphs-graphviz-tests
