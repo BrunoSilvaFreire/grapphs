@@ -1,4 +1,4 @@
- grapphs_try_run_conan_install(${CMAKE_CURRENT_SOURCE_DIR})
+ grapphs_run_conan_install(${CMAKE_CURRENT_SOURCE_DIR})
 
  set(GRAPPHS_MAZES_SIZES 3 5 10 15 25 35 50 100)
  add_custom_target(

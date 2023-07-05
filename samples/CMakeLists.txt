@@ -1,0 +1,3 @@
+grapphs_run_conan_install(${CMAKE_CURRENT_SOURCE_DIR})
+add_subdirectory(libosm)
+add_subdirectory(osm_explorer)

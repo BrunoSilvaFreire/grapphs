@@ -1,0 +1,5 @@
+[requires]
+readosm/1.1.0a
+
+[generators]
+cmake_find_package

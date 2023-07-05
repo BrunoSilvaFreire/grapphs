@@ -87,7 +87,7 @@ option(GRAPPHS_COMPILE_GRAPHVIZ "Create graphviz support target?" ON)
 option(GRAPPHS_COMPILE_SVG "Create svg target?" ON)
 option(GRAPPHS_COMPILE_SAMPLES "Create samples targets?" ON)
 
-grapphs_try_run_conan_install(${CMAKE_SOURCE_DIR})
+grapphs_run_conan_install(${CMAKE_SOURCE_DIR})
 
 if(GRAPPHS_COMPILE_TESTS)
    add_subdirectory(tests)
@@ -102,8 +102,7 @@ if(GRAPPHS_COMPILE_SVG)
 endif()
 
 if(GRAPPHS_COMPILE_SAMPLES)
-    add_subdirectory(samples/libosm)
-    add_subdirectory(samples/osm_explorer)
+    add_subdirectory(samples)
 endif()
 
 include(CPack)
