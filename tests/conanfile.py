@@ -1,4 +1,3 @@
-from conan.tools.cmake import CMakeToolchain, CMake
 from conans.model.conan_file import ConanFile
 from conans.tools import get_env
 
@@ -22,13 +21,12 @@ class GrapphsTestsConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
     options = {
         "shared": [True, False],
-        "fPIC": [True, False],
-        "svgModule": [True, False],
-        "graphvizModule": [True, False],
-        "samples": [True, False]
+        "fPIC": [True, False]
     }
     default_options = {"shared": False, "fPIC": True}
     generators = "cmake_find_package", "cmake_find_package_multi"
 
     def requirements(self):
         self.requires(self.tested_reference_str)
+        self.requires("gtest/1.11.0")
+        self.requires("nlohmann_json/3.10.5")

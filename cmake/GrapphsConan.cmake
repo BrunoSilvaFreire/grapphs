@@ -13,7 +13,7 @@ function(grapphs_check_should_run_conan_install OUTPUT)
     endif()
 endfunction()
 
-function(grapphs_try_run_conan_install)
+function(grapphs_try_run_conan_install CONANFILE)
     grapphs_check_should_run_conan_install(SHOULD_RUN)
 
     if(NOT SHOULD_RUN)
@@ -32,8 +32,8 @@ function(grapphs_try_run_conan_install)
 
     include(${CMAKE_BINARY_DIR}/conan.cmake)
 
-    list(APPEND CMAKE_MODULE_PATH ${CMAKE_BINARY_DIR})
-    list(APPEND CMAKE_PREFIX_PATH ${CMAKE_BINARY_DIR})
+    list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_BINARY_DIR})
+    list(APPEND CMAKE_PREFIX_PATH ${CMAKE_CURRENT_BINARY_DIR})
 
     get_property(is_multi_config GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
     if(is_multi_config)
@@ -50,45 +50,43 @@ function(grapphs_try_run_conan_install)
         list(APPEND CONAN_OPTIONS "samples=False")
     endif()
 
-    if(GRAPPHS_COMPILE_TESTS)
-        list(APPEND CONAN_OPTIONS "samples=True")
-    else()
-        list(APPEND CONAN_OPTIONS "samples=False")
-    endif()
+    #    if(GRAPPHS_COMPILE_TESTS)
+    #        list(APPEND CONAN_OPTIONS "samples=True")
+    #    else()
+    #        list(APPEND CONAN_OPTIONS "samples=False")
+    #    endif()
+    #
+    #    if(GRAPPHS_COMPILE_SVG)
+    #        list(APPEND CONAN_OPTIONS "samples=True")
+    #    else()
+    #        list(APPEND CONAN_OPTIONS "samples=False")
+    #    endif()
+    #
+    #    if(GRAPPHS_COMPILE_GRAPHVIZ)
+    #        list(APPEND CONAN_OPTIONS "samples=True")
+    #    else()
+    #        list(APPEND CONAN_OPTIONS "samples=False")
+    #    endif()
 
-    if(GRAPPHS_COMPILE_SVG)
-        list(APPEND CONAN_OPTIONS "samples=True")
-    else()
-        list(APPEND CONAN_OPTIONS "samples=False")
-    endif()
-
-    if(GRAPPHS_COMPILE_GRAPHVIZ)
-        list(APPEND CONAN_OPTIONS "samples=True")
-    else()
-        list(APPEND CONAN_OPTIONS "samples=False")
-    endif()
-
-    if("${CONAN_SETTINGS}" STREQUAL "")
-        if(is_multi_config)
-            foreach(TYPE ${CMAKE_CONFIGURATION_TYPES})
-                conan_cmake_autodetect(settings BUILD_TYPE ${TYPE})
-                conan_cmake_install(
-                        PATH_OR_REFERENCE ${CMAKE_SOURCE_DIR}
-                        BUILD missing
-                        SETTINGS ${settings}
-                )
-            endforeach()
-
-            include(${CMAKE_CURRENT_BINARY_DIR}/conanbuildinfo_multi.cmake)
-        else()
-            conan_cmake_autodetect(CONAN_SETTINGS BUILD_TYPE ${CMAKE_BUILD_TYPE})
+    if(is_multi_config)
+        foreach(TYPE ${CMAKE_CONFIGURATION_TYPES})
+            conan_cmake_autodetect(settings BUILD_TYPE ${TYPE})
             conan_cmake_install(
-                    PATH_OR_REFERENCE ${CMAKE_SOURCE_DIR}
+                    PATH_OR_REFERENCE ${CONANFILE}
                     BUILD missing
-                    SETTINGS ${CONAN_SETTINGS}
+                    SETTINGS ${settings}
             )
-            #            include(${CMAKE_CURRENT_BINARY_DIR}/conanbuildinfo.cmake)
-        endif()
+        endforeach()
+
+        include(${CMAKE_CURRENT_BINARY_DIR}/conanbuildinfo_multi.cmake)
+    else()
+        conan_cmake_autodetect(CONAN_SETTINGS BUILD_TYPE ${CMAKE_BUILD_TYPE})
+        conan_cmake_install(
+                PATH_OR_REFERENCE ${CONANFILE}
+                BUILD missing
+                SETTINGS ${CONAN_SETTINGS}
+        )
+        #            include(${CMAKE_CURRENT_BINARY_DIR}/conanbuildinfo.cmake)
     endif()
     message(VERBOSE "Conan Settings: ${CONAN_SETTINGS}")
     list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_BINARY_DIR}")
