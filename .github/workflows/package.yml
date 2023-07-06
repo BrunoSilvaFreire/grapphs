@@ -15,7 +15,7 @@ jobs:
         os: [ ubuntu-latest, windows-latest ]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: ./../actions/configure-grapphs
+      - uses: .github/actions/configure-grapphs
       - name: Configure CMake
         run: cmake -B ${{ env.BUILD_PATH }} -G "Ninja Multi-Config" -DGRAPPHS_COMPILE_SAMPLES=Off -DGRAPPHS_COMPILE_TESTS=Off
       - name: Build Debug Modules
