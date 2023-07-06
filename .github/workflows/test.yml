@@ -14,7 +14,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: ../actions/configure-grapphs
+      - uses: ./../actions/configure-grapphs
 
       - name: Setup Python
         uses: actions/setup-python@v4.3.0
