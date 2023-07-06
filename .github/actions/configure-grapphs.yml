@@ -1,0 +1,11 @@
+name: 'Setup Grapphs'
+description: 'Prepare the environment for grapphs compilation'
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    - name: Setup Ninja
+      uses: ashutoshvarma/setup-ninja@master
