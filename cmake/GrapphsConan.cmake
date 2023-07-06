@@ -31,7 +31,7 @@ macro(grapphs_check_conan_argument CMAKE_ARGUMENT CONAN_ARGUMENT)
     endif()
 endmacro()
 
-macro(grapphs_run_conan_install CONANFILE)
+function(grapphs_run_conan_install CONANFILE)
     grapphs_check_should_run_conan_install(SHOULD_RUN)
 
     if(NOT SHOULD_RUN)
@@ -73,4 +73,7 @@ macro(grapphs_run_conan_install CONANFILE)
                 SETTINGS ${CONAN_SETTINGS}
         )
     endif()
-endmacro()
+
+    set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} PARENT_SCOPE)
+    set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} PARENT_SCOPE)
+endfunction()
