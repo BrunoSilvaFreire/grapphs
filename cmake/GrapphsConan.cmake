@@ -48,7 +48,9 @@ function(grapphs_run_conan_install CONANFILE)
     else()
         set(CONAN_GENERATOR cmake_find_package)
     endif()
+
     message(VERBOSE "Conan Settings: ${CONAN_SETTINGS}")
+
     set(CONAN_OPTIONS)
     grapphs_check_conan_argument(GRAPPHS_COMPILE_SAMPLES samples)
     grapphs_check_conan_argument(GRAPPHS_COMPILE_SVG svg_module)
@@ -62,6 +64,9 @@ function(grapphs_run_conan_install CONANFILE)
                     BUILD missing
                     GENERATOR ${CONAN_GENERATOR}
                     SETTINGS ${CONAN_SETTINGS}
+                    ENV
+                    CC=${CMAKE_C_COMPILER}
+                    CXX=${CMAKE_CXX_COMPILER}
             )
         endforeach()
     else()
@@ -71,6 +76,9 @@ function(grapphs_run_conan_install CONANFILE)
                 BUILD missing
                 GENERATOR ${CONAN_GENERATOR}
                 SETTINGS ${CONAN_SETTINGS}
+                ENV
+                CC=${CMAKE_C_COMPILER}
+                CXX=${CMAKE_CXX_COMPILER}
         )
     endif()
 

@@ -4,10 +4,6 @@ on:
   workflow_dispatch: { }
   workflow_call: { }
 
-env:
-  BUILD_PATH: build/
-  PACKAGE_PATH: package/
-
 jobs:
   package:
     strategy:
@@ -15,20 +11,18 @@ jobs:
         os: [ ubuntu-latest, windows-latest ]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: .github/actions/configure-grapphs
-      - name: Configure CMake
-        run: cmake -B ${{ env.BUILD_PATH }} -G "Ninja Multi-Config" -DGRAPPHS_COMPILE_SAMPLES=Off -DGRAPPHS_COMPILE_TESTS=Off
-      - name: Build Debug Modules
-        run: cmake --build ${{ env.BUILD_PATH }} --target grapphs-graphviz grapphs-svg --config Debug
-      - name: Build Release Modules
-        run: cmake --build ${{ env.BUILD_PATH }} --target grapphs-graphviz grapphs-svg --config Release
-      - name: Build RelWithDebInfo Modules
-        run: cmake --build ${{ env.BUILD_PATH }} --target grapphs-graphviz grapphs-svg --config RelWithDebInfo
-      - name: Package
-        run: cpack -B ${{ env.PACKAGE_PATH }} --config ${{ env.BUILD_PATH }}CPackConfig.cmake -G "ZIP;TGZ" -C "Debug;Release;RelWithDebInfo"
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - id: package-grapphs
+        uses: ./.github/actions/package-grapphs
+        with:
+          build-folder: build/
+          package-folder: package/
+      - run: tree ${{ steps.package-grapphs.outputs.package-folder }}
       - uses: actions/upload-artifact@v3
         with:
           name: grapphs-${{ matrix.os }}-packages
           path: |
-            ${{github.workspace}}/package/*
-            !${{github.workspace}}/package/_CPack_Packages/
+            ${{ steps.package-grapphs.outputs.package-folder }}/*
+            !${{ steps.package-grapphs.outputs.package-folder }}/_CPack_Packages/

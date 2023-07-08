@@ -23,7 +23,12 @@ class GrapphsTestsConan(ConanFile):
         "shared": [True, False],
         "fPIC": [True, False]
     }
-    default_options = {"shared": False, "fPIC": True}
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+        "gtest:build_gmock": False
+    }
+
     generators = "cmake_find_package", "cmake_find_package_multi"
 
     def requirements(self):
