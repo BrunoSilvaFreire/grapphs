@@ -48,6 +48,7 @@ jobs:
           build-folder: build/
           build-type: ${{env.BUILD_TYPE}}
           targets: grapphs-test grapphs-graphviz-tests
+          cmake_args: -DGRAPPHS_COMPILE_SAMPLES=Off -DGRAPPHS_COMPILE_TESTS=On
 
       - name: Save Conan Dependencies
         uses: actions/cache/save@v3

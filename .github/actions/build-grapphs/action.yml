@@ -9,15 +9,17 @@ inputs:
     description: Which build types to use
     required: true
   configure:
+    description: Whether we should also
     required: false
     default: true
   targets:
     description: Which targets to compile
     required: false
     default: grapphs grapphs-graphviz grapphs-svg
-outputs:
-  package-folder:
-    value: ${{ inputs.package-folder }}
+  cmake_args:
+    description: Arguments to pass onto cmake
+    required: false
+    default: -DGRAPPHS_COMPILE_SAMPLES=Off -DGRAPPHS_COMPILE_TESTS=Off
 
 runs:
   using: composite
@@ -27,7 +29,7 @@ runs:
     - if: ${{ inputs.configure }}
       name: Configure CMake
       shell: bash
-      run: cmake -B ${{ inputs.build-folder }} -G "Ninja Multi-Config" -DGRAPPHS_COMPILE_SAMPLES=Off -DGRAPPHS_COMPILE_TESTS=Off ${{ github.workspace }}
+      run: cmake -B ${{ inputs.build-folder }} -G "Ninja Multi-Config" ${{ inputs.cmake_args }} ${{ github.workspace }}
 
     - name: Build
       shell: bash
