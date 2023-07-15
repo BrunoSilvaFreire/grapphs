@@ -65,9 +65,9 @@ jobs:
           key: ${{ runner.os }}-mazes
 
       - name: Test grapphs
-        working-directory: ${{github.workspace}}/build/bin
+        working-directory: ${{github.workspace}}/build/tests/bin
         run: ./grapphs-tests
 
       - name: Test grapphs-graphviz
-        working-directory: ${{github.workspace}}/build/modules/graphviz/bin
+        working-directory: ${{github.workspace}}/build/tests/bin
         run: ./grapphs-graphviz-tests

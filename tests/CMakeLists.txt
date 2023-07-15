@@ -20,7 +20,7 @@
              --output ${MAZE_OUTPUT}
              --reuse true
              BYPRODUCTS ${MAZE_OUTPUT}
-             COMMENT "Generating maze of size ${INDEX}..."
+             COMMENT "Generating maze ${MAZE_OUTPUT} of size ${INDEX}..."
      )
  endforeach()
 
@@ -57,6 +57,7 @@
          adjacency_list.cpp
          adjacency_matrix.cpp
  )
+
  add_dependencies(
          grapphs-tests
          grapphs-generate-mazes
