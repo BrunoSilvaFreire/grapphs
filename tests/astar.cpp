@@ -7,14 +7,14 @@ TEST(grapphs, astar) {
     gpp::test_mazes(
         [](gpp::maze& maze) {
             using index_type = gpp::default_graph_index;
-            const gpp::adjacency_list<gpp::Cell, int>& graph = maze.get_graph();
+            const gpp::adjacency_list<gpp::cell, int>& graph = maze.get_graph();
             gpp::graph_path path = gpp::astar(
                 graph,
                 maze.get_start(),
                 maze.get_end(),
                 [&](index_type from, index_type to) {
-                    const gpp::Cell* originCell = graph.vertex(from);
-                    const gpp::Cell* destinationCell = graph.vertex(to);
+                    const gpp::cell* originCell = graph.vertex(from);
+                    const gpp::cell* destinationCell = graph.vertex(to);
                     return distance(
                         static_cast<float>(originCell->x),
                         static_cast<float>(destinationCell->x),

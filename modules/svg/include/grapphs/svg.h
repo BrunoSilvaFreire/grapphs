@@ -74,14 +74,17 @@ namespace gpp {
             )
         >;
 
-        template<typename TElement> using customizer = std::function<
+        using vertex_customizer = std::function<
             void(
-                const TElement& entry, svg_attributes& attributes
+                index_type index, const vertex_type & entry, svg_attributes& attributes
             )
         >;
 
-        using vertex_customizer = customizer<vertex_type>;
-        using edge_customizer = customizer<edge_type>;
+        using edge_customizer = std::function<
+            void(
+                index_type from, index_type to, const edge_type& entry, svg_attributes& attributes
+            )
+        >;
     private:
         svg_viewbox _viewBox;
         float _nodeRadius = 1;
@@ -136,31 +139,6 @@ namespace gpp {
                << _viewBox.width << " " << _viewBox.height
                << R"(" xmlns="http://www.w3.org/2000/svg">)" << std::endl;
 
-            if (test_flags(svg_writer_flags::DRAW_VERTICES)) {
-                for (index_type i = 0; i < graph.size(); i++) {
-                    const vertex_type& vertex = *graph.vertex(i);
-                    if (_vertexFilter != nullptr && !_vertexFilter(i, vertex)) {
-                        continue;
-                    }
-
-                    float x, y;
-                    _positionFunctor(i, vertex, x, y);
-
-                    if (verbose) {
-                        os << "<!-- " << i << " --> " << std::endl;
-                    }
-
-                    svg_attributes attributes;
-                    attributes.size = _nodeRadius;
-
-                    if (_vertexCustomizer != nullptr) {
-                        _vertexCustomizer(vertex, attributes);
-                    }
-
-                    os << "<circle cx=\"" << x << "\" cy=\"" << y << "\" r=\"" << attributes.size
-                       << "\" fill=\"" << attributes.color << "\"/> " << std::endl;
-                }
-            }
             if (test_flags(svg_writer_flags::DRAW_EDGES)) {
                 for (index_type i = 0; i < graph.size(); ++i) {
                     const vertex_type& fromVertex = *graph.vertex(i);
@@ -183,7 +161,7 @@ namespace gpp {
                         attributes.size = _nodeRadius;
 
                         if (_edgeCustomizer != nullptr) {
-                            _edgeCustomizer(edge, attributes);
+                            _edgeCustomizer(i, j, edge, attributes);
                         }
                         os << "<line x1=\"" << x1 << "\" y1=\"" << y1 << "\" x2=\"" << x2
                            << "\" y2=\"" << y2 << "\" stroke=\"" << attributes.color
@@ -191,6 +169,33 @@ namespace gpp {
                     }
                 }
             }
+
+            if (test_flags(svg_writer_flags::DRAW_VERTICES)) {
+                for (index_type i = 0; i < graph.size(); i++) {
+                    const vertex_type& vertex = *graph.vertex(i);
+                    if (_vertexFilter != nullptr && !_vertexFilter(i, vertex)) {
+                        continue;
+                    }
+
+                    float x, y;
+                    _positionFunctor(i, vertex, x, y);
+
+                    if (verbose) {
+                        os << "<!-- " << i << " --> " << std::endl;
+                    }
+
+                    svg_attributes attributes;
+                    attributes.size = _nodeRadius;
+
+                    if (_vertexCustomizer != nullptr) {
+                        _vertexCustomizer(i, vertex, attributes);
+                    }
+
+                    os << "<circle cx=\"" << x << "\" cy=\"" << y << "\" r=\"" << attributes.size
+                       << "\" fill=\"" << attributes.color << "\"/> " << std::endl;
+                }
+            }
+
             os << "</svg>" << std::endl;
         }
     };

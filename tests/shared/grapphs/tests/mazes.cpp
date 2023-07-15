@@ -18,7 +18,7 @@ namespace gpp {
             const auto& vert = vertices[i];
             int x = vert["x"].get<int>();
             int y = vert["y"].get<int>();
-            _graph.push(Cell(x, y));
+            _graph.push(cell(x, y));
         }
 
         auto edges = json["edges"].get<nlohmann::json>();
@@ -35,7 +35,7 @@ namespace gpp {
         _shortestPath = json["shortest_path"].get<std::vector<size_t >>();
     }
 
-    const gpp::adjacency_list<Cell, int>& maze::get_graph() const {
+    const gpp::adjacency_list<cell, int>& maze::get_graph() const {
         return _graph;
     }
 
@@ -55,12 +55,12 @@ namespace gpp {
         return _shortestPath;
     }
 
-    std::ostream& operator<<(std::ostream& os, const Cell& cell) {
+    std::ostream& operator<<(std::ostream& os, const cell& cell) {
         os << "x: " << cell.x << " y: " << cell.y;
         return os;
     }
 
-    Cell::Cell(int x, int y) : x(x), y(y) {}
+    cell::cell(int x, int y) : x(x), y(y) {}
 
     void test_mazes(const std::function<void(maze&)>& block) {
         auto wdir = std::filesystem::current_path();

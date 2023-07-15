@@ -12,24 +12,24 @@
 #include <gtest/gtest.h>
 
 namespace gpp {
-    struct Cell {
+    struct cell {
         int x, y;
 
-        Cell(int x, int y);
+        cell(int x, int y);
 
-        friend std::ostream& operator<<(std::ostream& os, const Cell& cell);
+        friend std::ostream& operator<<(std::ostream& os, const cell& cell);
     };
 
     class maze {
     private:
-        gpp::adjacency_list<Cell, int> _graph;
+        gpp::adjacency_list<cell, int> _graph;
         std::size_t _start, _end;
         std::size_t _size;
         std::vector<size_t> _shortestPath;
     public:
         maze(const std::filesystem::path& jsonPath);
 
-        const gpp::adjacency_list<Cell, int>& get_graph() const;
+        const gpp::adjacency_list<cell, int>& get_graph() const;
 
         size_t get_start() const;
 

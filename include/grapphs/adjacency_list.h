@@ -107,6 +107,9 @@ namespace gpp {
                     _elements[i++] = item;
                 }
             }
+            typename connection_vector::size_type size() {
+                return _elements.size();
+            }
 
             iterator begin() {
                 return _elements.begin();
@@ -144,7 +147,8 @@ namespace gpp {
                 _freeIndicesSet.erase(index);
                 _nodes[index].data() = vertex;
                 _freeIndices.pop();
-            } else {
+            }
+            else {
                 index = static_cast<index_type>(_nodes.size());
                 _nodes.emplace_back(vertex);
             }
@@ -158,7 +162,8 @@ namespace gpp {
                 _freeIndicesSet.erase(index);
                 _nodes[index].data() = std::move(vertex);
                 _freeIndices.pop();
-            } else {
+            }
+            else {
                 index = static_cast<index_type>(_nodes.size());
                 _nodes.emplace_back(std::move(vertex));
             }
@@ -166,7 +171,8 @@ namespace gpp {
         }
 
         index_type size() const final {
-            return static_cast<index_type>(_nodes.size()) - static_cast<index_type>(_freeIndices.size());
+            return static_cast<index_type>(_nodes.size())
+                   - static_cast<index_type>(_freeIndices.size());
         }
 
         bool empty() const final {
