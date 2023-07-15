@@ -12,9 +12,9 @@ endif()
 message(STATUS "Grapphs version is: ${GRAPPHS_VERSION} (${GRAPPHS_VERSION_RAW})")
 
 if(NOT GRAPPHS_VERSION STREQUAL "")
-    project(grapphs LANGUAGES CXX VERSION "${GRAPPHS_VERSION}")
+    project(grapphs LANGUAGES C CXX VERSION "${GRAPPHS_VERSION}")
 else()
-    project(grapphs LANGUAGES CXX)
+    project(grapphs LANGUAGES C CXX)
 endif()
 
 grapphs_bootstrap()
