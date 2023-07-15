@@ -26,6 +26,7 @@ runs:
   steps:
     - if: ${{ inputs.configure }}
       uses: ./.github/actions/setup-grapphs
+
     - if: ${{ inputs.configure }}
       name: Configure CMake
       shell: bash
@@ -33,4 +34,4 @@ runs:
 
     - name: Build
       shell: bash
-      run: cmake --build ${{ inputs.build-folder }} --target ${{ inputs.targets }} --config Debug
+      run: cmake --build ${{ inputs.build-folder }} --target ${{ inputs.targets }} --config ${{ inputs.build-type }}
