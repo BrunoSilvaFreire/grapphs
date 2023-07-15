@@ -15,24 +15,28 @@ outputs:
 runs:
   using: composite
   steps:
-    - uses: ./.github/actions/configure-grapphs
-
+    - uses: ./.github/actions/setup-grapphs
     - name: Configure CMake
       shell: bash
       run: cmake -B ${{ inputs.build-folder }} -G "Ninja Multi-Config" -DGRAPPHS_COMPILE_SAMPLES=Off -DGRAPPHS_COMPILE_TESTS=Off ${{ github.workspace }}
-
-    - name: Build Debug Modules
-      shell: bash
-      run: cmake --build ${{ inputs.build-folder }} --target grapphs grapphs-graphviz grapphs-svg --config Debug
-
-    - name: Build Release Modules
-      shell: bash
-      run: cmake --build ${{ inputs.build-folder }} --target grapphs grapphs-graphviz grapphs-svg --config Release
-
-    - name: Build RelWithDebInfo Modules
-      shell: bash
-      run: cmake --build ${{ inputs.build-folder }} --target grapphs grapphs-graphviz grapphs-svg --config RelWithDebInfo
-
+    - name: Build Debug
+      uses: ./.github/actions/build-grapphs
+      with:
+        build-folder: ${{ inputs.build-folder }}
+        configure: false
+        build-type: Debug
+    - name: Build Release
+      uses: ./.github/actions/build-grapphs
+      with:
+        build-folder: ${{ inputs.build-folder }}
+        configure: false
+        build-type: Release
+    - name: Build RelWithDebInfo
+      uses: ./.github/actions/build-grapphs
+      with:
+        build-folder: ${{ inputs.build-folder }}
+        configure: false
+        build-type: RelWithDebInfo
     - name: Package
       shell: bash
       run: cpack -B ${{ inputs.package-folder }} --config ${{ inputs.build-folder }}CPackConfig.cmake -G "ZIP;TGZ" -C "Debug;Release;RelWithDebInfo"

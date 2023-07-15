@@ -1,0 +1,31 @@
+name: 'Build Grapphs'
+description: 'Compiles grapphs with all configurations'
+
+inputs:
+  build-folder:
+    description: Build folder of where to compile all configurations
+    required: true
+  build-type:
+    description: Which build types to use
+    required: true
+  configure:
+    required: false
+    default: true
+
+outputs:
+  package-folder:
+    value: ${{ inputs.package-folder }}
+
+runs:
+  using: composite
+  steps:
+    - if: ${{ inputs.configure }}
+      uses: ./.github/actions/setup-grapphs
+    - if: ${{ inputs.configure }}
+      name: Configure CMake
+      shell: bash
+      run: cmake -B ${{ inputs.build-folder }} -G "Ninja Multi-Config" -DGRAPPHS_COMPILE_SAMPLES=Off -DGRAPPHS_COMPILE_TESTS=Off ${{ github.workspace }}
+
+    - name: Build
+      shell: bash
+      run: cmake --build ${{ inputs.build-folder }} --target grapphs grapphs-graphviz grapphs-svg --config Debug
