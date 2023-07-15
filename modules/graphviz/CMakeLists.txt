@@ -65,7 +65,7 @@ if(GRAPPHS_COMPILE_TESTS AND GRAPPHS_COMPILE_VISUALIZATION_TESTS)
             TARGET grapphs-graphviz-tests
             COMMAND ${CMAKE_COMMAND}
             -E copy_directory
-            $<TARGET_PROPERTY:grapphs,BINARY_DIR>/bin/mazes
+            $<TARGET_PROPERTY:grapphs-generate-mazes,BINARY_DIR>/bin/mazes
             ${CMAKE_CURRENT_BINARY_DIR}/bin/mazes
     )
 endif()
