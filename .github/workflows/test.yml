@@ -35,19 +35,6 @@ jobs:
           path: ${{ env.CONAN_DATA_DIRECTORY }}
           key: ${{ runner.os }}-conan
 
-      - name: Configure CMake
-        uses: ./.github/actions/build-grapphs
-        with:
-          build-folder: build/
-          build-type: ${{env.BUILD_TYPE}}
-
-      - name: Save Conan Dependencies
-        uses: actions/cache/save@v3
-        if: steps.conan-cache.outputs.cache-hit != 'true'
-        with:
-          path: ${{ env.CONAN_DATA_DIRECTORY }}
-          key: ${{ runner.os }}-conan
-
       - name: Restore Mazes
         id: maze-cache
         uses: actions/cache/restore@v3
@@ -55,9 +42,19 @@ jobs:
           path: ${{github.workspace}}/build/bin/mazes
           key: ${{ runner.os }}-mazes
 
-      - name: Build
-        # Build your program with the given configuration
-        run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+      - name: Build CMake
+        uses: ./.github/actions/build-grapphs
+        with:
+          build-folder: build/
+          build-type: ${{env.BUILD_TYPE}}
+          targets: grapphs-test grapphs-graphviz-tests
+
+      - name: Save Conan Dependencies
+        uses: actions/cache/save@v3
+        if: steps.conan-cache.outputs.cache-hit != 'true'
+        with:
+          path: ${{ env.CONAN_DATA_DIRECTORY }}
+          key: ${{ runner.os }}-conan
 
       - name: Save Mazes
         uses: actions/cache/restore@v3
